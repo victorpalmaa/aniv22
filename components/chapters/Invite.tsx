@@ -2,8 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PARTY_START, pastDeadline } from '@/lib/party';
 import { googleCalendarUrl } from '@/lib/calendar';
-import { onFrame } from '@/lib/scroll';
-import { topH } from '@/lib/motion';
+import { onScroll, vp } from '@/lib/scroll';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 function parts(ms: number) {
@@ -30,16 +29,16 @@ export function Invite() {
     return () => clearInterval(id);
   }, []);
 
-  // gruda pela base se for mais alto que a tela
+  // gruda pela base se for mais alto que a tela; calculado só no resize, nunca por frame
   useEffect(
     () =>
-      onFrame(() => {
-        const el = ref.current;
-        if (!el) return;
-        const hh = topH();
-        document.documentElement.style.setProperty('--hh', hh + 'px');
-        el.style.top = Math.min(hh, window.innerHeight - el.offsetHeight) + 'px';
-      }),
+      onScroll(
+        () => {},
+        () => {
+          const el = ref.current;
+          if (el) el.style.top = Math.min(vp.hh, vp.vh - el.offsetHeight) + 'px';
+        },
+      ),
     [],
   );
 

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { onFrame } from '@/lib/scroll';
+import { absTop, onScroll, vp } from '@/lib/scroll';
 import { jump } from '@/lib/motion';
 
 const NAV = [
@@ -18,24 +18,30 @@ export function TopBar() {
 
   useEffect(() => {
     let current: string | null = null;
+    let tops: [string, number][] = [];
     // scrollspy: destaca o capítulo visível e centraliza o item no menu
-    return onFrame(() => {
-      let cur: string | null = null;
-      for (const [id] of NAV) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) cur = id;
-      }
-      if (cur === current || !navRef.current) return;
-      current = cur;
-      navRef.current.querySelectorAll('a').forEach((a) => {
-        const on = a.dataset.jump === cur;
-        if (on) {
-          a.setAttribute('aria-current', 'page');
-          const nav = navRef.current!;
-          nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
-        } else a.removeAttribute('aria-current');
-      });
-    });
+    return onScroll(
+      () => {
+        let cur: string | null = null;
+        for (const [id, top] of tops) if (top - vp.y <= vp.vh * 0.45) cur = id;
+        if (cur === current || !navRef.current) return;
+        current = cur;
+        navRef.current.querySelectorAll('a').forEach((a) => {
+          const on = a.dataset.jump === cur;
+          if (on) {
+            a.setAttribute('aria-current', 'page');
+            const nav = navRef.current!;
+            nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
+          } else a.removeAttribute('aria-current');
+        });
+      },
+      () => {
+        tops = NAV.flatMap(([id]) => {
+          const el = document.getElementById(id);
+          return el ? [[id, absTop(el)] as [string, number]] : [];
+        });
+      },
+    );
   }, []);
 
   return (

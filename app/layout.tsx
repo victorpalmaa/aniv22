@@ -4,6 +4,8 @@ import './globals.css';
 
 // Fontes variáveis self-hosted (OFL, via Fontsource): sem request ao Google no in-app do WhatsApp
 // e build sem depender de rede. Bodoni Moda com eixo opsz, como no protótipo.
+// Sem `fallback` aqui: o next/font escreve os nomes sem aspas e "Bodoni 72" invalida o
+// font-family inteiro (o título caía na Jost). Os fallbacks ficam no CSS, com aspas.
 const bodoni = localFont({
   src: [
     { path: './fonts/bodoni-moda-latin-opsz-normal.woff2', weight: '400 900', style: 'normal' },
@@ -11,13 +13,11 @@ const bodoni = localFont({
   ],
   variable: '--font-bodoni',
   display: 'swap',
-  fallback: ['Didot', 'Bodoni 72', 'Georgia', 'serif'],
 });
 const jost = localFont({
   src: [{ path: './fonts/jost-latin-wght-normal.woff2', weight: '100 900', style: 'normal' }],
   variable: '--font-jost',
   display: 'swap',
-  fallback: ['Futura', 'Avenir Next', 'system-ui', 'sans-serif'],
 });
 
 export const metadata: Metadata = {

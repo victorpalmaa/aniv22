@@ -1,11 +1,10 @@
 'use client';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { useScene } from '@/hooks/useScene';
-import { clamp, io, nums, reduceMotion, topH } from '@/lib/motion';
+import { clamp, io, nums, reduceMotion } from '@/lib/motion';
 
 /** Janela em arco (porta de teatro). Raios em px calculados por frame: % no clip-path é imprevisível. */
-function arch(st: HTMLElement, k: number) {
-  const W = st.clientWidth, H = st.clientHeight;
+function arch(W: number, H: number, k: number) {
   const t = k * H * 0.26, bm = k * H * 0.22, sd = k * W * 0.33;
   const w = W - 2 * sd, h = H - t - bm;
   const rx = (w / 2) * Math.min(1, k * 1.6), ry = Math.min(h * 0.55, rx * 1.05);
@@ -20,20 +19,20 @@ function arch(st: HTMLElement, k: number) {
  */
 export function Cine({ id, height, style, className = '', children }: { id?: string; height: string; style?: CSSProperties; className?: string; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
+  // medidas do resize: palco e caixas das listas (nada disso é lido por frame)
+  const m = useRef({ W: 0, H: 0, lists: new Map<HTMLElement, { box: number; h: number }>(), flat: false });
   useScene(
     ref,
     (p, c) => {
-      const flat = reduceMotion();
-      c.classList.toggle('static', flat);
-      if (flat) return;
-      const st = c.querySelector<HTMLElement>('.cine-stage')!;
+      if (m.current.flat) return;
+      const { W, H } = m.current;
       const seg = (a: number, b: number) => clamp((p - a) / (b - a), 0, 1);
       c.querySelectorAll<HTMLElement>('.cl[data-in]').forEach((l) => {
         const [a, b] = nums(l.dataset.at!), q = io(seg(a, b));
         l.style.visibility = q <= 0 ? 'hidden' : 'visible';
         const k = 1 - q;
         l.style.clipPath =
-          l.dataset.in === 'window' ? arch(st, k) : l.dataset.in === 'rise' ? `inset(${(k * 100).toFixed(2)}% 0 0 0)` : `inset(0 ${(k * 50).toFixed(2)}% 0 ${(k * 50).toFixed(2)}%)`;
+          l.dataset.in === 'window' ? arch(W, H, k) : l.dataset.in === 'rise' ? `inset(${(k * 100).toFixed(2)}% 0 0 0)` : `inset(0 ${(k * 50).toFixed(2)}% 0 ${(k * 50).toFixed(2)}%)`;
         const cs = l.querySelector<HTMLElement>('.cs');
         if (cs) cs.style.transform = `scale(${(1.18 - 0.18 * q).toFixed(4)})`;
       });
@@ -44,7 +43,7 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
       });
       c.querySelectorAll<HTMLElement>('[data-list]').forEach((ul) => {
         const [a, b] = nums(ul.dataset.list!), t = seg(a, b);
-        const box = ul.parentElement!.clientHeight, h = ul.offsetHeight;
+        const { box, h } = m.current.lists.get(ul) ?? { box: 0, h: 0 };
         ul.style.transform = `translateY(${(box * 0.45 - t * (h - box * 0.2)).toFixed(1)}px)`;
       });
       c.querySelectorAll<HTMLElement>('[data-line]').forEach((ln) => {
@@ -53,7 +52,20 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
         ln.style.setProperty('--lo', t > 0 && p < b + 0.06 ? '1' : '0');
       });
     },
-    { offset: topH, span: (el) => el.offsetHeight - el.querySelector<HTMLElement>('.cine-stage')!.offsetHeight },
+    {
+      offset: 'top',
+      span: (el) => el.offsetHeight - el.querySelector<HTMLElement>('.cine-stage')!.offsetHeight,
+      measure: (c) => {
+        const flat = reduceMotion();
+        c.classList.toggle('static', flat);
+        const st = c.querySelector<HTMLElement>('.cine-stage')!;
+        m.current.flat = flat;
+        m.current.W = st.clientWidth;
+        m.current.H = st.clientHeight;
+        m.current.lists.clear();
+        c.querySelectorAll<HTMLElement>('[data-list]').forEach((ul) => m.current.lists.set(ul, { box: ul.parentElement!.clientHeight, h: ul.offsetHeight }));
+      },
+    },
   );
   return (
     <section className={`cine ${className}`} id={id} ref={ref} style={{ '--cine-h': height, ...style } as CSSProperties}>

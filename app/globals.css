@@ -46,7 +46,7 @@ html.lock{overflow:hidden}
 .xp{position:relative; height:260svh; background:var(--bg)}
 .xp.static{height:100svh}
 .xp-stage{position:sticky; top:0; height:100svh; overflow:hidden}
-.xp-bg{position:absolute; inset:-5%; filter:blur(9px); animation:drift 16s ease-in-out infinite alternate;
+.xp-bg{position:absolute; inset:-5%; filter:blur(9px); will-change:transform, opacity; animation:drift 16s ease-in-out infinite alternate;
   background:
     radial-gradient(circle at 12% 22%, rgba(214,184,120,.55) 0 1.6%, transparent 2.6%),
     radial-gradient(circle at 26% 70%, rgba(214,184,120,.35) 0 2.2%, transparent 3.2%),
@@ -177,7 +177,7 @@ html.lock{overflow:hidden}
 .bar-names span{font-family:var(--f-display); font-style:italic; font-size:clamp(18px, 3.6vw, 30px); color:var(--gold)}
 .bar-ui{position:absolute; left:50%; bottom:100px; transform:translateX(-50%); width:min(70vw, 360px); display:grid; gap:10px; justify-items:center}
 .bar-track{position:relative; width:100%; height:2px; background:rgba(239,231,214,.18); border-radius:2px}
-.bar-track b{position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg, var(--gold-deep), var(--glow, var(--gold)))}
+.bar-track b{position:absolute; left:0; top:0; bottom:0; width:100%; transform:scaleX(0); transform-origin:0 50%; background:linear-gradient(90deg, var(--gold-deep), var(--glow, var(--gold)))}
 .bar-track i{position:absolute; top:50%; left:0; width:12px; height:12px; border-radius:50%; transform:translate(-50%,-50%); background:var(--glow, var(--gold)); box-shadow:0 0 0 3px rgba(11,10,8,.9), 0 0 14px var(--glow, var(--gold)); transition:background .5s ease}
 .bar-hint{margin:0; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted)}
 /* detalhe de bebida: o fundo inunda com a cor dela */
@@ -288,7 +288,7 @@ body.seen .dish .art::after{display:none}
 .cloche:hover .art svg{transform:translateY(-6px) rotate(-4deg)}
 .hs-ui{position:absolute; left:16px; right:16px; bottom:104px; display:flex; align-items:center; gap:12px; font-size:13px; color:var(--muted); pointer-events:none}
 .hs-ui i{flex:1; height:2px; background:var(--line); border-radius:2px; overflow:hidden}
-.hs-ui i b{display:block; height:100%; width:0; background:var(--gold)}
+.hs-ui i b{display:block; height:100%; width:100%; background:var(--gold); transform:scaleX(0); transform-origin:0 50%; will-change:transform}
 .hs-hint{display:inline-flex; align-items:center; gap:6px; transition:opacity .3s}
 .hs-hint span{display:inline-block; animation:hint 1.6s ease-in-out infinite}
 @keyframes hint{0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)}}
@@ -388,7 +388,7 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 .stack-panel.paper{background:var(--paper); color:var(--ink)}
 /* a palavra gigante fica na faixa do topo; a faixa tem a cor da seção de trás, então parece que a palavra está pousada na borda */
 .ride{flex:none; display:flex; justify-content:space-between; align-items:flex-end; padding:0 max(8px, 1vw); font-family:var(--f-display); font-weight:400; font-size:clamp(40px, calc(86vw / var(--n, 5)), 168px); line-height:.78; height:.82em; overflow:hidden; letter-spacing:0; background:var(--rb, var(--bg)); color:var(--rc, var(--gold))}
-.ride span{display:block; transform:translateY(var(--rise, 0%)); transition:transform .2s linear}
+.ride span{display:block; will-change:transform} /* sem transition: amarrado ao scroll, transition dá sensação de atraso */
 .map-wrap{position:relative; flex:1; min-height:0; overflow:hidden}
 .map{position:absolute; inset:0; width:100%; height:100%; transform:scale(var(--mz, 1.15)); transform-origin:58% 48%; will-change:transform}
 .map-lbl{font-family:var(--f-body); font-size:13px; letter-spacing:.14em; text-transform:uppercase; fill:#8e8470}

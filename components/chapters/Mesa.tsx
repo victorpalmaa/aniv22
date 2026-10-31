@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { ART, CLOCHE, ITEMS } from '@/lib/content';
-import { onFrame } from '@/lib/scroll';
-import { clamp, jump, reduceMotion, topH } from '@/lib/motion';
+import { absTop, onScroll, vp } from '@/lib/scroll';
+import { clamp, jump, reduceMotion } from '@/lib/motion';
 import { openItem } from '@/lib/detail';
 import { Ride } from '../Ride';
 
@@ -19,10 +19,11 @@ export function Mesa() {
 
   useEffect(() => {
     const hs = hsRef.current!, sticky = stickyRef.current!, track = trackRef.current!;
-    const dishes = () => [...track.querySelectorAll<HTMLElement>('.dish')];
+    let dishes: HTMLElement[] = [];
+    let top = 0;
 
-    function layout() {
-      const hh = topH();
+    // medição: só no load e no resize
+    function measure() {
       const vw = sticky.clientWidth;
       if (!vw) return;
       const slot = Math.round(Math.min(Math.max(vw * 0.62, 230), 380));
@@ -32,22 +33,24 @@ export function Mesa() {
       track.style.setProperty('--pad', pad + 'px');
       track.style.setProperty('--tw', tw + 'px');
       const max = Math.max(0, tw - vw);
-      hs.style.height = sticky.offsetHeight + max + 'px';
-      geo.current = { max, top: hh, w: vw, slot, pad };
+      const h = sticky.offsetHeight + max + 'px';
+      if (hs.style.height !== h) hs.style.height = h;
+      top = absTop(hs);
+      geo.current = { max, top: vp.hh, w: vw, slot, pad };
+      dishes = [...track.querySelectorAll<HTMLElement>('.dish')];
     }
 
-    function update() {
+    // frame: só scrollY e escrita de transform
+    function frame() {
       const g = geo.current;
-      if (Math.abs(sticky.clientWidth - g.w) > 1) layout();
-      const r = hs.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > window.innerHeight) return;
-      const p = g.max ? clamp((g.top - r.top) / g.max, 0, 1) : 0;
+      if (top + g.max + vp.vh < vp.y || top > vp.y + vp.vh) return;
+      const p = g.max ? clamp((vp.y + vp.hh - top) / g.max, 0, 1) : 0;
       track.style.transform = `translate3d(${(-p * g.max).toFixed(1)}px,0,0)`;
-      barRef.current!.style.width = (p * 100).toFixed(1) + '%';
+      barRef.current!.style.transform = `scaleX(${p.toFixed(4)})`;
       hintRef.current!.style.opacity = p > 0.04 ? '0' : '1';
       // cada prato reage à distância do centro: no meio sobe e encara, nas bordas gira e afunda
       const sx = p * g.max, half = g.w / 2, flat = reduceMotion();
-      dishes().forEach((el, i) => {
+      dishes.forEach((el, i) => {
         const d = clamp((g.pad + g.slot * (i + 0.5) - sx - half) / half, -1.6, 1.6), a = Math.abs(d);
         el.style.transform = flat
           ? 'translate(-50%,-50%)'
@@ -56,8 +59,7 @@ export function Mesa() {
       });
     }
 
-    layout();
-    const off = onFrame(update);
+    const off = onScroll(frame, measure);
     // trackpad com rolagem lateral também anda na mesa
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {

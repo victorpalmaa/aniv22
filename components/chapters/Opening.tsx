@@ -23,31 +23,52 @@ export function Opening() {
   const bgRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
 
-  useScene(secRef, (_p, xp) => {
-    const flat = reduceMotion();
-    xp.classList.toggle('static', flat);
-    const st = stageRef.current!, inv = invRef.current!;
-    const r = xp.getBoundingClientRect();
-    const vw = st.clientWidth, vh = st.clientHeight;
-    const p = flat ? 1 : clamp(-r.top / Math.max(1, r.height - vh), 0, 1);
-    const seg = (a: number, b: number) => clamp((p - a) / (b - a), 0, 1);
-    // linha do tempo: lacre parte e abas abrem (8–62%), cartão cresce (40–92%), abas somem no fim
-    const open = io(seg(0.08, 0.62)), grow = io(seg(0.4, 0.92));
-    const w0 = Math.min(vw * 0.62, 300), w1 = Math.min(vw * 0.92, vh * 0.84 * 0.75);
-    const w = w0 * (1 + 0.04 * seg(0, 0.12)) + (w1 - w0 * 1.04) * grow;
-    inv.style.setProperty('--w', w.toFixed(1) + 'px');
-    inv.style.transform = `translate(-50%,-50%) rotateX(${((1 - grow) * 9).toFixed(2)}deg)`;
-    const ang = open * 168;
-    lRef.current!.style.transform = `rotateY(${(-ang).toFixed(2)}deg)`;
-    rRef.current!.style.transform = `rotateY(${ang.toFixed(2)}deg)`;
-    const fo = (1 - seg(0.72, 0.95)).toFixed(3);
-    lRef.current!.style.opacity = fo;
-    rRef.current!.style.opacity = fo;
-    inv.querySelectorAll<HTMLElement>('.face.f-front').forEach((f) => f.style.setProperty('--shade', (Math.sin(open * Math.PI) * 0.45).toFixed(3)));
-    inv.style.setProperty('--gx', (25 + open * 55).toFixed(1) + '%'); // brilho da folha corre enquanto abre
-    hintRef.current!.style.opacity = (1 - seg(0, 0.08)).toFixed(3);
-    bgRef.current!.style.opacity = (1 - 0.65 * grow).toFixed(3);
-  }, { span: (el) => el.offsetHeight - window.innerHeight });
+  // medidas do resize: largura final do cartão e tamanho inicial (fechado)
+  const size = useRef({ w0: 260, w1: 260 });
+
+  useScene(
+    secRef,
+    (p0, xp) => {
+      const inv = invRef.current!, L = lRef.current!, R = rRef.current!;
+      const p = reduceMotion() ? 1 : p0;
+      const seg = (a: number, b: number) => clamp((p - a) / (b - a), 0, 1);
+      // linha do tempo: lacre parte e abas abrem (8–62%), cartão cresce (40–92%), abas somem no fim
+      const open = io(seg(0.08, 0.62)), grow = io(seg(0.4, 0.92));
+      const { w0, w1 } = size.current;
+      const w = w0 * (1 + 0.04 * seg(0, 0.12)) + (w1 - w0 * 1.04) * grow;
+      // o cartão tem a largura final fixa e cresce por scale: só compositor, sem relayout do texto
+      inv.style.transform = `translate(-50%,-50%) rotateX(${((1 - grow) * 9).toFixed(2)}deg) scale(${(w / w1).toFixed(4)})`;
+      const ang = open * 168;
+      L.style.transform = `rotateY(${(-ang).toFixed(2)}deg)`;
+      R.style.transform = `rotateY(${ang.toFixed(2)}deg)`;
+      // Safari ignora backface-visibility quando o 3D é achatado (opacity no pai, por exemplo):
+      // a troca frente/verso é feita aqui, pelo ângulo, e o fade vai nas faces, não na aba
+      const showBack = ang > 90;
+      const fo = (1 - seg(0.72, 0.95)).toFixed(3);
+      for (const flap of [L, R]) {
+        const [front, back] = flap.children as unknown as HTMLElement[];
+        front.style.visibility = showBack ? 'hidden' : 'visible';
+        back.style.visibility = showBack ? 'visible' : 'hidden';
+        front.style.opacity = fo;
+        back.style.opacity = fo;
+        front.style.setProperty('--shade', (Math.sin(open * Math.PI) * 0.45).toFixed(3));
+      }
+      inv.style.setProperty('--gx', (25 + open * 55).toFixed(1) + '%'); // brilho da folha corre enquanto abre
+      hintRef.current!.style.opacity = (1 - seg(0, 0.08)).toFixed(3);
+      bgRef.current!.style.opacity = (1 - 0.65 * grow).toFixed(3);
+    },
+    {
+      measure: (xp) => {
+        xp.classList.toggle('static', reduceMotion());
+        const st = stageRef.current!;
+        const vw = st.clientWidth, vh = st.clientHeight;
+        const w0 = Math.min(vw * 0.62, 300), w1 = Math.min(vw * 0.92, vh * 0.84 * 0.75);
+        size.current = { w0, w1 };
+        invRef.current!.style.setProperty('--w', w1.toFixed(1) + 'px');
+      },
+      span: (el) => el.offsetHeight - stageRef.current!.clientHeight,
+    },
+  );
 
   return (
     <section className="xp bleed" id="topo" ref={secRef}>

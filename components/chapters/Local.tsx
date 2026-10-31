@@ -1,7 +1,7 @@
 'use client';
 import { useRef } from 'react';
-import { useScene } from '@/hooks/useScene';
-import { clamp, reduceMotion, topH } from '@/lib/motion';
+import { riseProgress, useScene } from '@/hooks/useScene';
+import { reduceMotion } from '@/lib/motion';
 import { Ride } from '../Ride';
 
 // TODO: coordenadas reais do restaurante. Enquanto não chegam, os botões ficam visíveis mas desabilitados.
@@ -18,9 +18,8 @@ const LINKS = COORDS
 export function Local() {
   const ref = useRef<HTMLDivElement>(null);
   const pinsSet = useRef(false);
-  useScene(ref, (_p, el) => {
-    const hh = topH(), vh = window.innerHeight;
-    const p = clamp(1 - (el.getBoundingClientRect().top - hh) / (vh - hh), 0, 1);
+  useScene(ref, (_p, el, g) => {
+    const p = riseProgress(g);
     el.style.setProperty('--mz', reduceMotion() ? '1' : (1.15 - 0.15 * p).toFixed(4));
     if (p > 0.7 && !pinsSet.current) {
       pinsSet.current = true;

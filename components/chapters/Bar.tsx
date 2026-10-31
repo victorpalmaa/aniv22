@@ -19,6 +19,7 @@ export function Bar() {
   const fillRef = useRef<HTMLElement>(null);
   const dotRef = useRef<HTMLElement>(null);
   const cur = useRef(-1);
+  const ringW = useRef(400); // largura do palco, medida só no resize
 
   useScene(
     chRef,
@@ -29,7 +30,7 @@ export function Bar() {
       const i = Math.min(NB - 2, Math.floor(p)), f = p - i;
       let pos = reduceMotion() ? Math.round(p) : i + io(clamp((f - 0.2) / 0.6, 0, 1));
       if (p >= NB - 1) pos = NB - 1;
-      const W = stage.clientWidth, R = Math.min(W * 0.62, 520), rot = pos * STEP;
+      const R = Math.min(ringW.current * 0.62, 520), rot = pos * STEP;
       ringRef.current!.querySelectorAll<HTMLElement>('.drink').forEach((el, j) => {
         const a = ((((j * STEP - rot) % 360) + 540) % 360) - 180; // ângulo relativo à frente, -180..180
         const vis = Math.abs(a) < 100;
@@ -38,7 +39,10 @@ export function Bar() {
         const rad = (a * Math.PI) / 180, front = Math.max(0, 1 - Math.abs(a) / STEP);
         const x = Math.sin(rad) * R, z = (Math.cos(rad) - 1) * R * 0.9, y = -Math.abs(Math.sin(rad)) * 30 - front * 18;
         el.style.transform = `translate(-50%,-50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${(a * 0.45).toFixed(1)}deg) rotateZ(${(-10 + front * 4).toFixed(1)}deg) scale(${(1 + front * 0.12).toFixed(3)})`;
-        el.style.filter = `brightness(${(0.28 + 0.72 * front).toFixed(2)}) saturate(${(0.5 + 0.5 * front).toFixed(2)})`;
+        // filter força repintura: degraus de 5% só repintam quando a diferença é visível
+        const f = Math.round(front * 20) / 20;
+        const filter = `brightness(${(0.28 + 0.72 * f).toFixed(2)}) saturate(${(0.5 + 0.5 * f).toFixed(2)})`;
+        if (el.style.filter !== filter) el.style.filter = filter;
         el.style.zIndex = String(Math.round(100 - Math.abs(a)));
         el.toggleAttribute('data-front', front > 0.9);
       });
@@ -52,11 +56,17 @@ export function Bar() {
         cur.current = c;
         stage.style.setProperty('--glow', DRINKS[c].color ?? '');
       }
-      const t = ((pos / (NB - 1)) * 100).toFixed(1) + '%';
-      fillRef.current!.style.width = t;
-      dotRef.current!.style.left = t;
+      const t = pos / (NB - 1);
+      fillRef.current!.style.transform = `scaleX(${t.toFixed(4)})`;
+      dotRef.current!.style.left = (t * 100).toFixed(1) + '%';
     },
-    { offset: topH, span: (el) => el.offsetHeight - stageRef.current!.offsetHeight },
+    {
+      offset: 'top',
+      span: (el) => el.offsetHeight - stageRef.current!.offsetHeight,
+      measure: () => {
+        ringW.current = stageRef.current!.clientWidth;
+      },
+    },
   );
 
   // toque: na da frente abre o detalhe; nas outras, rola até ela virar a da frente
