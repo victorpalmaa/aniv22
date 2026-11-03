@@ -6,7 +6,7 @@ export const EVENT = {
   // término ainda não definido: duração provisória de 5h, avisada na descrição
   end: '20270116T040000Z',
   description: 'Traje de gala. Término a definir. Detalhes em https://parme.recantocolonial.com.br',
-  location: 'Restaurante do Victor', // TODO: endereço real quando chegar
+  location: 'Recanto Colonial, Avenida 29 de Abril, 350, Itatiba - SP',
   url: 'https://parme.recantocolonial.com.br',
 };
 
