@@ -539,3 +539,84 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 .btn-ink[disabled], .ghost-ink[disabled]{opacity:.55; cursor:default}
 .btn-ink[disabled]:hover{background:var(--ink)}
+
+/* ---------- Código OTP: caixas → órbita → scan → selo (CodeView no Sheet) ----------
+   Tudo em transform/opacity. --bw encolhe em telas de 320 px para as 6 caixas caberem. */
+.otp{--bw:min(46px, calc((100vw - 88px) / 6)); --bh:56px; --gap:8px; --r:52px;
+  position:relative; height:156px; display:grid; place-items:center}
+.otp::before{content:""; position:absolute; inset:-8px 0; background:radial-gradient(closest-side, rgba(214,184,120,.2), transparent); opacity:0; transition:opacity .6s; pointer-events:none}
+.otp.is-scan::before{opacity:.6}
+.otp.is-ok::before{opacity:1}
+.otp-boxes{display:flex; gap:var(--gap); transition:opacity .3s, transform .3s}
+.otp-box{position:relative; width:var(--bw); height:var(--bh); box-sizing:border-box; display:grid; place-items:center; border-radius:12px;
+  border:1px solid var(--line); background:linear-gradient(180deg, rgba(239,231,214,.05), rgba(239,231,214,0));
+  font-family:var(--f-display); font-size:26px; font-variant-numeric:lining-nums tabular-nums; color:var(--fg);
+  transition:border-color .2s, box-shadow .2s}
+.otp-box.full{border-color:var(--gold-deep)}
+.otp-box.on{border-color:var(--gold); box-shadow:0 0 0 3px rgba(214,184,120,.14), 0 0 18px rgba(214,184,120,.2)}
+.otp-box.on::after{content:""; width:1.5px; height:24px; background:var(--gold); animation:otpCaret 1s steps(1) infinite}
+@keyframes otpCaret{50%{opacity:0}}
+/* input real, invisível, cobrindo o palco: toque em qualquer ponto foca; 16px evita zoom do iOS */
+.otp-in{position:absolute; inset:0; z-index:2; width:100%; height:100%; box-sizing:border-box; margin:0; padding:0; border:0; outline:0; background:transparent;
+  color:transparent; -webkit-text-fill-color:transparent; caret-color:transparent; font-size:16px; -webkit-tap-highlight-color:transparent}
+.otp-in::selection{background:transparent}
+/* o foco aparece na caixa ativa (.otp-box.on), não no contorno do palco */
+.otp-in:focus-visible{outline:none}
+
+.otp.is-orbit .otp-boxes{opacity:0; transition-duration:.12s}
+.otp.is-scan .otp-boxes, .otp.is-ok .otp-boxes{opacity:0; transform:scale(.92)}
+.otp.is-err .otp-boxes{animation:otpShake .4s}
+.otp.is-err .otp-box{border-color:var(--err)}
+@keyframes otpShake{20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(3px)}}
+
+/* camada de largura zero no centro do palco: origem da órbita e do "sumiço" no scan */
+.otp-fly{position:absolute; left:50%; top:50%; width:0; height:0; z-index:1; pointer-events:none; transform-origin:0 0;
+  transition:transform .45s cubic-bezier(.5,0,.75,0), opacity .45s}
+.otp-fly span{--a:calc(var(--i) * 60deg); --bx:calc((var(--i) - 2.5) * (var(--bw) + var(--gap)));
+  position:absolute; left:calc(var(--bw) / -2); top:calc(var(--bh) / -2); width:var(--bw); height:var(--bh); box-sizing:border-box;
+  display:grid; place-items:center; border-radius:12px; border:1px solid var(--gold-deep); background:rgba(214,184,120,.08);
+  font-family:var(--f-display); font-size:24px; color:var(--gold); box-shadow:0 0 14px rgba(214,184,120,.15);
+  animation:otpOut .5s cubic-bezier(.2,.8,.2,1) both, otpOrbit 1.6s linear infinite;
+  animation-delay:calc(var(--i) * 25ms), calc(var(--i) * 25ms + .5s)}
+/* sai da caixa (translate --bx) e vai ao vértice do hexágono; na órbita o rotate final desconta a volta: o dígito fica legível, inclinado 20° */
+@keyframes otpOut{
+  from{transform:translate(var(--bx), 0)}
+  to{transform:rotate(var(--a)) translateY(calc(-1 * var(--r))) rotate(calc(20deg - var(--a))) scale(.8)}
+}
+@keyframes otpOrbit{
+  from{transform:rotate(var(--a)) translateY(calc(-1 * var(--r))) rotate(calc(20deg - var(--a))) scale(.8)}
+  to{transform:rotate(calc(var(--a) + 360deg)) translateY(calc(-1 * var(--r))) rotate(calc(20deg - var(--a) - 360deg)) scale(.8)}
+}
+.otp.is-scan .otp-fly{transform:scale(0) rotate(120deg); opacity:0}
+
+.otp-seal{position:absolute; left:50%; top:50%; z-index:1; width:44px; height:44px; margin:-22px 0 0 -22px; box-sizing:border-box;
+  display:grid; place-items:center; border-radius:12px; border:1.5px solid var(--gold); pointer-events:none;
+  opacity:0; transform:scale(.4); transition:opacity .35s .15s, transform .55s .15s cubic-bezier(.2,1.5,.4,1), background .4s, box-shadow .4s}
+.otp-seal::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--gold); transition:transform .2s}
+.otp.is-scan .otp-seal, .otp.is-ok .otp-seal{opacity:1; transform:none}
+.otp.is-ok .otp-seal{background:rgba(214,184,120,.14); box-shadow:0 0 32px rgba(214,184,120,.35)}
+.otp.is-ok .otp-seal::before{transform:scale(0)}
+.otp-seal svg{position:absolute; width:24px; height:24px; fill:none; stroke:var(--gold); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:20; stroke-dashoffset:20; transition:stroke-dashoffset .45s .2s}
+.otp.is-ok .otp-seal svg{stroke-dashoffset:0}
+.otp-ring{position:absolute; left:50%; top:50%; width:112px; height:112px; margin:-56px 0 0 -56px; box-sizing:border-box; border-radius:50%;
+  border:1.5px solid rgba(214,184,120,.28); transition:transform .6s cubic-bezier(.2,.8,.2,1), opacity .6s}
+.otp-ring::before{content:""; position:absolute; inset:-1.5px; border-radius:50%; border:1.5px solid transparent; border-top-color:var(--gold); border-right-color:rgba(214,184,120,.4)}
+.otp.is-scan .otp-ring{animation:otpPulse 1s ease-in-out infinite}
+.otp.is-scan .otp-ring::before{animation:otpSpin .9s linear infinite}
+.otp.is-ok .otp-ring{transform:scale(1.45); opacity:0}
+@keyframes otpPulse{50%{transform:scale(1.06)}}
+@keyframes otpSpin{to{transform:rotate(360deg)}}
+
+.otp-btn[disabled], .otp-btn[aria-busy="true"]{opacity:1}
+.otp-btn .spin{width:13px; height:13px; box-sizing:border-box; border-radius:50%; border:2px solid currentColor; border-right-color:transparent; animation:otpSpin .7s linear infinite}
+.otp-btn.ok{background:var(--bg-3); color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); transition:background .3s, color .3s}
+.otp-btn.ok::before{content:"✓"}
+
+/* movimento reduzido: sem voo nem órbita; o estado continua visível no botão ("Verificando…") e no selo */
+@media (prefers-reduced-motion: reduce){
+  .otp-fly{display:none}
+  .otp.is-orbit .otp-boxes{opacity:.35}
+  .otp-ring, .otp-ring::before, .otp-box.on::after, .otp.is-err .otp-boxes{animation:none !important}
+  .otp-seal, .otp-ring, .otp-boxes{transition-duration:.15s}
+}

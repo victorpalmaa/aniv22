@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { useParty, type SheetView } from './providers/PartyProvider';
 import { supabase } from '@/lib/supabase/client';
 import { del, getJSON, setJSON } from '@/lib/storage';
@@ -219,26 +219,44 @@ function LoginView({ go }: { go: (v: SheetView) => void }) {
   );
 }
 
+/**
+ * Fases do efeito do código (referência: "Glassy OTP", adaptado para 6 dígitos e paleta Parme & Gala):
+ * idle → orbit (dígitos saem das caixas e orbitam enquanto verifyOtp/confirm_rsvp rodam)
+ *      → scan (convergem para o centro, anel dourado pulsa) → ok (selo com check) → done/welcome
+ * Erro: orbit → err (caixas tremem em vermelho) → idle.
+ */
+type Phase = 'idle' | 'orbit' | 'scan' | 'ok' | 'err';
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const calm = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function CodeView({ go, refreshMe, toast }: { go: (v: SheetView) => void; refreshMe: () => Promise<{ room: number | null } | null>; toast: (m: string) => void }) {
   const [flow, setFlow] = useState<Flow | null>(loadFlow);
   const [code, setCode] = useState('');
   const [err, setErr] = useState<ReactNode>(null);
-  const [busy, setBusy] = useState(false);
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [focused, setFocused] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const alive = useRef(true); // sheet pode fechar no meio da animação: nada de setState/go depois disso
 
   useEffect(() => {
+    alive.current = true;
     const t = setInterval(() => setNow(Date.now()), 1000);
     const f = setTimeout(() => inputRef.current?.focus(), 50);
-    return () => (clearInterval(t), clearTimeout(f));
+    return () => {
+      alive.current = false;
+      clearInterval(t);
+      clearTimeout(f);
+    };
   }, []);
 
   if (!flow?.email) return <p className="sub">Comece de novo pelo formulário.</p>;
   const left = Math.max(0, RESEND_S - Math.floor((now - (flow.sentAt ?? 0)) / 1000));
+  const busy = phase === 'orbit' || phase === 'scan' || phase === 'ok';
 
   async function resend() {
-    if (!flow?.email) return;
+    if (!flow?.email || busy) return;
     const { error } = await supabase().auth.signInWithOtp({ email: flow.email, options: { shouldCreateUser: flow.mode === 'new' } });
     if (error) return setErr(explain(error));
     const next = { ...flow, sentAt: Date.now() };
@@ -251,81 +269,148 @@ function CodeView({ go, refreshMe, toast }: { go: (v: SheetView) => void; refres
     e?.preventDefault();
     if (!flow?.email || busy) return;
     if (code.length !== 6) return setErr('O código tem 6 dígitos.');
-    setBusy(true);
     setErr(null);
+    setPhase('orbit');
+    const t0 = Date.now();
+    // órbita mínima só para a animação não piscar em rede rápida; não é atraso artificial do resultado
+    const settle = () => wait(Math.max(0, (calm() ? 0 : 900) - (Date.now() - t0)));
+
+    const fail = async (msg: ReactNode, clear: boolean) => {
+      await settle();
+      if (!alive.current) return;
+      setPhase('err');
+      setErr(msg);
+      if (clear) setCode('');
+      await wait(450);
+      if (!alive.current) return;
+      setPhase('idle');
+      inputRef.current?.focus();
+    };
+
     const sb = supabase();
     const { error } = await sb.auth.verifyOtp({ email: flow.email, token: code, type: 'email' });
-    if (error) {
-      setBusy(false);
-      return setErr(explain(error));
-    }
+    if (error) return fail(explain(error), true);
     if (flow.mode === 'new') {
       // verifyOtp ok; confirm_rsvp é quem decide de verdade (party_full numa corrida)
       const { error: cErr } = await sb.rpc('confirm_rsvp', { p_code: partyCode() ?? '', p_first: flow.first ?? '', p_last: flow.last ?? '' });
-      if (cErr) {
-        setBusy(false);
-        return setErr(
-          /party_full/.test(cErr.message)
-            ? 'Seu email foi verificado, mas a lista lotou enquanto você confirmava. Fale com o Victor.'
-            : explain(cErr),
+      if (cErr)
+        return fail(
+          /party_full/.test(cErr.message) ? 'Seu email foi verificado, mas a lista lotou enquanto você confirmava. Fale com o Victor.' : explain(cErr),
+          false,
         );
-      }
     }
     const me = await refreshMe();
-    setBusy(false);
     const mode = flow.mode;
     if (!me) {
       // entrou, mas não tem linha em rsvps: volta ao formulário com o email preenchido
       saveFlow({ step: 'form', mode: 'new', email: flow.email });
-      return go('form');
+      return alive.current ? go('form') : undefined;
     }
+    // limpa já: um reload no meio da animação não pode reabrir a etapa do código
     saveFlow(null);
+    await settle();
+    if (!alive.current) return;
+    inputRef.current?.blur(); // fecha o teclado antes do selo, para o viewport assentar
+    setPhase('scan');
+    await wait(calm() ? 250 : 1000);
+    if (!alive.current) return;
+    setPhase('ok');
+    await wait(calm() ? 700 : 1300);
+    if (!alive.current) return;
     go(mode === 'new' ? 'done' : 'welcome');
   }
+
+  const active = Math.min(code.length, 5);
+  const label = flow.mode === 'new' ? 'Confirmar presença' : 'Entrar';
 
   return (
     <>
       {flow.mode === 'new' && <Steps n={2} />}
-      <h3 id="sheet-title">Confira seu email</h3>
+      <h3 id="sheet-title">{phase === 'ok' ? 'Código confirmado' : 'Confira seu email'}</h3>
       <p className="sub">
-        Mandamos um código de 6 dígitos para <b>{flow.email}</b>. Ele também aparece no assunto do email.
+        {phase === 'ok' ? (
+          'Seu email foi verificado.'
+        ) : (
+          <>
+            Mandamos um código de 6 dígitos para <b>{flow.email}</b>. Ele também aparece no assunto do email.
+          </>
+        )}
       </p>
       <form ref={formRef} onSubmit={submit} noValidate>
-        <div className="field">
-          <label htmlFor="c-code">Código</label>
+        <div className={`otp is-${phase}`}>
+          <div className="otp-boxes" aria-hidden="true">
+            {Array.from({ length: 6 }, (_, i) => (
+              <span key={i} className={'otp-box' + (code[i] ? ' full' : '') + (focused && phase === 'idle' && code.length < 6 && i === active ? ' on' : '')}>
+                {code[i] ?? ''}
+              </span>
+            ))}
+          </div>
+          {/* um input só, transparente por cima das caixas: mantém autofill do iOS (one-time-code) e colar */}
           <input
             ref={inputRef}
             id="c-code"
-            className="code-in"
+            className="otp-in"
+            aria-label="Código de 6 dígitos"
             inputMode="numeric"
             autoComplete="one-time-code"
             maxLength={6}
             pattern="[0-9]*"
-            placeholder="······"
             value={code}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             onChange={(e) => {
+              if (busy) return; // sem readOnly: no iOS ele derruba o teclado no meio da órbita
               const v = e.target.value.replace(/\D/g, '').slice(0, 6);
               setCode(v);
+              if (phase === 'err') setPhase('idle');
+              if (err) setErr(null);
               // autofill do iOS preenche os 6 de uma vez: envia sozinho
               if (v.length === 6) setTimeout(() => formRef.current?.requestSubmit(), 0);
             }}
           />
+          <div className="otp-fly" aria-hidden="true">
+            {(phase === 'orbit' || phase === 'scan') &&
+              Array.from(code).map((d, i) => (
+                <span key={i} style={{ '--i': i } as CSSProperties}>
+                  {d}
+                </span>
+              ))}
+          </div>
+          <div className="otp-seal" aria-hidden="true">
+            <i className="otp-ring" />
+            <svg viewBox="0 0 24 24">
+              <path d="M6 12.5l4 4 8-9" />
+            </svg>
+          </div>
         </div>
-        <p className="sub">Não chegou? Confira o lixo eletrônico ou spam.</p>
+        <p className="sr-only" aria-live="polite">
+          {phase === 'orbit' ? 'Verificando código' : phase === 'ok' ? 'Código confirmado' : ''}
+        </p>
+        {!busy && <p className="sub">Não chegou? Confira o lixo eletrônico ou spam.</p>}
         <div aria-live="polite">
           <Err>{err}</Err>
         </div>
-        <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
-          {flow.mode === 'new' ? 'Confirmar presença' : 'Entrar'}
+        <button className={'btn-gold otp-btn' + (phase === 'ok' ? ' ok' : '')} type="submit" aria-busy={busy} disabled={busy}>
+          {phase === 'orbit' || phase === 'scan' ? (
+            <>
+              <i className="spin" aria-hidden="true" />
+              Verificando…
+            </>
+          ) : phase === 'ok' ? (
+            'Tudo certo'
+          ) : (
+            label
+          )}
         </button>
       </form>
       <p className="sub" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <button className="linkish" type="button" disabled={left > 0} onClick={resend}>
+        <button className="linkish" type="button" disabled={busy || left > 0} onClick={resend}>
           {left > 0 ? `Reenviar em ${left}s` : 'Reenviar código'}
         </button>
         <button
           className="linkish"
           type="button"
+          disabled={busy}
           onClick={() => {
             saveFlow({ ...flow, step: 'form' });
             go(flow.mode === 'new' ? 'form' : 'login');
