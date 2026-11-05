@@ -94,14 +94,15 @@ html.lock{overflow:hidden}
 .flap.r .face.f-front::before{left:-1px}
 .fk{font-size:8cqw; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); position:relative}
 /* "Parme &" numa aba e "Varieté" na outra, mesmo tamanho, encostados na emenda */
-.fw{position:absolute; top:42%; font-family:var(--f-display); font-size:19cqw; line-height:1; white-space:nowrap}
+.fw{position:absolute; top:40%; font-family:var(--f-display); font-size:25cqw; line-height:1; white-space:nowrap}
 .flap.l .fw{right:3.5cqw} .flap.r .fw{left:3.5cqw}
 .fw i{font-style:italic}
-/* data: "15" e "01" nas abas, o ponto na emenda (cada aba mostra metade) e some ao abrir */
-.fk-date{position:relative}
-.f-dot{position:absolute; top:0; font-style:normal; letter-spacing:0; opacity:var(--dot, 1)}
-.flap.l .f-dot{left:calc(100% + 14cqw); transform:translateX(-50%)}
-.flap.r .f-dot{right:calc(100% + 14cqw); transform:translateX(50%)}
+/* data: "15" e "01" nas abas e o ponto centrado na emenda (cada aba mostra metade, como o lacre); some ao abrir */
+.fk-date{position:absolute; bottom:13.5%}
+.flap.l .fk-date{right:12cqw} .flap.r .fk-date{left:12cqw}
+.flap.l .fk-date{margin-right:-.32em} /* desconta o espaçamento depois do último dígito */
+.f-dot{position:absolute; bottom:13.5%; font-size:12cqw; line-height:inherit; font-style:normal; color:var(--gold-deep); opacity:var(--dot, 1); transform:translateX(-50%)}
+.flap.l .f-dot{left:100%} .flap.r .f-dot{left:0}
 /* o lacre é desenhado nas duas abas, centrado na emenda: cada aba mostra metade e ele "se parte" ao abrir */
 .seal-h{position:absolute; top:50%; width:58cqw; aspect-ratio:1; border-radius:50%; display:grid; place-items:center; transform:translate(-50%,-50%);
   background:radial-gradient(circle at 36% 30%, #b53a49, var(--wine) 55%, #430c16); box-shadow:inset 0 0 0 3cqw rgba(0,0,0,.18), inset 0 0 0 5cqw rgba(255,255,255,.05), 0 2cqw 5cqw rgba(0,0,0,.5)}

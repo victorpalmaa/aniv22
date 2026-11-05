@@ -97,9 +97,8 @@ export function Opening() {
               <span className="fw foil">
                 Parme <i>&amp;</i>
               </span>
-              <span className="fk fk-date">
-                15<i className="f-dot">·</i>
-              </span>
+              <span className="fk fk-date">15</span>
+              <i className="f-dot">·</i>
               <span className="seal-h">
                 <b className="foil">V</b>
               </span>
@@ -110,9 +109,8 @@ export function Opening() {
             <div className="face f-front">
               <span className="fk">convida</span>
               <span className="fw foil">Varieté</span>
-              <span className="fk fk-date">
-                01<i className="f-dot">·</i>
-              </span>
+              <span className="fk fk-date">01</span>
+              <i className="f-dot">·</i>
               <span className="seal-h">
                 <b className="foil">V</b>
               </span>
