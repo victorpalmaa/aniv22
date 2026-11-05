@@ -1,5 +1,5 @@
 /*
-  Parme & Gala · estilos globais portados do protótipo v15 (fonte de verdade visual).
+  Parme & Varieté · estilos globais portados do protótipo v15 (fonte de verdade visual).
   Classes de componente já vêm prefixadas por contexto (.xp-, .hs-, .bar-, .cine-, .palco-...);
   manter assim evita a colisão que deu pílula no verso das abas (ver armadilhas de 31/10).
   Ordem de z-index dos capítulos: Mesa 2, Traje 3, Quem vai 4, Surpresa 5, Dúvidas 6, Local 7, rodapé 8,
@@ -93,6 +93,8 @@ html.lock{overflow:hidden}
 .fk{font-size:8cqw; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); position:relative}
 .fw{font-family:var(--f-display); font-size:36cqw; line-height:1; position:relative; white-space:nowrap}
 .flap.r .fw i{font-style:italic}
+/* "& Varieté" é mais longo que "Parme": fonte menor para caber na aba sem quebrar */
+.fw-r{font-size:22.5cqw}
 /* o lacre é desenhado nas duas abas, centrado na emenda: cada aba mostra metade e ele "se parte" ao abrir */
 .seal-h{position:absolute; top:50%; width:58cqw; aspect-ratio:1; border-radius:50%; display:grid; place-items:center; transform:translate(-50%,-50%);
   background:radial-gradient(circle at 36% 30%, #b53a49, var(--wine) 55%, #430c16); box-shadow:inset 0 0 0 3cqw rgba(0,0,0,.18), inset 0 0 0 5cqw rgba(255,255,255,.05), 0 2cqw 5cqw rgba(0,0,0,.5)}

@@ -1,4 +1,4 @@
-# Parme & Gala
+# Parme & Varieté
 
 Site de convite e confirmação de presença do aniversário do Victor (15/01/2027, 20h).
 Página única, tudo por scroll. Especificação visual: protótipo v15 (artifact no projeto "Site Aniv").

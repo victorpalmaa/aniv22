@@ -79,7 +79,7 @@ export function Opening() {
             <Orn />
             <span className="ii-k">Victor tem o prazer de convidar você para</span>
             <span className="ii-t">
-              Parme <i className="foil">&amp;</i> Gala
+              Parme <i className="foil">&amp;</i> Varieté
             </span>
             <Orn />
             <span className="ii-d">Sexta-feira · 15 de janeiro de 2027</span>
@@ -101,8 +101,8 @@ export function Opening() {
           <div className="flap r" ref={rRef}>
             <div className="face f-front">
               <span className="fk">convida</span>
-              <span className="fw foil">
-                <i>&amp;</i> Gala
+              <span className="fw fw-r foil">
+                <i>&amp;</i> Varieté
               </span>
               <span className="fk">2027</span>
               <span className="seal-h">
@@ -115,7 +115,7 @@ export function Opening() {
         <p className="xp-hint" ref={hintRef} aria-hidden="true">
           Role para abrir o convite <span>↓</span>
         </p>
-        <h1 className="sr-only">Parme &amp; Gala: aniversário do Victor, sexta, 15 de janeiro de 2027, às 20h</h1>
+        <h1 className="sr-only">Parme &amp; Varieté: aniversário do Victor, sexta, 15 de janeiro de 2027, às 20h</h1>
       </div>
     </section>
   );

@@ -124,7 +124,7 @@ export function Local() {
               <rect x="-22" y="-52" width="44" height="44" fill="var(--ink)" />
               <path d="M-6 -8 L0 2 L6 -8z" fill="var(--ink)" />
               <text y="-23" textAnchor="middle" className="pin-m">
-                P&amp;G
+                P&amp;V
               </text>
             </g>
           </svg>
@@ -148,7 +148,7 @@ export function Local() {
         </div>
       </div>
       <footer className="proto bleed">
-        <span>Parme &amp; Gala · 15.01.2027</span>
+        <span>Parme &amp; Varieté · 15.01.2027</span>
       </footer>
     </>
   );

@@ -47,7 +47,7 @@ export function TopBar() {
   return (
     <header className="top">
       <a className="brand" href="#topo" onClick={(e) => (e.preventDefault(), jump('topo'))}>
-        Parme <b>&amp;</b> Gala
+        Parme <b>&amp;</b> Varieté
       </a>
       <nav className="nav" aria-label="Seções" ref={navRef}>
         {NAV.map(([id, label]) => (

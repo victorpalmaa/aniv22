@@ -1,7 +1,7 @@
 // Fonte única do evento para o .ics (rota do servidor) e para o link do Google Agenda.
 export const EVENT = {
-  uid: 'parme-gala-2027@parme.recantocolonial.com.br', // fixo: reimportar atualiza em vez de duplicar
-  title: 'Parme & Gala · aniversário do Victor',
+  uid: 'parme-gala-2027@parme.recantocolonial.com.br', // fixo (não renomear com o evento): reimportar atualiza em vez de duplicar
+  title: 'Parme & Varieté · aniversário do Victor',
   start: '20270115T230000Z', // 20h em Brasília
   // término ainda não definido: duração provisória de 5h, avisada na descrição
   end: '20270116T040000Z',

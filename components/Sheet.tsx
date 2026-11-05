@@ -220,7 +220,7 @@ function LoginView({ go }: { go: (v: SheetView) => void }) {
 }
 
 /**
- * Fases do efeito do código (referência: "Glassy OTP", adaptado para 6 dígitos e paleta Parme & Gala):
+ * Fases do efeito do código (referência: "Glassy OTP", adaptado para 6 dígitos e paleta Parme & Varieté):
  * idle → orbit (dígitos saem das caixas e orbitam enquanto verifyOtp/confirm_rsvp rodam)
  *      → scan (convergem para o centro, anel dourado pulsa) → ok (selo com check) → done/welcome
  * Erro: orbit → err (caixas tremem em vermelho) → idle.

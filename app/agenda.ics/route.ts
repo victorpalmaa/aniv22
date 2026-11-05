@@ -10,7 +10,7 @@ export function GET() {
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Parme & Gala//PT-BR',
+    'PRODID:-//Parme & Varieté//PT-BR',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
@@ -24,12 +24,12 @@ export function GET() {
     `URL:${EVENT.url}`,
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Parme & Gala amanhã',
+    'DESCRIPTION:Parme & Varieté amanhã',
     'TRIGGER:-P1D',
     'END:VALARM',
     'BEGIN:VALARM',
     'ACTION:DISPLAY',
-    'DESCRIPTION:Parme & Gala em 3 horas',
+    'DESCRIPTION:Parme & Varieté em 3 horas',
     'TRIGGER:-PT3H',
     'END:VALARM',
     'END:VEVENT',
@@ -38,7 +38,7 @@ export function GET() {
   return new Response(ics, {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
-      'Content-Disposition': 'inline; filename="parme-gala.ics"',
+      'Content-Disposition': 'inline; filename="parme-variete.ics"',
       'Cache-Control': 'public, max-age=3600',
     },
   });
