@@ -13,18 +13,6 @@ const Orn = () => (
   </svg>
 );
 
-/**
- * Título da capa. É desenhado inteiro nas duas abas, centrado na emenda: cada aba mostra a sua metade
- * (como o lacre), então fechado lê como um impresso único e, ao abrir, se parte junto com o papel.
- */
-const Title = () => (
-  <span className="fw-split" aria-hidden="true">
-    <span className="foil">Parme</span>
-    <i className="foil">&amp;</i>
-    <span className="foil">Varieté</span>
-  </span>
-);
-
 /** 1 · Abertura: convite gatefold. O lacre se parte, as abas abrem em 3D e o cartão cresce com a rolagem. */
 export function Opening() {
   const secRef = useRef<HTMLElement>(null);
@@ -67,6 +55,8 @@ export function Opening() {
       }
       inv.style.setProperty('--gx', (25 + open * 55).toFixed(1) + '%'); // brilho da folha corre enquanto abre
       hintRef.current!.style.opacity = (1 - seg(0, 0.08)).toFixed(3);
+      // o ponto da data fica na emenda: some logo que as abas começam a abrir
+      inv.style.setProperty('--dot', (1 - seg(0.06, 0.14)).toFixed(3));
       bgRef.current!.style.opacity = (1 - 0.65 * grow).toFixed(3);
     },
     {
@@ -104,8 +94,12 @@ export function Opening() {
           <div className="flap l" ref={lRef}>
             <div className="face f-front">
               <span className="fk">Victor</span>
-              <Title />
-              <span className="fk">15 · 01</span>
+              <span className="fw foil">
+                Parme <i>&amp;</i>
+              </span>
+              <span className="fk fk-date">
+                15<i className="f-dot">·</i>
+              </span>
               <span className="seal-h">
                 <b className="foil">V</b>
               </span>
@@ -115,8 +109,10 @@ export function Opening() {
           <div className="flap r" ref={rRef}>
             <div className="face f-front">
               <span className="fk">convida</span>
-              <Title />
-              <span className="fk">2027</span>
+              <span className="fw foil">Varieté</span>
+              <span className="fk fk-date">
+                01<i className="f-dot">·</i>
+              </span>
               <span className="seal-h">
                 <b className="foil">V</b>
               </span>

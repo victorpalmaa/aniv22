@@ -93,10 +93,15 @@ html.lock{overflow:hidden}
 .flap.r .face.f-front{align-items:flex-start; text-align:left}
 .flap.r .face.f-front::before{left:-1px}
 .fk{font-size:8cqw; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); position:relative}
-/* título com o dobro da largura da aba, centrado na emenda; a face (overflow:hidden) recorta a metade de cada lado */
-.fw-split{position:absolute; top:22%; width:200%; display:grid; justify-items:center; font-family:var(--f-display); font-size:30cqw; line-height:.96; white-space:nowrap; pointer-events:none}
-.flap.l .fw-split{left:0} .flap.r .fw-split{left:-100%}
-.fw-split i{font-style:italic; font-size:.6em; line-height:1.15}
+/* "Parme &" numa aba e "Varieté" na outra, mesmo tamanho, encostados na emenda */
+.fw{position:absolute; top:42%; font-family:var(--f-display); font-size:19cqw; line-height:1; white-space:nowrap}
+.flap.l .fw{right:3.5cqw} .flap.r .fw{left:3.5cqw}
+.fw i{font-style:italic}
+/* data: "15" e "01" nas abas, o ponto na emenda (cada aba mostra metade) e some ao abrir */
+.fk-date{position:relative}
+.f-dot{position:absolute; top:0; font-style:normal; letter-spacing:0; opacity:var(--dot, 1)}
+.flap.l .f-dot{left:calc(100% + 14cqw); transform:translateX(-50%)}
+.flap.r .f-dot{right:calc(100% + 14cqw); transform:translateX(50%)}
 /* o lacre é desenhado nas duas abas, centrado na emenda: cada aba mostra metade e ele "se parte" ao abrir */
 .seal-h{position:absolute; top:50%; width:58cqw; aspect-ratio:1; border-radius:50%; display:grid; place-items:center; transform:translate(-50%,-50%);
   background:radial-gradient(circle at 36% 30%, #b53a49, var(--wine) 55%, #430c16); box-shadow:inset 0 0 0 3cqw rgba(0,0,0,.18), inset 0 0 0 5cqw rgba(255,255,255,.05), 0 2cqw 5cqw rgba(0,0,0,.5)}
@@ -162,6 +167,8 @@ html.lock{overflow:hidden}
 .bar-ped{position:absolute; left:50%; top:56%; width:min(44vw, 260px); aspect-ratio:4/1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(closest-side, rgba(255,255,255,.08), transparent), radial-gradient(closest-side, transparent 78%, var(--glow, #6f9a2a) 86%, transparent 94%); box-shadow:0 0 30px rgba(0,0,0,.6); transition:background .5s ease}
 .bar-ring{position:absolute; inset:0; transform-style:preserve-3d}
 .drink{position:absolute; left:50%; top:37%; width:min(40vw, 230px); aspect-ratio:1; padding:0; transform-style:preserve-3d; will-change:transform, filter; transform-origin:50% 90%}
+.bar-hit{position:absolute; left:50%; top:14%; width:min(64vw, 360px); height:56%; transform:translateX(-50%); z-index:3; padding:0; border:0; background:transparent; cursor:zoom-in; -webkit-tap-highlight-color:transparent}
+.bar-hit:focus-visible{outline:2px solid var(--gold); outline-offset:4px; border-radius:var(--r-card)}
 .drink .art{display:block; width:100%; height:100%; filter:drop-shadow(0 22px 22px rgba(0,0,0,.7))}
 .drink .art svg{width:100%; height:100%; display:block}
 .bar-names{position:absolute; left:0; right:0; bottom:150px; height:clamp(64px, 14vw, 120px); overflow:hidden; text-align:center; pointer-events:none}
@@ -203,7 +210,9 @@ html.lock{overflow:hidden}
 .tj-name{margin:0; font-family:var(--f-display); font-weight:400; font-size:clamp(56px, 13vw, 150px); line-height:.95; color:var(--fg)}
 .tj-name em{display:block; font-style:italic; color:var(--gold)}
 .tj-sub{margin:0; max-width:30ch; font-size:16px; color:var(--fg); opacity:.8}
-.tj-guide{padding-top:28px}
+/* os cards sobem por cima da parte de baixo do palco enquanto o título se recolhe: sem vão entre os dois */
+.tj-guide{position:relative; z-index:1; margin-top:-40svh}
+@media (max-width:640px){ .tj-guide{margin-top:-46svh} }
 .tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
 .tj-card{display:grid; gap:14px; align-content:start; padding:22px 20px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
 .tj-card .k{margin:0; font-family:var(--f-display); font-size:30px; line-height:1; color:var(--fg)}
@@ -645,6 +654,8 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 /* ---------- Entrada suave de blocos (RevealObserver) ---------- */
 .reveal-on [data-reveal]{opacity:0; transform:translate3d(0,28px,0); transition:opacity .8s ease var(--d, 0ms), transform .9s cubic-bezier(.2,.8,.2,1) var(--d, 0ms)}
 .reveal-on [data-reveal].in{opacity:1; transform:none}
+/* idem na Surpresa: o cabeçalho encosta na pergunta, que terminou no alto do palco */
+#surpCine + .wrap{position:relative; z-index:1; margin-top:-28svh}
 .sp-head{padding-top:4px}
 
 /* ---------- Surpresa: toque bloqueado ----------

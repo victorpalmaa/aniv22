@@ -99,6 +99,16 @@ export function Bar() {
                 );
               })}
             </div>
+            {/* área de toque grande no centro: abre a bebida da frente (a garrafa sozinha era um alvo pequeno) */}
+            <button
+              className="bar-hit"
+              type="button"
+              aria-label="Ver a bebida da frente em 3D"
+              onClick={() => {
+                const b = ringRef.current?.querySelector<HTMLElement>('.drink[data-front]');
+                if (b) openItem(b.dataset.id!, b);
+              }}
+            />
             <div className="bar-names" ref={namesRef} aria-live="polite">
               {DRINKS.map((d) => (
                 <div key={d.id} className="nm">
