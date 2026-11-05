@@ -22,7 +22,7 @@ const jost = localFont({
 
 export const metadata: Metadata = {
   title: 'Parme & Gala',
-  description: 'Victor convida: sexta, 15 de janeiro de 2027, às 20h. Traje de gala.',
+  description: 'Victor convida: sexta, 15 de janeiro de 2027, às 20h. Traje: passeio completo.',
   metadataBase: new URL('https://parme.recantocolonial.com.br'),
   openGraph: {
     title: 'Parme & Gala',

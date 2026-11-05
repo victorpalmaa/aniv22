@@ -1,59 +1,66 @@
 import { Cine, CineWord } from '../Cine';
 
-/** 5 · Traje: cena fixa em 4 tempos. Lista provisória até o dress code real chegar. */
+/**
+ * Busca de looks no TikTok separada por público. Os resultados de busca do TikTok são
+ * personalizados pelo histórico de quem abre, não de quem mandou o link; ainda assim, sem o
+ * gênero na busca, um perfil que costuma ver moda masculina tende a receber só terno.
+ */
+const tiktok = (q: string) => `https://www.tiktok.com/search?q=${encodeURIComponent(q)}`;
+const LOOKS = [
+  {
+    who: 'Para elas',
+    items: ['Vestido midi ou longo, ou conjunto de alfaiataria', 'Tecidos nobres: brilho e joias estão liberados', 'Salto e bolsa de mão'],
+    q: 'passeio completo feminino',
+  },
+  {
+    who: 'Para eles',
+    items: ['Terno completo com gravata', 'Camisa social e sapato social de couro', 'Colete é opcional'],
+    q: 'passeio completo masculino',
+  },
+];
+
+/** 5 · Traje: cena fixa curta (palavra → nome do traje) e, em fluxo normal, o guia com links. */
 export function Traje() {
   return (
     <>
       <div className="anchor" id="traje" />
-      <Cine id="trajeCine" className="bleed" height="420svh" style={{ zIndex: 3 }}>
-        <h2 className="sr-only">Traje: gala</h2>
-        <div className="cine-stage">
-          <div className="cl">
+      <section className="chapter bleed" id="trajeCh" style={{ ['--cb' as string]: 'var(--bg)' }}>
+        <Cine id="trajeCine" height="240svh">
+          <h2 className="sr-only">Traje: passeio completo</h2>
+          <div className="cine-stage">
             <div className="cs velvet" />
-            <CineWord word="TRAJE" />
-            <p className="cap">Noite elegante · escuro, dourado e champanhe</p>
-          </div>
-          <div className="cl" data-in="window" data-at=".12,.40">
-            <div className="cs satin" />
-            <div className="side l">
-              <small>Base</small>
-              <b className="roll">
-                <span data-roll=".30,.40,.50,.58">Preto</span>
-              </b>
+            <div className="cl" data-show="0,0,.16,.34" data-fx="up">
+              <CineWord word="TRAJE" />
+              <p className="cap">O dress code da noite</p>
             </div>
-            <div className="side r">
-              <small>Detalhe</small>
-              <b className="roll">
-                <span data-roll=".32,.42,.50,.58">Dourado</span>
-              </b>
+            <div className="cs tj-glow" data-show=".26,.6" aria-hidden="true" />
+            <div className="cl tj-title" data-show=".3,.56" data-fx="up">
+              <small>Traje</small>
+              <p className="tj-name">
+                Passeio <em>completo</em>
+              </p>
+              <p className="tj-sub">Mais formal que o esporte fino, sem precisar de black tie.</p>
             </div>
-            <p className="mid">Do vestido longo ao smoking</p>
           </div>
-          <div className="cl" data-in="rise" data-at=".52,.66">
-            <div className="cs champagne" />
-            <div className="leaves" aria-hidden="true" />
-            <p className="aside">O salão é todo no mesmo nível: pode vir de salto.</p>
-            <div className="list-col">
-              <small>O que vale</small>
-              <div className="list-mask">
-                <ul className="cine-list" data-list=".60,.88">
-                  <li>Vestido longo ou midi</li>
-                  <li>Terno escuro ou smoking</li>
-                  <li>Gravata ou gravata-borboleta</li>
-                  <li>Salto, sandália ou sapato social</li>
-                  <li>Preto, vinho, dourado e champanhe</li>
-                  <li>Só não vale branco</li>
+        </Cine>
+        <div className="wrap tj-guide">
+          <div className="tj-cards">
+            {LOOKS.map((l) => (
+              <article className="tj-card" key={l.who}>
+                <p className="k">{l.who}</p>
+                <ul>
+                  {l.items.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
                 </ul>
-              </div>
-              <span className="tag ink">detalhes provisórios</span>
-            </div>
-          </div>
-          <div className="sline" data-line=".84,.89" aria-hidden="true" />
-          <div className="cl plain" data-in="split" data-at=".88,1" style={{ ['--pb' as string]: 'var(--bg)' }}>
-            <p className="next">A seguir · quem vai</p>
+                <a className="ghost sm tj-tt" href={tiktok(l.q)} target="_blank" rel="noopener">
+                  Ver ideias no TikTok
+                </a>
+              </article>
+            ))}
           </div>
         </div>
-      </Cine>
+      </section>
     </>
   );
 }

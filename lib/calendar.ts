@@ -5,7 +5,7 @@ export const EVENT = {
   start: '20270115T230000Z', // 20h em Brasília
   // término ainda não definido: duração provisória de 5h, avisada na descrição
   end: '20270116T040000Z',
-  description: 'Traje de gala. Término a definir. Detalhes em https://parme.recantocolonial.com.br',
+  description: 'Traje: passeio completo. Término a definir. Detalhes em https://parme.recantocolonial.com.br',
   location: 'Recanto Colonial, Avenida 29 de Abril, 350, Itatiba - SP',
   url: 'https://parme.recantocolonial.com.br',
 };

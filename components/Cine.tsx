@@ -3,54 +3,67 @@ import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { useScene } from '@/hooks/useScene';
 import { clamp, io, nums, reduceMotion } from '@/lib/motion';
 
-/** Janela em arco (porta de teatro). Raios em px calculados por frame: % no clip-path é imprevisível. */
-function arch(W: number, H: number, k: number) {
-  const t = k * H * 0.26, bm = k * H * 0.22, sd = k * W * 0.33;
-  const w = W - 2 * sd, h = H - t - bm;
-  const rx = (w / 2) * Math.min(1, k * 1.6), ry = Math.min(h * 0.55, rx * 1.05);
-  const r = (n: number) => n.toFixed(1) + 'px';
-  return `inset(${r(t)} ${r(sd)} ${r(bm)} ${r(sd)} round ${r(rx)} ${r(rx)} ${r(k * 6)} ${r(k * 6)} / ${r(ry)} ${r(ry)} ${r(k * 6)} ${r(k * 6)})`;
-}
-
 /**
- * Cena fixa em camadas (Traje e Surpresa). As camadas declaram a coreografia por data-atributos,
- * como no protótipo: data-in="window|rise|split" + data-at="a,b", data-roll, data-list, data-line.
- * Movimento reduzido: a cena vira blocos empilhados (classe .static).
+ * Cena fixa (Traje e Surpresa): container alto + palco sticky, progresso 0→1 pelo scroll.
+ * Só escreve transform e opacity: as duas propriedades que o navegador anima na GPU sem repintar.
+ * (A versão anterior animava clip-path em tela cheia sobre gradientes pesados; no iPhone isso
+ * repintava a camada inteira a cada frame e era a origem das travadas.)
+ *
+ * Coreografia por data-atributos nos filhos, lidos só na medição (nunca por frame):
+ *  - data-show="a,b[,c,d]"  opacidade entra de a→b e sai de c→d; data-fx="up|zoom" soma movimento
+ *  - data-open="a,b"         cortina: abre (scaleX a partir da borda externa) de a→b
+ *  - data-push="a,b"         aproximação lenta da foto (scale 1,1→1) de a→b
+ * Movimento reduzido: classe .static, camadas viram blocos empilhados sem animação.
  */
+type Layer = { el: HTMLElement; kind: 'show' | 'open' | 'push'; n: number[]; fx: string; last: string; vis?: boolean };
+
+const seg = (p: number, a: number, b: number) => (b <= a ? (p >= a ? 1 : 0) : clamp((p - a) / (b - a), 0, 1));
+
 export function Cine({ id, height, style, className = '', children }: { id?: string; height: string; style?: CSSProperties; className?: string; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
-  // medidas do resize: palco e caixas das listas (nada disso é lido por frame)
-  const m = useRef({ W: 0, H: 0, lists: new Map<HTMLElement, { box: number; h: number }>(), flat: false });
+  const m = useRef({ H: 0, flat: false, layers: [] as Layer[] });
+
   useScene(
     ref,
-    (p, c) => {
-      if (m.current.flat) return;
-      const { W, H } = m.current;
-      const seg = (a: number, b: number) => clamp((p - a) / (b - a), 0, 1);
-      c.querySelectorAll<HTMLElement>('.cl[data-in]').forEach((l) => {
-        const [a, b] = nums(l.dataset.at!), q = io(seg(a, b));
-        l.style.visibility = q <= 0 ? 'hidden' : 'visible';
-        const k = 1 - q;
-        l.style.clipPath =
-          l.dataset.in === 'window' ? arch(W, H, k) : l.dataset.in === 'rise' ? `inset(${(k * 100).toFixed(2)}% 0 0 0)` : `inset(0 ${(k * 50).toFixed(2)}% 0 ${(k * 50).toFixed(2)}%)`;
-        const cs = l.querySelector<HTMLElement>('.cs');
-        if (cs) cs.style.transform = `scale(${(1.18 - 0.18 * q).toFixed(4)})`;
-      });
-      // letreiro: entra de cima e sai por baixo, cortado pela própria linha
-      c.querySelectorAll<HTMLElement>('[data-roll]').forEach((el) => {
-        const [ia, ib, oa, ob] = nums(el.dataset.roll!);
-        el.style.setProperty('--ry', (-110 * (1 - io(seg(ia, ib))) + 110 * io(seg(oa, ob))).toFixed(2) + '%');
-      });
-      c.querySelectorAll<HTMLElement>('[data-list]').forEach((ul) => {
-        const [a, b] = nums(ul.dataset.list!), t = seg(a, b);
-        const { box, h } = m.current.lists.get(ul) ?? { box: 0, h: 0 };
-        ul.style.transform = `translateY(${(box * 0.45 - t * (h - box * 0.2)).toFixed(1)}px)`;
-      });
-      c.querySelectorAll<HTMLElement>('[data-line]').forEach((ln) => {
-        const [a, b] = nums(ln.dataset.line!), t = seg(a, b);
-        ln.style.setProperty('--ls', io(t).toFixed(3));
-        ln.style.setProperty('--lo', t > 0 && p < b + 0.06 ? '1' : '0');
-      });
+    (p) => {
+      const { H, flat, layers } = m.current;
+      if (flat) return;
+      for (const L of layers) {
+        let css: string;
+        if (L.kind === 'show') {
+          const [a, b, c = 2, d = 2] = L.n;
+          const qi = io(seg(p, a, b)), qo = io(seg(p, c, d));
+          const o = qi * (1 - qo);
+          const tf =
+            L.fx === 'up'
+              ? `translate3d(0,${((1 - qi) * H * 0.06 - qo * H * 0.04).toFixed(1)}px,0)`
+              : L.fx === 'zoom'
+                ? `scale(${(1.06 - 0.06 * qi - 0.04 * qo).toFixed(4)})`
+                : '';
+          css = `${o.toFixed(3)}|${tf}`;
+          if (css === L.last) continue;
+          L.el.style.opacity = o.toFixed(3);
+          // visibility é herdada: trocar recalcula a subárvore inteira, então só escreve quando muda
+          const vis = o > 0.001;
+          if (vis !== L.vis) {
+            L.vis = vis;
+            L.el.style.visibility = vis ? 'visible' : 'hidden';
+          }
+          if (tf) L.el.style.transform = tf;
+        } else if (L.kind === 'open') {
+          // cortina franzindo para a borda: estreita e sobe de leve na barra, como quando é recolhida
+          const q = io(seg(p, L.n[0], L.n[1]));
+          css = `scaleX(${(1 - 0.84 * q).toFixed(4)}) translate3d(0,${(-q * H * 0.012).toFixed(1)}px,0)`;
+          if (css === L.last) continue;
+          L.el.style.transform = css;
+        } else {
+          const q = seg(p, L.n[0], L.n[1]);
+          css = `scale(${(1.1 - 0.1 * q).toFixed(4)})`;
+          if (css === L.last) continue;
+          L.el.style.transform = css;
+        }
+        L.last = css;
+      }
     },
     {
       offset: 'top',
@@ -59,14 +72,17 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
         const flat = reduceMotion();
         c.classList.toggle('static', flat);
         const st = c.querySelector<HTMLElement>('.cine-stage')!;
-        m.current.flat = flat;
-        m.current.W = st.clientWidth;
-        m.current.H = st.clientHeight;
-        m.current.lists.clear();
-        c.querySelectorAll<HTMLElement>('[data-list]').forEach((ul) => m.current.lists.set(ul, { box: ul.parentElement!.clientHeight, h: ul.offsetHeight }));
+        const layers: Layer[] = [];
+        c.querySelectorAll<HTMLElement>('[data-show],[data-open],[data-push]').forEach((el) => {
+          const kind = el.dataset.show ? 'show' : el.dataset.open ? 'open' : 'push';
+          layers.push({ el, kind, n: nums(el.dataset[kind]!), fx: el.dataset.fx ?? '', last: '' });
+          if (flat) el.style.cssText = el.style.cssText.replace(/(opacity|visibility|transform):[^;]+;?/g, '');
+        });
+        m.current = { H: st.clientHeight, flat, layers };
       },
     },
   );
+
   return (
     <section className={`cine ${className}`} id={id} ref={ref} style={{ '--cine-h': height, ...style } as CSSProperties}>
       {children}

@@ -84,7 +84,7 @@ export function Opening() {
             <Orn />
             <span className="ii-d">Sexta-feira · 15 de janeiro de 2027</span>
             <span className="ii-h">às vinte horas</span>
-            <span className="ii-k">Traje de gala</span>
+            <span className="ii-k">Traje passeio completo</span>
             <span className="ii-s">Confirme até 05 de janeiro</span>
           </div>
           <div className="flap l" ref={lRef}>

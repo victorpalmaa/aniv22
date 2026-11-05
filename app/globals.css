@@ -39,7 +39,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .anchor{position:relative; height:0}
 html.lock{overflow:hidden}
 .chapter{position:relative; background:var(--cb, var(--bg)); padding-bottom:48px}
-#mesaCh{z-index:2} #trajeCine{z-index:3} #quemCh{z-index:4} #surpCh{z-index:5} #duvCh{z-index:6} #locPanel{z-index:7; position:relative; top:auto}
+#mesaCh{z-index:2} #trajeCh{z-index:3} #quemCh{z-index:4} #surpCh{z-index:5} #duvCh{z-index:6} #locPanel{z-index:7; position:relative; top:auto}
 .proto.bleed{position:relative; z-index:8; background:var(--bg); margin-top:0; padding:40px 16px 0}
 
 /* ---------- Abertura que expande ---------- */
@@ -115,40 +115,29 @@ html.lock{overflow:hidden}
 .spin-ctrl{display:flex; gap:8px; justify-content:center; margin-top:10px}
 .spin-wrap .fx{pointer-events:none}
 
-/* ---------- Surpresa: palco com cortina ---------- */
-.palco{position:relative; width:100%; aspect-ratio:4/5; max-height:74svh; overflow:hidden; border-radius:18px 18px 6px 6px; background:#0a0607; box-shadow:inset 0 -40px 60px rgba(0,0,0,.6), 0 30px 60px rgba(0,0,0,.45); isolation:isolate}
-@media (min-width:700px){ .palco{aspect-ratio:16/10} }
-.palco-back{position:absolute; inset:0; display:grid; place-items:end center}
-.palco-back .spot{position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease .9s; background:conic-gradient(from 180deg at 50% -8%, transparent 154deg, rgba(246,227,166,.30) 170deg, rgba(246,227,166,.48) 180deg, rgba(246,227,166,.30) 190deg, transparent 206deg), radial-gradient(40% 14% at 50% 96%, rgba(246,227,166,.30), transparent)}
-.palco-back .singer{position:relative; height:84%; width:auto; opacity:0; transform:translateY(6%) scale(.97); transition:opacity 1s ease 1.1s, transform 1.4s cubic-bezier(.2,.8,.2,1) 1.1s}
-.palco-back .floor{position:absolute; left:0; right:0; bottom:0; height:16%; background:linear-gradient(180deg, #2a1810, #120a07)}
-.palco-name{position:absolute; left:0; right:0; bottom:7%; text-align:center; font-family:var(--f-display); font-style:italic; font-size:clamp(34px, 8vw, 72px); line-height:1; opacity:0; transform:translateY(16px); transition:opacity .8s ease 1.7s, transform .8s ease 1.7s; text-shadow:0 4px 30px rgba(0,0,0,.8)}
+/* ---------- Surpresa: palco do microfone (holofote acende para confirmados) ---------- */
+.spot-stage{position:relative; width:100%; aspect-ratio:4/5; max-height:78svh; overflow:hidden; border-radius:18px; background:#0b0907; isolation:isolate; box-shadow:0 30px 60px rgba(0,0,0,.45)}
+@media (min-width:700px){
+  .spot-stage{aspect-ratio:16/10}
+  /* foto vertical inteira no centro, bordas sumindo no escuro */
+  .spot-stage .ss-img{object-fit:contain; -webkit-mask-image:linear-gradient(90deg, transparent 33.5%, #000 42%, #000 58%, transparent 66.5%); mask-image:linear-gradient(90deg, transparent 33.5%, #000 42%, #000 58%, transparent 66.5%)}
+}
+.ss-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 64%}
+.ss-dim{position:absolute; inset:0; z-index:1; cursor:pointer; background:radial-gradient(40% 30% at 50% 60%, rgba(0,0,0,.25), rgba(0,0,0,.72)); transition:opacity 1.4s ease}
+.ss-beam{position:absolute; inset:0; z-index:2; opacity:0; pointer-events:none; mix-blend-mode:screen; transition:opacity 1.2s ease .5s; background:radial-gradient(26% 20% at 52% 58%, rgba(246,227,166,.38), transparent 72%)}
+.spot-stage[data-state="open"] .ss-dim{opacity:0}
+.spot-stage[data-state="open"] .ss-beam{opacity:1}
+.palco-name{position:absolute; left:0; right:0; bottom:7%; z-index:3; margin:0; text-align:center; font-family:var(--f-display); font-style:italic; font-size:clamp(34px, 8vw, 72px); line-height:1; opacity:0; transform:translateY(16px); transition:opacity .8s ease 1.4s, transform .8s ease 1.4s; text-shadow:0 4px 30px rgba(0,0,0,.8)}
 .palco-name small{display:block; margin-bottom:8px; font-family:var(--f-body); font-style:normal; font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--fg)}
-.palco[data-state="open"] .spot, .palco[data-state="open"] .singer, .palco[data-state="open"] .palco-name{opacity:1; transform:none}
-.cortina{position:absolute; top:0; bottom:0; width:51%; z-index:3; transition:transform 1.9s cubic-bezier(.7,0,.2,1);
-  background:linear-gradient(180deg, rgba(0,0,0,.35), transparent 18%, transparent 80%, rgba(0,0,0,.45)), repeating-linear-gradient(90deg, #3d0b14 0, #7a1624 2.2%, #a82638 3.6%, #8a1b2b 5%, #4e0e19 7%, #3d0b14 7.5%)}
-.cortina::after{content:""; position:absolute; left:0; right:0; bottom:0; height:10px; background:repeating-linear-gradient(90deg, var(--gold) 0 3px, transparent 3px 7px); opacity:.85}
-.cortina.l{left:0; transform-origin:0 50%; box-shadow:12px 0 30px rgba(0,0,0,.45)}
-.cortina.r{right:0; transform-origin:100% 50%; box-shadow:-12px 0 30px rgba(0,0,0,.45)}
-.palco[data-state="open"] .cortina.l{transform:scaleX(.13) skewY(-1.5deg)}
-.palco[data-state="open"] .cortina.r{transform:scaleX(.13) skewY(1.5deg)}
-.palco.nudge .cortina.l{animation:peekL .9s ease-in-out}
-.palco.nudge .cortina.r{animation:peekR .9s ease-in-out}
-@keyframes peekL{30%{transform:scaleX(.93)} 55%{transform:scaleX(1)} 72%{transform:scaleX(.97)} 100%{transform:scaleX(1)}}
-@keyframes peekR{30%{transform:scaleX(.93)} 55%{transform:scaleX(1)} 72%{transform:scaleX(.97)} 100%{transform:scaleX(1)}}
-.valance{position:absolute; left:0; right:0; top:0; height:13%; z-index:4; background:radial-gradient(circle at 50% 0, #8a1b2b 62%, transparent 64%) 0 0 / 12.5% 100% repeat-x, linear-gradient(180deg, #5a1220, #7a1624); -webkit-mask:linear-gradient(#000 0 0); box-shadow:0 8px 20px rgba(0,0,0,.4)}
-.valance::after{content:""; position:absolute; left:0; right:0; top:58%; height:3px; background:var(--gold); opacity:.7}
-.palco-cta{position:absolute; inset:13% 0 18%; z-index:5; display:grid; align-content:center; justify-items:center; gap:14px; text-align:center; padding:0 16px; transition:opacity .5s ease}
-.palco-cta .pk{margin:0; font-size:11px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold)}
-.palco-cta h3{margin:0; max-width:16ch; font-family:var(--f-display); font-weight:400; font-style:italic; font-size:clamp(26px, 5.4vw, 44px); line-height:1.1; color:var(--fg); text-shadow:0 2px 20px rgba(0,0,0,.6)}
-.palco[data-state="open"] .palco-cta{opacity:0; pointer-events:none}
-.palco-close{position:absolute; top:calc(13% + 10px); right:12px; z-index:6; opacity:0; pointer-events:none; transition:opacity .4s ease 1.6s}
-.palco[data-state="open"] .palco-close{opacity:1; pointer-events:auto}
-/* corda de isolamento: só cai quando a presença está confirmada */
-.rope{position:absolute; left:0; right:0; bottom:0; height:30%; z-index:6; pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4), opacity .6s ease .3s}
+.spot-stage[data-state="open"] .palco-name{opacity:1; transform:none}
+.ss-cta{position:absolute; left:0; right:0; bottom:16%; z-index:4; display:flex; justify-content:center; transition:opacity .5s ease}
+.spot-stage[data-state="open"] .ss-cta{opacity:0; pointer-events:none}
+.palco-close{position:absolute; top:12px; right:12px; z-index:6; opacity:0; pointer-events:none; background:rgba(11,9,7,.6); transition:opacity .4s ease 1.6s}
+.spot-stage[data-state="open"] .palco-close{opacity:1; pointer-events:auto}
+.rope{position:absolute; left:0; right:0; bottom:0; height:24%; z-index:5; pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4), opacity .6s ease .3s}
 .rope svg{width:100%; height:100%; display:block}
-.palco:not([data-state="locked"]) .rope{transform:translateY(60%) rotate(4deg); opacity:0}
-.palco.nudge .rope{animation:ropeWob .7s ease-in-out}
+.spot-stage:not([data-state="locked"]) .rope{transform:translateY(60%) rotate(4deg); opacity:0}
+.spot-stage.nudge .rope{animation:ropeWob .7s ease-in-out}
 @keyframes ropeWob{25%{transform:translateY(-3%)} 50%{transform:translateY(2%)} 75%{transform:translateY(-1%)}}
 .palco-msg{position:absolute; left:12px; right:12px; bottom:14px; z-index:7; display:grid; gap:10px; justify-items:center; padding:14px; border-radius:14px; text-align:center; background:rgba(11,10,8,.92); border:1px solid var(--gold-deep); font-size:15px}
 .palco-msg p{margin:0}
@@ -185,46 +174,64 @@ html.lock{overflow:hidden}
 .detail-layer.drink-mode .d-art svg{transform:rotate(-12deg) scale(1.08)}
 .detail-layer.drink-mode .glow{background:radial-gradient(closest-side, rgba(255,255,255,.22), transparent)}
 
-/* ---------- Cena fixa em camadas (Traje e Surpresa) ---------- */
-.cine{position:relative; height:var(--cine-h, 400svh)}
+/* ---------- Cena fixa em camadas (Traje e Surpresa) ----------
+   Por frame só mudam opacity e transform (camadas com will-change, pintadas uma vez). */
+.cine{position:relative; height:var(--cine-h, 300svh)}
 .cine-stage{position:sticky; top:var(--hh, 60px); height:calc(100svh - var(--hh, 60px)); overflow:hidden; background:var(--bg)}
-.cl{position:absolute; inset:0; overflow:hidden}
-.cl.plain{background:var(--pb, var(--bg)); display:grid; place-items:center}
-.cs{position:absolute; inset:0; will-change:transform}
+.cl{position:absolute; inset:0; overflow:hidden; will-change:opacity, transform}
+.cs{position:absolute; inset:0}
 .cs.velvet{background:radial-gradient(60% 50% at 50% 30%, rgba(214,184,120,.30), transparent 70%), repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0, rgba(255,255,255,.04) 3%, rgba(0,0,0,.35) 6%), linear-gradient(180deg, #5a1a26, #1f080d)}
-.cs.satin{background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.10) 42%, transparent 50%, transparent 62%, rgba(214,184,120,.18) 70%, transparent 78%), linear-gradient(160deg, #1b1916, #050505)}
-.cs.champagne{background:radial-gradient(70% 60% at 30% 30%, rgba(255,255,255,.45), transparent 70%), linear-gradient(160deg, #eadbb8, #c9ae7c)}
 .cs.stage-dark{background:conic-gradient(from 180deg at 50% -10%, transparent 160deg, rgba(214,184,120,.16) 175deg, rgba(214,184,120,.22) 180deg, rgba(214,184,120,.16) 185deg, transparent 200deg), linear-gradient(180deg, #14110d, #070605)}
-.cs.stage-red{display:grid; place-items:end center; background:conic-gradient(from 180deg at 50% -5%, transparent 155deg, rgba(246,227,166,.35) 172deg, rgba(246,227,166,.5) 180deg, rgba(246,227,166,.35) 188deg, transparent 205deg), repeating-linear-gradient(90deg, rgba(0,0,0,.32) 0, rgba(255,255,255,.05) 2.5%, rgba(0,0,0,.32) 5%), linear-gradient(180deg, #6a1d2b, #22080e)}
-.cs .mic{height:58%; width:auto; margin-bottom:-2%}
-.cl .leaves{opacity:.22}
+.cs.tj-glow{opacity:0; will-change:opacity; background:radial-gradient(70% 55% at 50% 48%, rgba(0,0,0,.15), rgba(10,4,6,.82))}
 .cw{position:absolute; left:0; right:0; top:50%; transform:translateY(-55%); display:flex; justify-content:space-between; padding:0 max(10px, 1.4vw); font-family:var(--f-display); font-size:clamp(40px, calc(92vw / var(--n, 5)), 190px); line-height:1; color:var(--fg)}
-.cap, .mid{position:absolute; left:16px; right:16px; top:calc(50% + clamp(34px, calc(46vw / var(--n, 5)), 100px)); margin:0; text-align:center; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
-.mid{top:auto; bottom:22%}
-.side{position:absolute; top:50%; transform:translateY(-50%); display:grid; gap:6px}
-.side.l{left:max(16px, 2vw)} .side.r{right:max(16px, 2vw); text-align:right; justify-items:end}
-.side small{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold-deep)}
-.roll{display:block; overflow:hidden; font-family:var(--f-display); font-weight:400; font-size:clamp(46px, 13vw, 150px); line-height:1.05; color:var(--fg)}
-.roll span{display:block; transform:translateY(var(--ry, 110%)); will-change:transform}
-.aside{position:absolute; left:max(16px, 4vw); bottom:26%; max-width:22ch; margin:0; font-family:var(--f-display); font-style:italic; font-size:clamp(18px, 2.4vw, 26px); color:#3b2a1b}
-.list-col{position:absolute; top:0; bottom:0; right:0; width:min(46%, 520px); display:flex; flex-direction:column; padding:28px max(16px, 3vw) 120px; box-sizing:border-box; border-left:1px solid rgba(26,23,18,.25); gap:10px}
-.list-col small{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#5d4a30}
-.list-mask{flex:1; min-height:0; overflow:hidden; -webkit-mask-image:linear-gradient(transparent, #000 18%, #000 82%, transparent); mask-image:linear-gradient(transparent, #000 18%, #000 82%, transparent)}
-.cine-list{list-style:none; margin:0; padding:0; will-change:transform}
-.cine-list li{padding:18px 0; border-bottom:1px solid rgba(26,23,18,.2); font-family:var(--f-display); font-size:clamp(22px, 3vw, 34px); color:var(--ink)}
-.cine-list li::after{content:" ◦"; color:#8e7a52; font-size:.6em; vertical-align:middle}
-.sline{position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--gold); transform:scaleY(var(--ls, 0)); transform-origin:50% 50%; opacity:var(--lo, 0); z-index:1}
-.next{margin:0; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
-/* movimento reduzido: as cenas viram blocos empilhados, sem tela fixa */
+.cap{position:absolute; left:16px; right:16px; top:calc(50% + clamp(34px, calc(46vw / var(--n, 5)), 100px)); margin:0; text-align:center; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
+
+/* Traje */
+.tj-title{display:grid; place-content:center; justify-items:center; gap:16px; padding:0 16px; text-align:center}
+.tj-title small{font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold)}
+.tj-name{margin:0; font-family:var(--f-display); font-weight:400; font-size:clamp(56px, 13vw, 150px); line-height:.95; color:var(--fg)}
+.tj-name em{display:block; font-style:italic; color:var(--gold)}
+.tj-sub{margin:0; max-width:30ch; font-size:16px; color:var(--fg); opacity:.8}
+.tj-guide{padding-top:28px}
+.tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
+.tj-card{display:grid; gap:14px; align-content:start; padding:22px 20px; border-radius:18px; background:var(--bg-2); border:1px solid var(--line); min-width:0}
+.tj-card .k{margin:0; font-family:var(--f-display); font-size:30px; line-height:1; color:var(--fg)}
+.tj-card ul{margin:0; padding:0; list-style:none; display:grid; gap:8px; color:var(--muted); font-size:15px}
+.tj-card li::before{content:"◦  "; color:var(--gold)}
+.tj-tt{justify-self:start; color:var(--gold)}
+
+/* Surpresa: cortina de veludo abrindo sobre a foto do microfone */
+.sp-stage{background:#0b0907}
+.sp-photo{position:absolute; inset:0; display:flex; justify-content:center}
+.sp-mic{width:100%; height:100%; object-fit:cover; object-position:50% 60%; transform-origin:48% 60%; will-change:transform}
+@media (min-aspect-ratio:4/5){
+  /* tela larga: a foto vertical fica inteira no centro, com as bordas sumindo no escuro */
+  .sp-mic{width:auto; aspect-ratio:721/1280; -webkit-mask-image:linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent); mask-image:linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent)}
+}
+.sp-stage::after{content:""; position:absolute; left:0; right:0; bottom:0; height:38%; background:linear-gradient(transparent, rgba(11,9,7,.85)); pointer-events:none}
+.sp-curtain{position:absolute; top:0; bottom:0; width:51%; z-index:2; will-change:transform}
+.sp-curtain::before{content:""; position:absolute; inset:0; background:url(/img/cortina.webp) center / 100% 100% no-repeat}
+.sp-curtain::after{content:""; position:absolute; left:0; right:0; bottom:0; height:12px; background:repeating-linear-gradient(90deg, var(--gold) 0 3px, transparent 3px 7px); opacity:.8}
+.sp-curtain.l{left:0; transform-origin:0 0; box-shadow:14px 0 30px rgba(0,0,0,.5)}
+.sp-curtain.r{right:0; transform-origin:100% 0; box-shadow:-14px 0 30px rgba(0,0,0,.5)}
+.sp-curtain.r::before{transform:scaleX(-1)}
+/* bambinela: o mesmo veludo, com a barra recortada em arcos (máscara) e cordão dourado */
+.sp-valance{position:absolute; left:0; right:0; top:0; height:clamp(56px, 11%, 110px); z-index:3; filter:drop-shadow(0 10px 14px rgba(0,0,0,.55))}
+.sp-valance::before{content:""; position:absolute; inset:0; background:url(/img/cortina.webp) 0 20% / 22% 500% repeat-x;
+  -webkit-mask:linear-gradient(#000 0 0) 0 0 / 100% 62% no-repeat, radial-gradient(closest-side, #000 98%, transparent) 0 100% / 12.5% 76% repeat-x;
+  mask:linear-gradient(#000 0 0) 0 0 / 100% 62% no-repeat, radial-gradient(closest-side, #000 98%, transparent) 0 100% / 12.5% 76% repeat-x}
+.sp-valance::after{content:""; position:absolute; left:0; right:0; top:58%; height:3px; background:var(--gold); opacity:.8}
+.sp-q{position:absolute; left:16px; right:16px; bottom:calc(12% + 72px); z-index:4; margin:0; text-align:center; font-family:var(--f-display); font-weight:400; font-size:clamp(30px, 6.4vw, 64px); line-height:1.05; color:var(--fg); text-shadow:0 2px 24px rgba(0,0,0,.7); will-change:opacity, transform}
+.sp-q em{display:block; font-style:italic; color:var(--gold)}
+
+/* movimento reduzido: as cenas viram blocos empilhados, sem tela fixa nem cortina */
 .cine.static{height:auto}
 .cine.static .cine-stage{position:relative; top:auto; height:auto}
-.cine.static .cl{position:relative; min-height:70svh; clip-path:none !important; visibility:visible !important}
-.cine.static .cl.plain, .cine.static .sline{display:none}
-.cine.static .roll span{transform:none}
+.cine.static .cl, .cine.static .sp-q{position:relative; min-height:70svh; opacity:1 !important; visibility:visible !important; transform:none !important}
+.cine.static .sp-q{min-height:0; position:absolute}
+.cine.static .sp-curtain, .cine.static .cs.tj-glow{display:none}
 @media (max-width:640px){
-  .list-col{width:100%; top:40%; border-left:0; border-top:1px solid rgba(26,23,18,.25)}
-  .aside{top:14%; bottom:auto}
-  .side{top:auto; bottom:30%; transform:none}
+  .tj-cards{grid-template-columns:minmax(0,1fr)}
 }
 
 /* ---------- Detalhe como camada ---------- */
@@ -514,7 +521,7 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
   .loc-card:first-child{grid-column:1 / -1}
   .stack-panel{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left, 0px)))}
   .map-foot .row{width:100%}
-  .lbl-far{display:none} /* fica na borda do recorte no celular */
+  .lbl-far{display:none} /* no celular o recorte não tem espaço para este rótulo sem cobrir o pin */
   details.who ul{columns:1}
   /* sheet full-screen no celular: evita briga do position:fixed com o teclado do iOS */
   .sheet{padding:0; place-items:stretch}

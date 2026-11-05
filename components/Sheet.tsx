@@ -439,7 +439,7 @@ function DoneView({ kind, close }: { kind: 'done' | 'welcome'; close: () => void
       </button>
       {kind === 'done' && (
         <p className="lock-box" style={{ display: 'block' }}>
-          <b>Bônus desbloqueado:</b> a cortina da Surpresa já abre para você.{' '}
+          <b>Bônus desbloqueado:</b> o holofote da Surpresa já acende para você.{' '}
           <button className="linkish" type="button" onClick={() => (close(), jump('surpresa'))}>
             Ver agora
           </button>
