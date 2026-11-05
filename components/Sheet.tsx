@@ -60,7 +60,8 @@ export function Sheet() {
         {sheet === 'login' && <LoginView go={go} />}
         {sheet === 'code' && <CodeView go={go} refreshMe={refreshMe} toast={toast} />}
         {(sheet === 'done' || sheet === 'welcome') && me && <DoneView kind={sheet} close={closeSheet} />}
-        {sheet === 'mine' && me && <MineView close={closeSheet} cancel={cancel} toast={toast} />}
+        {sheet === 'mine' && me && <MineView close={closeSheet} cancel={cancel} toast={toast} go={go} />}
+        {sheet === 'cancelled' && <CancelledView go={go} close={closeSheet} />}
       </div>
     </div>
   );
@@ -449,7 +450,7 @@ function DoneView({ kind, close }: { kind: 'done' | 'welcome'; close: () => void
   );
 }
 
-function MineView({ close, cancel, toast }: { close: () => void; cancel: () => Promise<string | null>; toast: (m: string) => void }) {
+function MineView({ close, cancel, toast, go }: { close: () => void; cancel: () => Promise<string | null>; toast: (m: string) => void; go: (v: SheetView) => void }) {
   const { me } = useParty();
   const [asking, setAsking] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -498,10 +499,13 @@ function MineView({ close, cancel, toast }: { close: () => void; cancel: () => P
               className="ghost"
               type="button"
               onClick={async () => {
+                // troca de tela antes de o `me` zerar: sem isso o sheet fica vazio por um instante
+                go('cancelled');
                 const e = await cancel();
-                if (e) return setErr(e);
-                close();
-                toast('Presença cancelada');
+                if (e) {
+                  go('mine');
+                  toast(e);
+                }
               }}
             >
               Sim, cancelar
@@ -512,6 +516,29 @@ function MineView({ close, cancel, toast }: { close: () => void; cancel: () => P
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+/** Depois de cancelar: confirma o que aconteceu e deixa o caminho de volta aberto. */
+function CancelledView({ go, close }: { go: (v: SheetView) => void; close: () => void }) {
+  const late = pastDeadline();
+  return (
+    <>
+      <p className="big-ok" aria-hidden="true">
+        Que pena.
+      </p>
+      <h3 id="sheet-title">Presença cancelada</h3>
+      <p className="sub">Seu nome saiu da lista de convidados e o seu lugar na planta foi liberado.</p>
+      <p className="sub">{late ? 'Mudou de ideia? Ainda dá para confirmar de novo.' : 'Mudou de ideia? Dá para confirmar de novo até 05/01.'}</p>
+      <div className="row">
+        <button className="btn-gold" type="button" onClick={() => go('form')}>
+          Confirmar de novo
+        </button>
+        <button className="ghost" type="button" onClick={close}>
+          Fechar
+        </button>
+      </div>
     </>
   );
 }

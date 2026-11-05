@@ -6,7 +6,7 @@ import type { GuestPin } from '@/lib/supabase/types';
 import { del, getJSON } from '@/lib/storage';
 
 export type Me = { id: string; first: string; last: string; email: string; room: number | null };
-export type SheetView = 'form' | 'login' | 'code' | 'done' | 'welcome' | 'mine';
+export type SheetView = 'form' | 'login' | 'code' | 'done' | 'welcome' | 'mine' | 'cancelled';
 export type AreaCount = { area: number | null; total: number };
 
 type Ctx = {

@@ -12,6 +12,7 @@ import { Local } from '@/components/chapters/Local';
 import { DetailLayer } from '@/components/DetailLayer';
 import { Cta } from '@/components/Cta';
 import { Sheet } from '@/components/Sheet';
+import { RevealObserver } from '@/components/RevealObserver';
 
 /** Página única, tudo por scroll. Ordem dos capítulos fechada em 31/10. */
 export default function Page() {
@@ -31,6 +32,7 @@ export default function Page() {
         <DetailLayer />
         <Cta />
         <Sheet />
+        <RevealObserver />
       </div>
     </PartyProvider>
   );

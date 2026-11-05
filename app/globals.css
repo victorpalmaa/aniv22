@@ -10,6 +10,8 @@ body{margin:0}
 img{max-width:100%}
 :root{
   color-scheme: dark;
+  /* cantos: retos e discretos em todo card, painel e campo (pílulas e círculos não mudam) */
+  --r-card:6px; --r-sm:4px;
   --bg:#0d0c0a; --bg-2:#15130f; --bg-3:#1d1a14; --line:#2e281d;
   --fg:#efe7d6; --muted:#9d927d; --gold:#d6b878; --gold-deep:#a8864a; --wine:#7a1f2b; --ok:#8fb27a; --err:#e08a7a;
   --paper:#f3ead8; --ink:#1a1712;
@@ -71,8 +73,8 @@ html.lock{overflow:hidden}
 .inv-inner::after{inset:5.4cqw; border:.5px solid rgba(184,146,79,.55)}
 .inv-inner .orn{width:46cqw; height:auto; color:#b8924f}
 .ii-k{font-size:3.1cqw; letter-spacing:.28em; text-transform:uppercase; color:#6f6656; max-width:60cqw; line-height:1.6}
-.ii-t{font-family:var(--f-display); font-size:15cqw; line-height:1; color:var(--wine); font-style:italic; margin-block:2cqw}
-.ii-t i{font-style:italic}
+.ii-t{display:grid; justify-items:center; font-family:var(--f-display); font-size:15cqw; line-height:.98; color:var(--wine); font-style:italic; margin-block:2cqw}
+.ii-t i{font-size:.62em; line-height:1.1}
 .ii-d{font-family:var(--f-display); font-size:5.4cqw; color:var(--ink)}
 .ii-h{font-family:var(--f-display); font-style:italic; font-size:5cqw; color:#6f6656; margin-top:-1.4cqw}
 .ii-s{font-size:2.8cqw; letter-spacing:.2em; text-transform:uppercase; color:#a8864a; margin-top:3cqw}
@@ -91,10 +93,10 @@ html.lock{overflow:hidden}
 .flap.r .face.f-front{align-items:flex-start; text-align:left}
 .flap.r .face.f-front::before{left:-1px}
 .fk{font-size:8cqw; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); position:relative}
-.fw{font-family:var(--f-display); font-size:36cqw; line-height:1; position:relative; white-space:nowrap}
-.flap.r .fw i{font-style:italic}
-/* "& Varieté" é mais longo que "Parme": fonte menor para caber na aba sem quebrar */
-.fw-r{font-size:22.5cqw}
+/* título com o dobro da largura da aba, centrado na emenda; a face (overflow:hidden) recorta a metade de cada lado */
+.fw-split{position:absolute; top:22%; width:200%; display:grid; justify-items:center; font-family:var(--f-display); font-size:30cqw; line-height:.96; white-space:nowrap; pointer-events:none}
+.flap.l .fw-split{left:0} .flap.r .fw-split{left:-100%}
+.fw-split i{font-style:italic; font-size:.6em; line-height:1.15}
 /* o lacre é desenhado nas duas abas, centrado na emenda: cada aba mostra metade e ele "se parte" ao abrir */
 .seal-h{position:absolute; top:50%; width:58cqw; aspect-ratio:1; border-radius:50%; display:grid; place-items:center; transform:translate(-50%,-50%);
   background:radial-gradient(circle at 36% 30%, #b53a49, var(--wine) 55%, #430c16); box-shadow:inset 0 0 0 3cqw rgba(0,0,0,.18), inset 0 0 0 5cqw rgba(255,255,255,.05), 0 2cqw 5cqw rgba(0,0,0,.5)}
@@ -118,15 +120,17 @@ html.lock{overflow:hidden}
 .spin-wrap .fx{pointer-events:none}
 
 /* ---------- Surpresa: palco do microfone (holofote acende para confirmados) ---------- */
-.spot-stage{position:relative; width:100%; aspect-ratio:4/5; max-height:78svh; overflow:hidden; border-radius:18px; background:#0b0907; isolation:isolate; box-shadow:0 30px 60px rgba(0,0,0,.45)}
+.spot-stage{position:relative; width:100%; aspect-ratio:4/5; max-height:78svh; overflow:hidden; border-radius:var(--r-card); background:#0b0907; isolation:isolate; box-shadow:0 30px 60px rgba(0,0,0,.45)}
 @media (min-width:700px){
   .spot-stage{aspect-ratio:16/10}
   /* foto vertical inteira no centro, bordas sumindo no escuro */
   .spot-stage .ss-img{object-fit:contain; -webkit-mask-image:linear-gradient(90deg, transparent 33.5%, #000 42%, #000 58%, transparent 66.5%); mask-image:linear-gradient(90deg, transparent 33.5%, #000 42%, #000 58%, transparent 66.5%)}
 }
 .ss-img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 64%}
-.ss-dim{position:absolute; inset:0; z-index:1; cursor:pointer; background:radial-gradient(40% 30% at 50% 60%, rgba(0,0,0,.25), rgba(0,0,0,.72)); transition:opacity 1.4s ease}
-.ss-beam{position:absolute; inset:0; z-index:2; opacity:0; pointer-events:none; mix-blend-mode:screen; transition:opacity 1.2s ease .5s; background:radial-gradient(26% 20% at 52% 58%, rgba(246,227,166,.38), transparent 72%)}
+.ss-img{transition:filter 1.6s ease}
+.ss-dim{position:absolute; inset:0; z-index:1; cursor:pointer; background:radial-gradient(22% 16% at 52% 60%, rgba(0,0,0,.84), rgba(0,0,0,.95)); transition:opacity 1.6s cubic-bezier(.3,0,.2,1)}
+.ss-beam{position:absolute; inset:0; z-index:2; opacity:0; pointer-events:none; mix-blend-mode:screen; transition:opacity 1.4s ease .35s; background:radial-gradient(30% 24% at 52% 58%, rgba(246,227,166,.55), transparent 72%), conic-gradient(from 160deg at 30% -10%, transparent 0deg, rgba(246,227,166,.16) 14deg, transparent 30deg)}
+.spot-stage[data-state="open"] .ss-img{filter:brightness(1.18) contrast(1.06)}
 .spot-stage[data-state="open"] .ss-dim{opacity:0}
 .spot-stage[data-state="open"] .ss-beam{opacity:1}
 .palco-name{position:absolute; left:0; right:0; bottom:7%; z-index:3; margin:0; text-align:center; font-family:var(--f-display); font-style:italic; font-size:clamp(34px, 8vw, 72px); line-height:1; opacity:0; transform:translateY(16px); transition:opacity .8s ease 1.4s, transform .8s ease 1.4s; text-shadow:0 4px 30px rgba(0,0,0,.8)}
@@ -139,9 +143,7 @@ html.lock{overflow:hidden}
 .rope{position:absolute; left:0; right:0; bottom:0; height:24%; z-index:5; pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4), opacity .6s ease .3s}
 .rope svg{width:100%; height:100%; display:block}
 .spot-stage:not([data-state="locked"]) .rope{transform:translateY(60%) rotate(4deg); opacity:0}
-.spot-stage.nudge .rope{animation:ropeWob .7s ease-in-out}
-@keyframes ropeWob{25%{transform:translateY(-3%)} 50%{transform:translateY(2%)} 75%{transform:translateY(-1%)}}
-.palco-msg{position:absolute; left:12px; right:12px; bottom:14px; z-index:7; display:grid; gap:10px; justify-items:center; padding:14px; border-radius:14px; text-align:center; background:rgba(11,10,8,.92); border:1px solid var(--gold-deep); font-size:15px}
+.palco-msg{position:absolute; left:12px; right:12px; bottom:14px; z-index:7; display:grid; gap:10px; justify-items:center; padding:14px; border-radius:var(--r-sm); text-align:center; background:rgba(11,10,8,.92); border:1px solid var(--gold-deep); font-size:15px}
 .palco-msg p{margin:0}
 .artist{display:grid; gap:10px; justify-items:center; text-align:center; padding:26px 16px 8px; opacity:0; transform:translateY(16px); transition:opacity .7s ease .3s, transform .7s ease .3s}
 .artist.in{opacity:1; transform:none}
@@ -182,9 +184,16 @@ html.lock{overflow:hidden}
 .cine-stage{position:sticky; top:var(--hh, 60px); height:calc(100svh - var(--hh, 60px)); overflow:hidden; background:var(--bg)}
 .cl{position:absolute; inset:0; overflow:hidden; will-change:opacity, transform}
 .cs{position:absolute; inset:0}
-.cs.velvet{background:radial-gradient(60% 50% at 50% 30%, rgba(214,184,120,.30), transparent 70%), repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0, rgba(255,255,255,.04) 3%, rgba(0,0,0,.35) 6%), linear-gradient(180deg, #5a1a26, #1f080d)}
 .cs.stage-dark{background:conic-gradient(from 180deg at 50% -10%, transparent 160deg, rgba(214,184,120,.16) 175deg, rgba(214,184,120,.22) 180deg, rgba(214,184,120,.16) 185deg, transparent 200deg), linear-gradient(180deg, #14110d, #070605)}
-.cs.tj-glow{opacity:0; will-change:opacity; background:radial-gradient(70% 55% at 50% 48%, rgba(0,0,0,.15), rgba(10,4,6,.82))}
+/* Traje: palco escuro atrás do pano, refletor quente, pano de boca que sobe */
+.cs.tj-stage{background:linear-gradient(180deg, #0b0907, var(--bg) 70%)}
+.cs.tj-spot{opacity:0; will-change:opacity; background:radial-gradient(42% 38% at 50% 46%, rgba(246,227,166,.22), transparent 72%), conic-gradient(from 180deg at 50% -6%, transparent 164deg, rgba(246,227,166,.10) 176deg, rgba(246,227,166,.14) 180deg, rgba(246,227,166,.10) 184deg, transparent 196deg)}
+.tj-curtain{position:absolute; inset:0; z-index:2; transform-origin:50% 0; will-change:transform; box-shadow:0 26px 40px rgba(0,0,0,.55)}
+/* textura na proporção original, repetida na largura: no desktop as pregas não esticam */
+.tj-cloth{position:absolute; inset:0; background:url(/img/cortina.webp) 50% 0 / auto 100% repeat-x}
+.tj-cloth::after{content:""; position:absolute; left:0; right:0; bottom:0; height:14px; background:repeating-linear-gradient(90deg, var(--gold) 0 3px, transparent 3px 7px); opacity:.85}
+.tj-curtain .cw, .tj-curtain .cap{text-shadow:0 2px 24px rgba(0,0,0,.6)}
+.tj-curtain .cw span{background:linear-gradient(100deg, #9c7a3e, #f6e3a6 45%, #b8924f 60%, #e9cf8c); -webkit-background-clip:text; background-clip:text; color:transparent}
 .cw{position:absolute; left:0; right:0; top:50%; transform:translateY(-55%); display:flex; justify-content:space-between; padding:0 max(10px, 1.4vw); font-family:var(--f-display); font-size:clamp(40px, calc(92vw / var(--n, 5)), 190px); line-height:1; color:var(--fg)}
 .cap{position:absolute; left:16px; right:16px; top:calc(50% + clamp(34px, calc(46vw / var(--n, 5)), 100px)); margin:0; text-align:center; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
 
@@ -196,7 +205,7 @@ html.lock{overflow:hidden}
 .tj-sub{margin:0; max-width:30ch; font-size:16px; color:var(--fg); opacity:.8}
 .tj-guide{padding-top:28px}
 .tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
-.tj-card{display:grid; gap:14px; align-content:start; padding:22px 20px; border-radius:18px; background:var(--bg-2); border:1px solid var(--line); min-width:0}
+.tj-card{display:grid; gap:14px; align-content:start; padding:22px 20px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
 .tj-card .k{margin:0; font-family:var(--f-display); font-size:30px; line-height:1; color:var(--fg)}
 .tj-card ul{margin:0; padding:0; list-style:none; display:grid; gap:8px; color:var(--muted); font-size:15px}
 .tj-card li::before{content:"◦  "; color:var(--gold)}
@@ -212,7 +221,7 @@ html.lock{overflow:hidden}
 }
 .sp-stage::after{content:""; position:absolute; left:0; right:0; bottom:0; height:38%; background:linear-gradient(transparent, rgba(11,9,7,.85)); pointer-events:none}
 .sp-curtain{position:absolute; top:0; bottom:0; width:51%; z-index:2; will-change:transform}
-.sp-curtain::before{content:""; position:absolute; inset:0; background:url(/img/cortina.webp) center / 100% 100% no-repeat}
+.sp-curtain::before{content:""; position:absolute; inset:0; background:url(/img/cortina.webp) 100% 0 / auto 100% repeat-x}
 .sp-curtain::after{content:""; position:absolute; left:0; right:0; bottom:0; height:12px; background:repeating-linear-gradient(90deg, var(--gold) 0 3px, transparent 3px 7px); opacity:.8}
 .sp-curtain.l{left:0; transform-origin:0 0; box-shadow:14px 0 30px rgba(0,0,0,.5)}
 .sp-curtain.r{right:0; transform-origin:100% 0; box-shadow:-14px 0 30px rgba(0,0,0,.5)}
@@ -223,7 +232,8 @@ html.lock{overflow:hidden}
   -webkit-mask:linear-gradient(#000 0 0) 0 0 / 100% 62% no-repeat, radial-gradient(closest-side, #000 98%, transparent) 0 100% / 12.5% 76% repeat-x;
   mask:linear-gradient(#000 0 0) 0 0 / 100% 62% no-repeat, radial-gradient(closest-side, #000 98%, transparent) 0 100% / 12.5% 76% repeat-x}
 .sp-valance::after{content:""; position:absolute; left:0; right:0; top:58%; height:3px; background:var(--gold); opacity:.8}
-.sp-q{position:absolute; left:16px; right:16px; bottom:calc(12% + 72px); z-index:4; margin:0; text-align:center; font-family:var(--f-display); font-weight:400; font-size:clamp(30px, 6.4vw, 64px); line-height:1.05; color:var(--fg); text-shadow:0 2px 24px rgba(0,0,0,.7); will-change:opacity, transform}
+.sp-fade{position:absolute; inset:0; z-index:4; background:var(--bg-2); opacity:0; will-change:opacity}
+.sp-q{position:absolute; left:16px; right:16px; bottom:calc(12% + 72px); z-index:5; margin:0; text-align:center; font-family:var(--f-display); font-weight:400; font-size:clamp(30px, 6.4vw, 64px); line-height:1.05; color:var(--fg); text-shadow:0 2px 24px rgba(0,0,0,.7); will-change:opacity, transform}
 .sp-q em{display:block; font-style:italic; color:var(--gold)}
 
 /* movimento reduzido: as cenas viram blocos empilhados, sem tela fixa nem cortina */
@@ -231,7 +241,7 @@ html.lock{overflow:hidden}
 .cine.static .cine-stage{position:relative; top:auto; height:auto}
 .cine.static .cl, .cine.static .sp-q{position:relative; min-height:70svh; opacity:1 !important; visibility:visible !important; transform:none !important}
 .cine.static .sp-q{min-height:0; position:absolute}
-.cine.static .sp-curtain, .cine.static .cs.tj-glow{display:none}
+.cine.static .sp-curtain, .cine.static .tj-curtain, .cine.static .sp-fade{display:none}
 @media (max-width:640px){
   .tj-cards{grid-template-columns:minmax(0,1fr)}
 }
@@ -263,7 +273,7 @@ h2 em, h1 em{font-style:italic; color:var(--gold)}
 /* ---------- Convite ---------- */
 .invite{display:grid; justify-items:center; gap:28px; padding-block:8px 0}
 .count{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; width:min(100%, 440px)}
-.count div{display:grid; justify-items:center; padding:12px 4px; border:1px solid var(--line); border-radius:14px; background:var(--bg-2)}
+.count div{display:grid; justify-items:center; padding:12px 4px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--bg-2)}
 .count b{font-family:var(--f-display); font-size:clamp(26px, 7vw, 36px); font-weight:500; font-variant-numeric:tabular-nums; line-height:1.1}
 .count span{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
 .deadline{margin:-12px 0 0; font-size:14px; color:var(--muted)}
@@ -319,11 +329,11 @@ body.seen .dish .art::after{display:none}
 .d-body{display:grid; gap:14px; min-width:0}
 .d-title{margin:0; font-family:var(--f-display); font-weight:500; font-size:clamp(34px, 6vw, 52px); line-height:1.02; text-wrap:balance; outline:none}
 .d-desc{margin:0; opacity:.86; max-width:46ch; font-weight:300; font-size:17px}
-.specs{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:1px; margin:6px 0 0; background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.specs{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:1px; margin:6px 0 0; background:var(--line); border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden}
 .specs div{background:var(--bg); padding:10px 14px}
 .specs dt{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold-deep)}
 .specs dd{margin:2px 0 0; font-size:15px}
-.take{margin:0; border:1px dashed var(--gold-deep); border-radius:14px; padding:12px 14px; font-size:14px; color:var(--muted)}
+.take{margin:0; border:1px dashed var(--gold-deep); border-radius:var(--r-sm); padding:12px 14px; font-size:14px; color:var(--muted)}
 .take b{color:var(--gold); font-weight:500}
 .h3{margin:6px 0 0; font-size:12px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--gold)}
 .pairs{display:flex; flex-wrap:wrap; gap:10px}
@@ -347,7 +357,7 @@ body.seen .dish .art::after{display:none}
 .live{display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted)}
 .live i{width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 0 rgba(143,178,122,.6); animation:live 1.8s infinite}
 @keyframes live{70%{box-shadow:0 0 0 8px rgba(143,178,122,0)} 100%{box-shadow:0 0 0 0 rgba(143,178,122,0)}}
-.plan-wrap{position:relative; border-radius:24px; overflow:hidden; border:1px solid var(--line); background:var(--bg-2)}
+.plan-wrap{position:relative; border-radius:var(--r-card); overflow:hidden; border:1px solid var(--line); background:var(--bg-2)}
 .plan{display:block; width:100%; height:auto; touch-action:manipulation}
 .area rect.hit{fill:transparent; cursor:pointer}
 .area .lbl{font-family:var(--f-body); font-size:13px; letter-spacing:.14em; text-transform:uppercase; fill:var(--gold); pointer-events:none}
@@ -366,7 +376,7 @@ body.seen .dish .art::after{display:none}
 .tip text{font-family:var(--f-body); font-size:12px; fill:var(--fg)}
 .light{fill:var(--gold); animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:.25} 50%{opacity:1}}
-.plan-overlay{position:absolute; left:12px; right:12px; bottom:12px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:rgba(13,12,10,.88); border:1px solid var(--gold-deep); text-align:center; font-size:15px}
+.plan-overlay{position:absolute; left:12px; right:12px; bottom:12px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 14px; border-radius:var(--r-card); background:rgba(13,12,10,.88); border:1px solid var(--gold-deep); text-align:center; font-size:15px}
 .plan-overlay .btn-gold{padding:8px 16px; font-size:13px}
 .plan-ctrl{display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between; padding-block:14px 0}
 .plan-ctrl label{display:flex; align-items:center; gap:10px; font-size:14px; color:var(--muted)}
@@ -386,7 +396,7 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 .loc-intro .loc-cards{width:100%}
 .loc-intro .sec-head{position:relative}
 .loc-cards{position:relative; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px}
-.loc-card{display:grid; gap:4px; align-content:start; padding:18px; border-radius:18px; background:var(--bg-2); border:1px solid var(--line); min-width:0}
+.loc-card{display:grid; gap:4px; align-content:start; padding:18px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
 .loc-card .k{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-deep)}
 .loc-card b{font-family:var(--f-display); font-weight:400; font-size:clamp(40px, 7vw, 64px); line-height:1; color:var(--fg)}
 .loc-card b i{color:var(--gold)}
@@ -425,7 +435,7 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 .loc-intro .leaves{opacity:.5; mix-blend-mode:multiply}
 .leaves.light{opacity:.10; background-position:-10% 0%}
 @keyframes sway{from{transform:rotate(-2deg) translate(-1%, 0)} to{transform:rotate(2.5deg) translate(1.5%, 1%)}}
-.panel{display:grid; gap:10px; align-content:start; padding:20px; border-radius:20px; border:1px solid var(--line); background:var(--bg-2); min-width:0}
+.panel{display:grid; gap:10px; align-content:start; padding:20px; border-radius:var(--r-card); border:1px solid var(--line); background:var(--bg-2); min-width:0}
 .panel h3{margin:0; font-family:var(--f-display); font-weight:500; font-size:24px}
 .panel p{margin:0}
 .panel .muted{color:var(--muted); font-size:14px}
@@ -446,13 +456,13 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 .field{display:grid; gap:6px}
 .field label{font-size:13px; letter-spacing:.06em; color:var(--muted)}
 .field input, .field textarea{
-  width:100%; box-sizing:border-box; padding:13px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bg);
+  width:100%; box-sizing:border-box; padding:13px 14px; border-radius:var(--r-sm); border:1px solid var(--line); background:var(--bg);
   color:var(--fg); font:inherit; font-size:16px; /* 16px evita zoom automático no iOS */
 }
 .field textarea{min-height:110px; resize:vertical}
 .field input:focus, .field textarea:focus{border-color:var(--gold-deep); outline:none}
 .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-.msg{margin:0; font-size:14px; padding:10px 12px; border-radius:10px}
+.msg{margin:0; font-size:14px; padding:10px 12px; border-radius:var(--r-sm)}
 .msg.err{color:var(--err); background:rgba(224,138,122,.08); border:1px solid rgba(224,138,122,.3)}
 .msg.ok{color:var(--ok); background:rgba(143,178,122,.08); border:1px solid rgba(143,178,122,.3)}
 .counter{font-size:12px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums}
@@ -464,7 +474,7 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 .sheet{position:fixed; inset:0; z-index:20; display:grid; place-items:center; background:rgba(0,0,0,.6); padding:16px}
 .sheet-panel{
   position:relative; width:min(100%, 440px); max-height:calc(100% - 32px); overflow:auto; box-sizing:border-box;
-  background:var(--bg-2); border:1px solid var(--gold-deep); border-radius:24px; padding:28px 24px 24px; display:grid; gap:16px;
+  background:var(--bg-2); border:1px solid var(--gold-deep); border-radius:var(--r-card); padding:28px 24px 24px; display:grid; gap:16px;
   animation:sheetIn .35s cubic-bezier(.2,.8,.2,1);
 }
 @keyframes sheetIn{from{transform:translateY(24px); opacity:0}}
@@ -489,10 +499,10 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 }
 #cta{pointer-events:auto; width:min(100%, 420px); padding:15px 20px; border-radius:999px; background:var(--gold); color:var(--bg); font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-size:14px; box-shadow:0 10px 30px rgba(0,0,0,.5)}
 #cta.done{background:var(--bg-3); color:var(--gold); border:1px solid var(--gold-deep)}
-#toast{position:fixed; left:50%; z-index:30; transform:translateX(-50%); bottom:calc(92px + env(safe-area-inset-bottom, 0px)); width:max-content; max-width:calc(100% - 32px); padding:10px 16px; border-radius:12px; background:var(--bg-3); border:1px solid var(--gold-deep); font-size:14px; text-align:center}
+#toast{position:fixed; left:50%; z-index:30; transform:translateX(-50%); bottom:calc(92px + env(safe-area-inset-bottom, 0px)); width:max-content; max-width:calc(100% - 32px); padding:10px 16px; border-radius:var(--r-sm); background:var(--bg-3); border:1px solid var(--gold-deep); font-size:14px; text-align:center}
 .ig{display:inline-flex; align-items:center; gap:8px; width:max-content; margin-top:6px; padding:9px 16px; border-radius:999px; background:var(--gold); color:var(--bg); font-size:14px; font-weight:500; text-decoration:none}
 .ig:hover{background:var(--fg)}
-.lock-box{display:grid; gap:12px; justify-items:start; padding:16px; border-radius:16px; border:1px solid var(--gold-deep); background:linear-gradient(180deg, var(--bg-3), var(--bg-2))}
+.lock-box{display:grid; gap:12px; justify-items:start; padding:16px; border-radius:var(--r-card); border:1px solid var(--gold-deep); background:linear-gradient(180deg, var(--bg-3), var(--bg-2))}
 .lock-box p{margin:0}
 .lock-box b{color:var(--gold); font-weight:500}
 .surp-actions{display:flex; flex-wrap:wrap; gap:16px; padding-top:4px}
@@ -559,7 +569,7 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 .otp.is-scan::before{opacity:.6}
 .otp.is-ok::before{opacity:1}
 .otp-boxes{display:flex; gap:var(--gap); transition:opacity .3s, transform .3s}
-.otp-box{position:relative; width:var(--bw); height:var(--bh); box-sizing:border-box; display:grid; place-items:center; border-radius:12px;
+.otp-box{position:relative; width:var(--bw); height:var(--bh); box-sizing:border-box; display:grid; place-items:center; border-radius:var(--r-sm);
   border:1px solid var(--line); background:linear-gradient(180deg, rgba(239,231,214,.05), rgba(239,231,214,0));
   font-family:var(--f-display); font-size:26px; font-variant-numeric:lining-nums tabular-nums; color:var(--fg);
   transition:border-color .2s, box-shadow .2s}
@@ -585,7 +595,7 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
   transition:transform .45s cubic-bezier(.5,0,.75,0), opacity .45s}
 .otp-fly span{--a:calc(var(--i) * 60deg); --bx:calc((var(--i) - 2.5) * (var(--bw) + var(--gap)));
   position:absolute; left:calc(var(--bw) / -2); top:calc(var(--bh) / -2); width:var(--bw); height:var(--bh); box-sizing:border-box;
-  display:grid; place-items:center; border-radius:12px; border:1px solid var(--gold-deep); background:rgba(214,184,120,.08);
+  display:grid; place-items:center; border-radius:var(--r-sm); border:1px solid var(--gold-deep); background:rgba(214,184,120,.08);
   font-family:var(--f-display); font-size:24px; color:var(--gold); box-shadow:0 0 14px rgba(214,184,120,.15);
   animation:otpOut .5s cubic-bezier(.2,.8,.2,1) both, otpOrbit 1.6s linear infinite;
   animation-delay:calc(var(--i) * 25ms), calc(var(--i) * 25ms + .5s)}
@@ -601,7 +611,7 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 .otp.is-scan .otp-fly{transform:scale(0) rotate(120deg); opacity:0}
 
 .otp-seal{position:absolute; left:50%; top:50%; z-index:1; width:44px; height:44px; margin:-22px 0 0 -22px; box-sizing:border-box;
-  display:grid; place-items:center; border-radius:12px; border:1.5px solid var(--gold); pointer-events:none;
+  display:grid; place-items:center; border-radius:var(--r-sm); border:1.5px solid var(--gold); pointer-events:none;
   opacity:0; transform:scale(.4); transition:opacity .35s .15s, transform .55s .15s cubic-bezier(.2,1.5,.4,1), background .4s, box-shadow .4s}
 .otp-seal::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--gold); transition:transform .2s}
 .otp.is-scan .otp-seal, .otp.is-ok .otp-seal{opacity:1; transform:none}
@@ -630,4 +640,24 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
   .otp.is-orbit .otp-boxes{opacity:.35}
   .otp-ring, .otp-ring::before, .otp-box.on::after, .otp.is-err .otp-boxes{animation:none !important}
   .otp-seal, .otp-ring, .otp-boxes{transition-duration:.15s}
+}
+
+/* ---------- Entrada suave de blocos (RevealObserver) ---------- */
+.reveal-on [data-reveal]{opacity:0; transform:translate3d(0,28px,0); transition:opacity .8s ease var(--d, 0ms), transform .9s cubic-bezier(.2,.8,.2,1) var(--d, 0ms)}
+.reveal-on [data-reveal].in{opacity:1; transform:none}
+.sp-head{padding-top:4px}
+
+/* ---------- Surpresa: toque bloqueado ----------
+   A luz tenta acender e falha (dois piscados), a corda balança e o aviso sobe. */
+.spot-stage.nudge .ss-dim{animation:flick 1.2s linear}
+@keyframes flick{0%{opacity:1} 6%{opacity:.35} 10%{opacity:1} 30%{opacity:1} 33%{opacity:.5} 36%{opacity:.9} 40%{opacity:.62} 46%,100%{opacity:1}}
+.spot-stage.nudge .rope svg{transform-origin:50% 30%; animation:ropeSwing 1s cubic-bezier(.3,.7,.4,1)}
+@keyframes ropeSwing{18%{transform:scaleY(1.28)} 42%{transform:scaleY(.9)} 64%{transform:scaleY(1.08)} 82%{transform:scaleY(.98)}}
+.spot-stage.nudge .ss-cta .btn-gold{animation:nope .5s ease}
+@keyframes nope{20%{transform:translateX(-6px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(2px)}}
+.palco-msg{animation:msgIn .5s cubic-bezier(.2,.8,.2,1) .45s both}
+@keyframes msgIn{from{opacity:0; transform:translate3d(0,14px,0)}}
+@media (prefers-reduced-motion: reduce){
+  .reveal-on [data-reveal]{opacity:1; transform:none; transition:none}
+  .spot-stage.nudge .ss-dim, .spot-stage.nudge .rope svg, .spot-stage.nudge .ss-cta .btn-gold, .palco-msg{animation:none}
 }

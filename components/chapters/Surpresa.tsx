@@ -105,23 +105,23 @@ export function Surpresa() {
               <div className="sp-curtain l" data-open=".34,.8" aria-hidden="true" />
               <div className="sp-curtain r" data-open=".34,.8" aria-hidden="true" />
               <div className="sp-valance" aria-hidden="true" />
-              <p className="sp-q" data-show=".8,.9" data-fx="up">
+              {/* fim da cena: palco some no fundo do bloco seguinte e a pergunta sobe, sem linha entre os dois */}
+              <div className="sp-fade" data-show=".86,.98" aria-hidden="true" />
+              <p className="sp-q" data-show=".74,.84,.88,1" data-fx="lift">
                 Quem vai segurar <em>esse microfone?</em>
               </p>
             </div>
           </div>
         </Cine>
         <div className="wrap">
-          <header className="sec-head">
+          <header className="sec-head sp-head" data-reveal>
+            <h2 className="sr-only">Quem vai segurar esse microfone?</h2>
             <p className="eyebrow">Exclusivo para confirmados</p>
-            <h2>
-              Quem vai segurar <em>esse microfone?</em>
-            </h2>
             <p className="lede">
               {state === 'locked' ? 'Só quem confirmou presença descobre.' : state === 'ready' ? 'Você confirmou. Acenda o holofote.' : 'Nos vemos na pista.'}
             </p>
           </header>
-          <div className="spot-stage" ref={stageRef} data-state={state} onClick={(e) => (e.target as Element).closest('.ss-img, .ss-dim') && tryOpen()}>
+          <div className="spot-stage" data-reveal style={{ ['--d' as string]: '120ms' }} ref={stageRef} data-state={state} onClick={(e) => (e.target as Element).closest('.ss-img, .ss-dim') && tryOpen()}>
             <img className="ss-img" src={MIC} alt="Microfone num pedestal, sob um feixe de luz" loading="lazy" decoding="async" />
             <div className="ss-dim" aria-hidden="true" />
             <div className="ss-beam" aria-hidden="true" />

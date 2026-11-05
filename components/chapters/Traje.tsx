@@ -25,28 +25,32 @@ export function Traje() {
     <>
       <div className="anchor" id="traje" />
       <section className="chapter bleed" id="trajeCh" style={{ ['--cb' as string]: 'var(--bg)' }}>
-        <Cine id="trajeCine" height="240svh">
+        <Cine id="trajeCine" height="300svh">
           <h2 className="sr-only">Traje: passeio completo</h2>
           <div className="cine-stage">
-            <div className="cs velvet" />
-            <div className="cl" data-show="0,0,.16,.34" data-fx="up">
-              <CineWord word="TRAJE" />
-              <p className="cap">O dress code da noite</p>
-            </div>
-            <div className="cs tj-glow" data-show=".26,.6" aria-hidden="true" />
-            <div className="cl tj-title" data-show=".3,.56" data-fx="up">
+            {/* palco atrás do pano: escuro, com o refletor acendendo enquanto o pano sobe */}
+            <div className="cs tj-stage" />
+            <div className="cs tj-spot" data-show=".3,.6,.82,1" aria-hidden="true" />
+            <div className="cl tj-title" data-show=".44,.62,.8,1" data-fx="lift">
               <small>Traje</small>
               <p className="tj-name">
                 Passeio <em>completo</em>
               </p>
               <p className="tj-sub">Mais formal que o esporte fino, sem precisar de black tie.</p>
             </div>
+            {/* pano de boca: sobe de uma vez, franzindo, e leva a palavra junto */}
+            <div className="tj-curtain" data-rise=".2,.6" aria-hidden="true">
+              <div className="tj-cloth" />
+              <CineWord word="TRAJE" />
+              <p className="cap">O dress code da noite</p>
+            </div>
+            <div className="sp-valance" data-show="0,0,.84,1" aria-hidden="true" />
           </div>
         </Cine>
         <div className="wrap tj-guide">
           <div className="tj-cards">
-            {LOOKS.map((l) => (
-              <article className="tj-card" key={l.who}>
+            {LOOKS.map((l, i) => (
+              <article className="tj-card" key={l.who} data-reveal style={{ ['--d' as string]: `${i * 120}ms` }}>
                 <p className="k">{l.who}</p>
                 <ul>
                   {l.items.map((t) => (

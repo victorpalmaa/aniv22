@@ -13,6 +13,18 @@ const Orn = () => (
   </svg>
 );
 
+/**
+ * Título da capa. É desenhado inteiro nas duas abas, centrado na emenda: cada aba mostra a sua metade
+ * (como o lacre), então fechado lê como um impresso único e, ao abrir, se parte junto com o papel.
+ */
+const Title = () => (
+  <span className="fw-split" aria-hidden="true">
+    <span className="foil">Parme</span>
+    <i className="foil">&amp;</i>
+    <span className="foil">Varieté</span>
+  </span>
+);
+
 /** 1 · Abertura: convite gatefold. O lacre se parte, as abas abrem em 3D e o cartão cresce com a rolagem. */
 export function Opening() {
   const secRef = useRef<HTMLElement>(null);
@@ -79,7 +91,9 @@ export function Opening() {
             <Orn />
             <span className="ii-k">Victor tem o prazer de convidar você para</span>
             <span className="ii-t">
-              Parme <i className="foil">&amp;</i> Varieté
+              <span>Parme</span>
+              <i className="foil">&amp;</i>
+              <span>Varieté</span>
             </span>
             <Orn />
             <span className="ii-d">Sexta-feira · 15 de janeiro de 2027</span>
@@ -90,7 +104,7 @@ export function Opening() {
           <div className="flap l" ref={lRef}>
             <div className="face f-front">
               <span className="fk">Victor</span>
-              <span className="fw foil">Parme</span>
+              <Title />
               <span className="fk">15 · 01</span>
               <span className="seal-h">
                 <b className="foil">V</b>
@@ -101,9 +115,7 @@ export function Opening() {
           <div className="flap r" ref={rRef}>
             <div className="face f-front">
               <span className="fk">convida</span>
-              <span className="fw fw-r foil">
-                <i>&amp;</i> Varieté
-              </span>
+              <Title />
               <span className="fk">2027</span>
               <span className="seal-h">
                 <b className="foil">V</b>
