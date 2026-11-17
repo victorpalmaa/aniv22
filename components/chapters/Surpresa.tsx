@@ -207,7 +207,7 @@ export function Surpresa() {
               </span>
               <h3>{artist.name}</h3>
               <p>
-                {artist.role} <span className="tag">a confirmar</span>
+                {artist.role}
               </p>
               <p>
                 {artist.when} <span className="tag">a confirmar</span>

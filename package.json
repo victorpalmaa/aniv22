@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:surprise": "node scripts/test-surprise.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
