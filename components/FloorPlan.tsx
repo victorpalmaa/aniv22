@@ -159,7 +159,9 @@ export function FloorPlan() {
 
     function guestEl(g: G) {
       const n = el('g', { class: 'guest' + (g.me ? ' me' : ''), 'data-g': g.id, 'aria-hidden': 'true' }, S.gLayer!) as SVGGElement;
-      el('circle', { r: S.radius[g.area] }, n);
+      // círculo menor, mas o alvo de toque continua com ~24px (invisível)
+      el('circle', { class: 'hit', r: S.radius[g.area] + 7 }, n);
+      el('circle', { class: 'dot', r: S.radius[g.area] }, n);
       if (g.me) el('text', { class: 'you', y: S.radius[g.area] + 13 }, n).textContent = 'Você';
       return n;
     }
@@ -169,7 +171,7 @@ export function FloorPlan() {
       const n = [0, 0, 0];
       S.guests.forEach((g) => n[g.area]++);
       // raio adaptado à lotação da área: o bar é pequeno
-      S.radius = S.L.areas.map((rs, i) => clamp(Math.sqrt(areaSize(rs) / (Math.max(1, n[i]) * 40)), 6, 10));
+      S.radius = S.L.areas.map((rs, i) => clamp(Math.sqrt(areaSize(rs) / (Math.max(1, n[i]) * 40)) * 0.7, 4, 7));
       S.areaEls.forEach(({ g, c }, i) => {
         c.textContent = `${n[i]} ${n[i] === 1 ? 'pessoa' : 'pessoas'}`;
         g.setAttribute('aria-label', `${AREAS[i]}, ${n[i]} ${n[i] === 1 ? 'pessoa' : 'pessoas'}`);
@@ -179,7 +181,8 @@ export function FloorPlan() {
       });
       S.guests.forEach((g) => {
         if (!g.el || !g.el.isConnected) g.el = guestEl(g);
-        g.el.querySelector('circle')!.setAttribute('r', S.radius[g.area].toFixed(1));
+        g.el.querySelector('circle.dot')!.setAttribute('r', S.radius[g.area].toFixed(1));
+        g.el.querySelector('circle.hit')!.setAttribute('r', (S.radius[g.area] + 7).toFixed(1));
         g.el.classList.toggle('me', !!g.me);
         const you = g.el.querySelector('.you');
         if (g.me && !you) el('text', { class: 'you', y: S.radius[g.area] + 13 }, g.el).textContent = 'Você';

@@ -22,3 +22,9 @@ export function partyCode(): string | null {
 }
 
 export const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
+/**
+ * WhatsApp do Victor para "Pergunte ao Victor": só dígitos, com DDI e DDD (ex.: 5519999999999).
+ * Vai no bundle público, como qualquer link wa.me.
+ */
+export const VICTOR_WHATSAPP = '';

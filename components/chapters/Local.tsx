@@ -4,13 +4,15 @@ import { riseProgress, useScene } from '@/hooks/useScene';
 import { reduceMotion } from '@/lib/motion';
 import { Ride } from '../Ride';
 
-// Afastamento do mapa: 1 = print do Google no enquadramento original; menor = mais longe.
-// Rótulos e pins são calculados a partir dele, então dá para mudar só este número.
-const MAP_K = 0.28;
-const C = { x: 346, y: 300 }; // restaurante, centro do afastamento
-const at = (x: number, y: number): [number, number] => [+(C.x + MAP_K * (x - C.x)).toFixed(1), +(C.y + MAP_K * (y - C.y)).toFixed(1)];
+// Traçado a partir do print do Google Maps do local (Av. Vinte e Nove de Abril, 350, Vila Santa Clara),
+// em coordenadas do próprio print (1179x1115). MAP_K é a escala print → tela; o pino do Google (490,640)
+// fica em ANCHOR na tela. Rótulos e pins usam at(), então dá para mexer só nesses dois números.
+const MAP_K = 0.7;
+const PIN = { x: 490, y: 640 };
+const ANCHOR = { x: 420, y: 285 };
+const at = (x: number, y: number): [number, number] => [+(ANCHOR.x + MAP_K * (x - PIN.x)).toFixed(1), +(ANCHOR.y + MAP_K * (y - PIN.y)).toFixed(1)];
 const pt = (x: number, y: number) => at(x, y).join(' ');
-const DOOR = at(360, 300);
+const DOOR = at(500, 632);
 
 /** Rótulo de rua: ponto no traçado original + deslocamento em unidades de tela (não escala com o mapa). */
 function Lbl({ p: [x, y], d = [0, 0], rot = 0, anchor, far, children }: { p: [number, number]; d?: [number, number]; rot?: number; anchor?: 'middle' | 'end'; far?: boolean; children: string }) {
@@ -67,45 +69,48 @@ export function Local() {
           <div className="leaves light" aria-hidden="true" />
           <svg className="map" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mapa ilustrativo do local da festa">
             <rect width="800" height="560" fill="var(--paper)" />
-            {/* traçado do Google Maps (Av. 29 de Abril, 350, Itatiba) em coordenadas do print (x0,55, y0,55-167),
-                afastado por MAP_K em torno do restaurante. Traço não escala (.map-base); rótulos e pins ficam fora do grupo. */}
-            <g className="map-base" transform={`translate(${C.x} ${C.y}) scale(${MAP_K}) translate(${-C.x} ${-C.y})`}>
-              <path d="M712 454 h 160 v 220 h -160 z" fill="var(--map-park)" />
-              <path d="M270 -720 L 294 -420 L 315 -167 L 337 97 L 380 361 L 410 566 L 434 740 L 470 1000 L 510 1320" fill="none" stroke="var(--map-road)" strokeWidth="26" strokeLinecap="round" />
-              <g stroke="var(--map-street)" strokeWidth="12" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M-1100 -954 L -200 -477 L 385 -167 L 583 -62 L 622 15 L 710 185 Q 735 232 760 222 L 1110 -20 L 1400 -240 L 1800 -540" />
-                <path d="M420 -720 L 470 -420 L 528 -167 L 583 -62 L 572 53 L 545 218 L 531 383 L 536 570 L 545 1000 L 550 1320" />
-                <path d="M-1100 588 L -700 457 L 0 229 L 110 193 L 259 133 L 338 100" />
+            {/* traçado do print do Google Maps; ruas que encostavam na borda do print foram estendidas para fora,
+                porque o recorte (slice) do celular mostra mais para os lados. Traço não escala (.map-base). */}
+            <g className="map-base" transform={`translate(${ANCHOR.x - MAP_K * PIN.x} ${ANCHOR.y - MAP_K * PIN.y}) scale(${MAP_K})`}>
+              {/* Av. Vinte e Nove de Abril */}
+              <path d="M430 -400 L 455 0 L 470 250 L 490 410 L 515 660 L 540 850 L 560 1115 L 590 1500" fill="none" stroke="var(--map-road)" strokeWidth="18" strokeLinecap="round" />
+              <g stroke="var(--map-street)" strokeWidth="11" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                {/* R. Domingos Pretti */}
+                <path d="M-500 1060 L 0 1000 L 300 965 L 560 925 L 800 890 L 1179 830 L 1700 760" />
+                {/* diagonal da esquerda até a avenida */}
+                <path d="M-500 760 L 0 580 L 250 500 L 490 405" />
+                {/* diagonal da direita (mão única) */}
+                <path d="M520 -200 L 610 0 L 700 170 L 800 350 L 880 510 L 1000 420 L 1179 300 L 1500 80" />
+                {/* paralela à direita da avenida */}
+                <path d="M900 -200 L 830 20 L 720 330 L 690 470 L 678 700 L 690 800 L 720 1000 L 760 1115 L 800 1400" />
+                {/* rua de cima */}
+                <path d="M-500 200 L 0 110 L 300 62 L 460 92" />
               </g>
-              <g stroke="var(--map-street)" strokeWidth="5" fill="none" strokeLinecap="round">
-                <path d="M259 133 L 242 460" />
-                <path d="M107 196 L 143 570 L 185 1000 L 215 1320" />
-                <path d="M-150 -120 L -80 130 L 0 411 L 44 570 L 160 1000 L 200 1320" />
-                <path d="M426 28 Q 455 -20 492 -112" />
-                <path d="M275 356 L 380 364" />
-                <path d="M542 493 L 810 380 L 1400 130 L 1800 -40" />
-                <path d="M649 53 Q 710 20 732 15 Q 760 -10 765 -68" />
-                <path d="M297 493 L 297 1320" />
+              <g stroke="var(--map-street)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M690 790 L 1030 660 L 995 520" />
+                <path d="M40 460 L 120 740 L 180 830 L 210 1115 L 230 1400" />
+                <path d="M245 510 L 270 800 L 300 1000 L 320 1400" />
+                <path d="M-300 880 L 0 800 L 140 740" />
+                <path d="M400 450 L 405 520 L 380 770" />
+                {/* viela ao lado do número 350 */}
+                <path d="M405 660 L 512 670" />
+                <path d="M438 795 L 435 860 L 378 855" />
+                <path d="M880 1400 L 870 940 L 1179 880 L 1600 840" />
+                <path d="M380 1000 L 410 1115 L 430 1400" />
+                <path d="M110 1030 L 130 1100" />
+                <path d="M810 350 Q 860 320 910 230" />
+                <path d="M885 355 L 970 290 M935 330 L 1000 410" />
               </g>
             </g>
-            <Lbl p={[792, 674]} d={[0, 18]} anchor="middle">
-              Covabra
-            </Lbl>
-            <Lbl p={[345, 150]} d={[24, 0]} rot={81}>
+            <Lbl p={[478, 300]} d={[16, 0]} rot={84}>
               Av. 29 de Abril
             </Lbl>
-            <Lbl p={[532, 330]} d={[18, 0]} rot={-86}>
-              R. Luiz Scavone
+            <Lbl p={[360, 950]} d={[0, -12]} rot={-7} anchor="middle">
+              R. Domingos Pretti
             </Lbl>
-            <Lbl p={[670, 110]} d={[14, -8]} rot={62}>
-              R. Santa Clara
-            </Lbl>
-            <Lbl p={[-340, 343]} d={[0, -12]} rot={-21} far>
-              R. São Caetano
-            </Lbl>
-            <path className="route" d={`M${pt(294, -420)} L ${pt(315, -167)} L ${pt(337, 97)} L ${pt(366, 286)} L ${DOOR.join(' ')}`} fill="none" />
-            {/* TODO confirmar: posição do estacionamento chutada na viela ao lado do restaurante */}
-            <g className="pin p-park" transform={`translate(${DOOR[0] - 35} ${DOOR[1] + 52})`} style={{ transitionDelay: '0s' }}>
+            <path className="route" d={`M${pt(455, 0)} L ${pt(470, 250)} L ${pt(490, 410)} L ${pt(512, 620)} L ${DOOR.join(' ')}`} fill="none" />
+            {/* TODO confirmar: posição do estacionamento chutada na viela ao lado do número 350 */}
+            <g className="pin p-park" transform={`translate(${pt(385, 705)})`} style={{ transitionDelay: '0s' }}>
               <circle r="16" fill="var(--wine)" />
               <text y="6" textAnchor="middle" className="pin-t">
                 P

@@ -1,9 +1,7 @@
 'use client';
-import { useEffect, useState, type FormEvent } from 'react';
-import { useParty } from '../providers/PartyProvider';
+import { useState, type FormEvent } from 'react';
 import { Ride } from '../Ride';
-import { supabase } from '@/lib/supabase/client';
-import { isEmail, partyCode } from '@/lib/party';
+import { VICTOR_WHATSAPP } from '@/lib/party';
 
 const FAQ: [string, string][] = [
   ['Preciso levar alguma coisa?', 'Só você. Comida e bebida são por conta do Victor.'],
@@ -13,38 +11,20 @@ const FAQ: [string, string][] = [
   ['Confirmei em outro celular. E agora?', 'Toque em "Confirmar presença" e depois em "Já confirmei". Você recebe um código no email e entra de novo.'],
 ];
 
-/** 8 · Dúvidas: FAQ + caixa de pergunta (insert-only, validada pelo código da festa). */
+/** 8 · Dúvidas: FAQ + "Pergunte ao Victor" pelo WhatsApp (texto escrito aqui abre a conversa já preenchido). */
 export function Duvidas() {
-  const { me } = useParty();
-  const [email, setEmail] = useState('');
   const [text, setText] = useState('');
-  const [msg, setMsg] = useState<{ cls: 'ok' | 'err'; t: string } | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const ready = VICTOR_WHATSAPP.length >= 12;
 
-  useEffect(() => {
-    if (me) setEmail(me.email);
-  }, [me]);
-
-  async function submit(e: FormEvent) {
+  function send(e: FormEvent) {
     e.preventDefault();
-    const em = email.trim().toLowerCase(), body = text.trim();
-    if (!isEmail(em)) return setMsg({ cls: 'err', t: 'Coloque seu email para o Victor conseguir responder.' });
-    if (!body) return setMsg({ cls: 'err', t: 'Escreva sua pergunta.' });
-    const code = partyCode();
-    if (!code) return setMsg({ cls: 'err', t: 'Só quem recebeu o link do convite pode mandar perguntas. Peça o link ao Victor.' });
-    setBusy(true);
-    // sem .select(): não há policy de select em questions e o retorno daria erro de permissão
-    const { error } = await supabase()
-      .from('questions')
-      .insert({ asker_email: em, body, party_code: code, asker_name: me ? `${me.first} ${me.last}` : null });
-    setBusy(false);
-    if (error) {
-      if (/question_rate_limited/.test(error.message)) return setMsg({ cls: 'err', t: 'Você já mandou 3 perguntas na última hora. Tente de novo mais tarde.' });
-      if (error.code === '42501') return setMsg({ cls: 'err', t: 'Esse link está incompleto. Peça ao Victor o link do convite.' });
-      return setMsg({ cls: 'err', t: 'Não deu para enviar agora. Tente de novo em instantes.' });
-    }
-    setText('');
-    setMsg({ cls: 'ok', t: 'Pergunta enviada. O Victor responde no seu email.' });
+    const body = text.trim();
+    if (!body) return setMsg('Escreva sua mensagem.');
+    if (!ready) return;
+    // wa.me abre o app (iOS/Android) ou o WhatsApp Web; location em vez de nova aba: no navegador do WhatsApp
+    // uma aba nova abre por cima e o convidado se perde
+    window.location.href = `https://wa.me/${VICTOR_WHATSAPP}?text=${encodeURIComponent(body)}`;
   }
 
   return (
@@ -65,23 +45,20 @@ export function Duvidas() {
           <div className="panel wide">
             <p className="eyebrow">Ficou alguma dúvida?</p>
             <h3>Pergunte ao Victor</h3>
-            <p className="muted">A pergunta vai direto para ele, e a resposta chega no seu email.</p>
-            <form onSubmit={submit} noValidate>
+            <p className="muted">Escreva aqui e envie: abre a conversa com o Victor no WhatsApp, com a mensagem pronta.</p>
+            <form onSubmit={send} noValidate>
               <div className="field">
-                <label htmlFor="q-email">Seu email</label>
-                <input id="q-email" type="email" inputMode="email" autoComplete="email" autoCapitalize="off" placeholder="voce@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div className="field" style={{ marginTop: 10 }}>
-                <label htmlFor="q-text">Sua pergunta</label>
-                <textarea id="q-text" maxLength={500} placeholder="Ex.: posso chegar um pouco mais tarde?" value={text} onChange={(e) => setText(e.target.value)} />
+                <label htmlFor="q-text">Sua mensagem</label>
+                <textarea id="q-text" maxLength={500} placeholder="Ex.: posso chegar um pouco mais tarde?" value={text} onChange={(e) => (setText(e.target.value), setMsg(null))} />
                 <span className="counter">{text.length}/500</span>
               </div>
-              <div aria-live="polite">{msg && <p className={`msg ${msg.cls}`} style={{ marginTop: 10 }}>{msg.t}</p>}</div>
+              <div aria-live="polite">{msg && <p className="msg err" style={{ marginTop: 10 }}>{msg}</p>}</div>
               <div className="row" style={{ marginTop: 6 }}>
-                <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
-                  Enviar pergunta
+                <button className="btn-gold" type="submit" disabled={!ready}>
+                  Enviar no WhatsApp
                 </button>
               </div>
+              {!ready && <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>O número do Victor ainda vai entrar aqui.</p>}
             </form>
           </div>
         </div>

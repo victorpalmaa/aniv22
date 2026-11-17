@@ -15,6 +15,8 @@ export type Item = {
   desc: string;
   specs: [string, string][];
   pairs: string[];
+  /** "Vai bem com TUDO": mostra todos os outros itens (parmegiana) */
+  pairsAll?: boolean;
   photo?: Photo;
   /** vídeo curto do prato: toca no detalhe (sem som, uma vez) no lugar da foto. poster = último quadro */
   /** src: 1080p (desktop); srcSm: 720p (celular, até 859 px). Ambos 60 fps, H.264 CRF 18 (PSNR >= 46 dB do original) */
@@ -34,7 +36,7 @@ export const ART: Record<string, string> = {};
 
 
 export const ITEMS: Item[] = [
-  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: { ...ph('parmegiana'), amp: [0.022, 0.017] }, video: { src: '/video/parmegiana-1080.mp4', srcSm: '/video/parmegiana-720.mp4', w: 1920, h: 1080, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
+  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: { ...ph('parmegiana'), amp: [0.022, 0.017] }, video: { src: '/video/parmegiana-1080.mp4', srcSm: '/video/parmegiana-720.mp4', w: 1920, h: 1080, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: [], pairsAll: true },
   { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
   { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
@@ -45,8 +47,8 @@ export const ITEMS: Item[] = [
 ];
 
 export const DRINKS: Item[] = [
-  { id: 'heineken', name: 'Heineken', label: ['Heineken', ''], cat: 'Bar', eyebrow: 'Cerveja', fx: 'bubbles', color: '#1f6b3a', photo: ph('heineken'), desc: 'Long neck bem gelada.', specs: [], pairs: ['fritas', 'torresmo'] },
-  { id: 'campari', name: 'Campari', label: ['Campari', ''], cat: 'Bar', eyebrow: 'Aperitivo', fx: 'sparkle', color: '#b3122e', photo: ph('campari'), desc: 'O bitter italiano, para quem gosta do amargo.', specs: [], pairs: ['polenta', 'rucula'] },
+  { id: 'heineken', name: 'Heineken', label: ['Heineken', '600 ml'], cat: 'Bar', eyebrow: 'Cerveja', fx: 'bubbles', color: '#1f6b3a', photo: ph('heineken'), desc: 'Garrafa de 600 ml, bem gelada.', specs: [], pairs: ['fritas', 'torresmo'] },
+  { id: 'campari', name: 'Campari', label: ['Campari', 'em shots'], cat: 'Bar', eyebrow: 'Aperitivo', fx: 'sparkle', color: '#b3122e', photo: ph('campari'), desc: 'Servido em shots, no martelinho. O bitter italiano, para quem gosta do amargo.', specs: [], pairs: ['polenta', 'rucula'] },
   { id: 'caipi-limao', name: 'Caipirinha ou caipirosca de limão', label: ['Caipirinha', 'ou caipirosca · limão'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#6f9a2a', photo: ph('caipi-limao'), desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Limão']], pairs: ['torresmo', 'pintado'] },
   { id: 'caipi-morango', name: 'Caipirinha ou caipirosca de morango', label: ['Caipirinha', 'ou caipirosca · morango'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#c2263f', photo: ph('caipi-morango'), desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Morango']], pairs: ['croquete', 'parmegiana'] },
   { id: 'coca', name: 'Coca-Cola', label: ['Coca-Cola', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#a50f1d', photo: ph('coca'), desc: 'Coca-Cola gelada.', specs: [], pairs: ['parmegiana', 'fritas'] },
@@ -55,3 +57,5 @@ export const DRINKS: Item[] = [
 ];
 
 export const BY: Record<string, Item> = Object.fromEntries([...ITEMS, ...DRINKS].map((i) => [i.id, i]));
+/** itens que aparecem em "Vai bem com" */
+export const pairsOf = (it: Item) => (it.pairsAll ? [...ITEMS, ...DRINKS].filter((x) => x.id !== it.id).map((x) => x.id) : it.pairs);

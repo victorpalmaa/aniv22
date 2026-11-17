@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { ART, BY, type Item } from '@/lib/content';
+import { ART, BY, pairsOf, type Item } from '@/lib/content';
 import { clamp, io, reduceMotion } from '@/lib/motion';
 import { leaveItem, openItem, takeLastTrigger } from '@/lib/detail';
 import { getJSON, setJSON } from '@/lib/storage';
@@ -311,9 +311,9 @@ function PhotoDetail({ it }: { it: Item }) {
             ))}
           </dl>
         )}
-        <p className="h3">Vai bem com</p>
+        <p className="h3">{it.pairsAll ? <>Vai bem com <b className="all">TUDO</b></> : 'Vai bem com'}</p>
         <div className="pairs">
-          {it.pairs.map((p) => (
+          {pairsOf(it).map((p) => (
             <button key={p} className="pair" type="button" onClick={() => openItem(p)}>
               <ItemMini it={BY[p]} />
               {BY[p].name}
@@ -356,9 +356,9 @@ function Detail({ it }: { it: Item }) {
               ))}
             </dl>
           )}
-          <p className="h3">Vai bem com</p>
+          <p className="h3">{it.pairsAll ? <>Vai bem com <b className="all">TUDO</b></> : 'Vai bem com'}</p>
           <div className="pairs">
-            {it.pairs.map((p) => (
+            {pairsOf(it).map((p) => (
               <button key={p} className="pair" type="button" onClick={() => openItem(p)}>
                 <ItemMini it={BY[p]} />
                 {BY[p].name}

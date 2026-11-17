@@ -314,6 +314,10 @@ h2 em, h1 em{font-style:italic; color:var(--gold)}
 @keyframes pulse{0%{transform:scale(.8); opacity:.7} 100%{transform:scale(1.25); opacity:0}}
 /* Mesa horizontal: a seção é alta, o palco fica grudado e a rolagem vertical vira deslocamento horizontal */
 .hs{position:relative}
+/* celular/tablet: sem prender a tela; arrastar para o lado navega, a rolagem vertical segue com a página */
+.hs.swipe .hs-sticky, .bar-ch.swipe .bar-stage{touch-action:pan-y; -webkit-user-select:none; user-select:none}
+.bar-ch.swipe{height:auto}
+.bar-ch.swipe .bar-stage{position:relative; top:auto}
 .hs-sticky{position:sticky; top:var(--hh, 60px); height:calc(100svh - var(--hh, 60px)); min-height:420px; overflow:hidden; display:flex; flex-direction:column; background:var(--bg-2)}
 .hs-stage{position:relative; flex:1; min-height:0; overflow:hidden; background:radial-gradient(120% 70% at 50% 100%, var(--bg-3), var(--bg-2) 60%); perspective:1000px; perspective-origin:50% 30%}
 .mesa-ch{padding-bottom:0; background:var(--bg-2)}
@@ -409,9 +413,12 @@ body.seen .dish .art::after{display:none}
 .area .lbl, .plan .cnt, .guest .you{paint-order:stroke; stroke:rgba(13,12,10,.82); stroke-width:3.5px; stroke-linejoin:round}
 .area .lbl{font-weight:600}
 .plan .cnt{fill:var(--fg)}
-.guest circle{fill:#5a3b26; stroke:#f3ead8; stroke-width:1.6}
-.anon .guest circle{fill:#7d6a55}
-.guest.me circle{fill:var(--gold); stroke:#1a1712; stroke-width:2.5}
+/* convidados: azul; você: amarelo */
+.guest circle.hit{fill:transparent; stroke:none}
+.guest circle.dot{fill:#2f6fd6; stroke:#f3ead8; stroke-width:1.3}
+.anon .guest circle.dot{fill:#2f6fd6; opacity:.85}
+.guest.me circle.dot{fill:#f5c518; stroke:#1a1712; stroke-width:2}
+.guest.pinned circle.dot{stroke:var(--gold); stroke-width:2}
 .light{fill:var(--gold); animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:.25} 50%{opacity:1}}
 .plan-overlay{position:absolute; left:12px; right:12px; bottom:12px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 14px; border-radius:var(--r-card); background:rgba(13,12,10,.88); border:1px solid var(--gold-deep); text-align:center; font-size:15px}
@@ -508,6 +515,10 @@ details.who ul{columns:2; column-gap:24px; padding-left:18px; font-size:15px}
 }
 .field textarea{min-height:110px; resize:vertical}
 .field input:focus, .field textarea:focus{border-color:var(--gold-deep); outline:none}
+/* preenchimento automático (iOS/Chrome) pintava o fundo de branco e mantinha o texto claro: ficava ilegível */
+.field input, .field textarea{color-scheme:dark; caret-color:var(--gold)}
+.field input:-webkit-autofill, .field input:-webkit-autofill:hover, .field input:-webkit-autofill:focus, .field input:autofill{
+  -webkit-text-fill-color:var(--fg); -webkit-box-shadow:0 0 0 1000px var(--bg) inset; box-shadow:0 0 0 1000px var(--bg) inset; transition:background-color 99999s ease-out 0s}
 .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
 .msg{margin:0; font-size:14px; padding:10px 12px; border-radius:var(--r-sm)}
 .msg.err{color:var(--err); background:rgba(224,138,122,.08); border:1px solid rgba(224,138,122,.3)}
@@ -762,4 +773,5 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 @media (max-width:859px){ .detail-layer .d-full.is-video .dp-cover{top:36%} }
 .vid-btn{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; border:1px solid rgba(214,184,120,.45); background:rgba(11,10,8,.62); color:var(--fg); font-size:13px; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); white-space:nowrap}
 .vid-btn span{color:var(--gold); font-size:11px}
+.h3 .all{color:var(--gold); letter-spacing:.2em}
 .pair img.mini{width:30px; height:30px; border-radius:8px; object-fit:cover}

@@ -1,6 +1,7 @@
 'use client';
 import { useRef, type CSSProperties } from 'react';
 import { useSettledIndex } from '@/hooks/useSettledIndex';
+import { useSwipe, useTouchMode } from '@/hooks/useSwipe';
 import { DRINKS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
@@ -27,16 +28,42 @@ export function Bar() {
   const frontRef = useRef(-1);
   const frontSlot = useSettledIndex(frontRef);
   const { detail } = useMotionPrefs();
+  // celular/tablet: arrastar para o lado gira o anel (mesmo gesto da Mesa); rolar para baixo sai da seção
+  const touch = useTouchMode();
+  const touchRef = useRef(false); // useScene registra o callback uma vez: lê o modo por ref
+  touchRef.current = touch;
+  const swipe = useSwipe(stageRef, {
+    enabled: touch,
+    steps: NB,
+    pxPerStep: () => Math.min(ringW.current * 0.5, 260),
+    onP: (p) => render(p * (NB - 1)),
+  });
 
   useScene(
     chRef,
     (p0) => {
-      const stage = stageRef.current!;
+      if (touchRef.current) return;
       const p = p0 * (NB - 1);
-      // pausa em cada bebida: o giro acontece no meio do trecho, como um passo
+      // desktop: pausa em cada bebida, o giro acontece no meio do trecho, como um passo
       const i = Math.min(NB - 2, Math.floor(p)), f = p - i;
       let pos = reduceMotion() ? Math.round(p) : i + io(clamp((f - 0.2) / 0.6, 0, 1));
       if (p >= NB - 1) pos = NB - 1;
+      render(pos);
+    },
+    {
+      offset: 'top',
+      span: (el) => el.offsetHeight - stageRef.current!.offsetHeight,
+      measure: () => {
+        ringW.current = stageRef.current!.clientWidth;
+        if (touchRef.current) render(swipe.progress() * (NB - 1));
+      },
+    },
+  );
+
+  // desenha o anel na posição pos (0..NB-1; no arraste pode passar um pouco das pontas)
+  function render(pos: number) {
+      const stage = stageRef.current;
+      if (!stage || !ringRef.current) return;
       const R = Math.min(ringW.current * 0.62, 520), rot = pos * STEP;
       let fs = -1;
       ringRef.current!.querySelectorAll<HTMLElement>('.drink').forEach((el, j) => {
@@ -61,23 +88,15 @@ export function Bar() {
         el.style.setProperty('--no', Math.max(0, 1 - Math.abs(o) * 1.6).toFixed(2));
       });
       frontRef.current = fs;
-      const c = Math.round(pos);
+      const c = clamp(Math.round(pos), 0, NB - 1);
       if (c !== cur.current) {
         cur.current = c;
         stage.style.setProperty('--glow', DRINKS[c].color ?? '');
       }
-      const t = pos / (NB - 1);
+      const t = clamp(pos / (NB - 1), 0, 1);
       fillRef.current!.style.transform = `scaleX(${t.toFixed(4)})`;
       dotRef.current!.style.left = (t * 100).toFixed(1) + '%';
-    },
-    {
-      offset: 'top',
-      span: (el) => el.offsetHeight - stageRef.current!.offsetHeight,
-      measure: () => {
-        ringW.current = stageRef.current!.clientWidth;
-      },
-    },
-  );
+  }
 
   // toque em qualquer bebida abre o detalhe dela, esteja na frente ou não (pedido do Victor)
   function onClick(e: React.MouseEvent) {
@@ -88,7 +107,7 @@ export function Bar() {
   return (
     <>
       <div className="anchor" id="bar" />
-      <section className="bar-ch bleed" id="barCh" ref={chRef} style={{ '--n': NB } as CSSProperties}>
+      <section className={`bar-ch bleed${touch ? ' swipe' : ''}`} id="barCh" ref={chRef} style={{ '--n': NB } as CSSProperties}>
         <div className="bar-stage" ref={stageRef}>
           <Ride word="BAR" bg="#0b0a08" color="var(--gold)" still />
           <div className="bar-scene">
@@ -127,7 +146,7 @@ export function Bar() {
                 <b ref={fillRef} />
                 <i ref={dotRef} />
               </div>
-              <p className="bar-hint">Role para escolher · toque para ver</p>
+              <p className="bar-hint">{touch ? 'Arraste ↔ · toque para ver' : 'Role para escolher · toque para ver'}</p>
             </div>
           </div>
         </div>

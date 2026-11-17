@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { useSettledIndex } from '@/hooks/useSettledIndex';
+import { useSwipe, useTouchMode } from '@/hooks/useSwipe';
 import { ITEMS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
@@ -23,6 +24,17 @@ export function Mesa() {
   const frontRef = useRef(-1);
   const front = useSettledIndex(frontRef);
   const { detail } = useMotionPrefs();
+  // celular/tablet: arrastar para o lado navega; rolar para baixo sai da seção (sem prender a tela)
+  const touch = useTouchMode();
+  const touchRef = useRef(false);
+  touchRef.current = touch;
+  const renderRef = useRef<(p: number) => void>(() => {});
+  const swipe = useSwipe(stickyRef, {
+    enabled: touch,
+    steps: SLOTS,
+    pxPerStep: () => geo.current.slot * 0.9,
+    onP: (p) => renderRef.current(p),
+  });
 
   useEffect(() => {
     const hs = hsRef.current!, sticky = stickyRef.current!, track = trackRef.current!;
@@ -40,20 +52,27 @@ export function Mesa() {
       track.style.setProperty('--pad', pad + 'px');
       track.style.setProperty('--tw', tw + 'px');
       const max = Math.max(0, tw - vw);
-      const h = sticky.offsetHeight + max + 'px';
+      const h = sticky.offsetHeight + (touchRef.current ? 0 : max) + 'px';
       if (hs.style.height !== h) hs.style.height = h;
       top = absTop(hs);
       geo.current = { max, top: vp.hh, w: vw, slot, pad };
       dishes = [...track.querySelectorAll<HTMLElement>('.dish')];
     }
 
-    // frame: só scrollY e escrita de transform
+    // frame (desktop): progresso vem da rolagem vertical
     function frame() {
       const g = geo.current;
+      if (touchRef.current) return;
       if (top + g.max + vp.vh < vp.y || top > vp.y + vp.vh) return;
-      const p = g.max ? clamp((vp.y + vp.hh - top) / g.max, 0, 1) : 0;
+      render(g.max ? clamp((vp.y + vp.hh - top) / g.max, 0, 1) : 0);
+    }
+
+    // desenha a mesa para um progresso p (0..1); no celular p vem do arraste e pode passar um pouco das bordas
+    function render(p: number) {
+      const g = geo.current;
+      if (!dishes.length) return;
       track.style.transform = `translate3d(${(-p * g.max).toFixed(1)}px,0,0)`;
-      barRef.current!.style.transform = `scaleX(${p.toFixed(4)})`;
+      barRef.current!.style.transform = `scaleX(${clamp(p, 0, 1).toFixed(4)})`;
       hintRef.current!.style.opacity = p > 0.04 ? '0' : '1';
       // cada prato reage à distância do centro: no meio sobe e encara, nas bordas gira e afunda
       const sx = p * g.max, half = g.w / 2, flat = reduceMotion();
@@ -68,8 +87,12 @@ export function Mesa() {
       });
       frontRef.current = best;
     }
+    renderRef.current = render;
 
-    const off = onScroll(frame, measure);
+    const off = onScroll(frame, () => {
+      measure();
+      if (touchRef.current) render(swipe.progress());
+    });
     // trackpad com rolagem lateral também anda na mesa
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
@@ -79,7 +102,7 @@ export function Mesa() {
     };
     sticky.addEventListener('wheel', onWheel, { passive: false });
     return () => (off(), sticky.removeEventListener('wheel', onWheel));
-  }, []);
+  }, [touch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // teclado: ao focar um item fora da tela, rola até ele
   function onFocus(e: React.FocusEvent) {
@@ -87,6 +110,7 @@ export function Mesa() {
     const g = geo.current;
     if (!el || !g.max) return;
     const i = [...trackRef.current!.querySelectorAll('.dish')].indexOf(el);
+    if (touch) return swipe.goTo(i);
     const absTop = hsRef.current!.getBoundingClientRect().top + window.scrollY - g.top;
     window.scrollTo({ top: absTop + Math.min(g.max, Math.max(0, g.slot * i)), behavior: reduceMotion() ? 'auto' : 'smooth' });
   }
@@ -95,7 +119,7 @@ export function Mesa() {
     <>
       <div className="anchor" id="mesa" />
       <section className="chapter mesa-ch bleed" id="mesaCh">
-        <div className="hs" ref={hsRef}>
+        <div className={`hs${touch ? ' swipe' : ''}`} ref={hsRef}>
           <div className="hs-sticky" ref={stickyRef}>
             <Ride word="MESA" bg="var(--bg-2)" color="var(--gold)" />
             <div className="hs-stage">
@@ -125,7 +149,15 @@ export function Mesa() {
               </div>
               <div className="hs-ui" aria-hidden="true">
                 <span className="hs-hint" ref={hintRef}>
-                  Role para percorrer a mesa <span>↓</span>
+                  {touch ? (
+                    <>
+                      Arraste para o lado <span>↔</span>
+                    </>
+                  ) : (
+                    <>
+                      Role para percorrer a mesa <span>↓</span>
+                    </>
+                  )}
                 </span>
                 <i>
                   <b ref={barRef} />
