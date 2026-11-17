@@ -35,6 +35,10 @@ export function MotionPrefs({ children }: { children: React.ReactNode }) {
     setPaused((p) => !p);
   }, []);
   useEffect(() => setJSON('local', KEY, paused), [paused]);
+  // Pausar também congela os loops de ambiente do CSS (vapor, brilhos, rota do mapa), não só as fotos 3D
+  useEffect(() => {
+    document.documentElement.classList.toggle('anim-paused', paused);
+  }, [paused]);
 
   const value = useMemo(() => ({ paused, togglePaused, detail }), [paused, togglePaused, detail]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

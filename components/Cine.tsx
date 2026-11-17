@@ -48,13 +48,13 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
           const o = L.fx === 'lift' || L.fx === 'land' ? qi : qi * (1 - qo);
           const tf =
             L.fx === 'land'
-              ? `translate3d(0,${((1 - qi) * H * 0.06 + qo * (L.land ?? 0)).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
+              ? `translate3d(0,${((1 - qi) * H * 0.035 + qo * (L.land ?? 0)).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
               : L.fx === 'lift'
-              ? `translate3d(0,${((1 - qi) * H * 0.06 - qo * H * 0.2).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
+              ? `translate3d(0,${((1 - qi) * H * 0.035 - qo * H * 0.2).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
               : L.fx === 'up'
-              ? `translate3d(0,${((1 - qi) * H * 0.06 - qo * H * 0.04).toFixed(1)}px,0)`
+              ? `translate3d(0,${((1 - qi) * H * 0.035 - qo * H * 0.025).toFixed(1)}px,0)`
               : L.fx === 'zoom'
-                ? `scale(${(1.06 - 0.06 * qi - 0.04 * qo).toFixed(4)})`
+                ? `scale(${(1.035 - 0.035 * qi - 0.025 * qo).toFixed(4)})`
                 : '';
           css = `${o.toFixed(3)}|${tf}`;
           if (css === L.last) continue;
@@ -79,7 +79,7 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
           L.el.style.transform = css;
         } else {
           const q = seg(p, L.n[0], L.n[1]);
-          css = `scale(${(1.1 - 0.1 * q).toFixed(4)})`;
+          css = `scale(${(1.05 - 0.05 * q).toFixed(4)})`;
           if (css === L.last) continue;
           L.el.style.transform = css;
         }

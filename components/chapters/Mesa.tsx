@@ -82,8 +82,8 @@ export function Mesa() {
         if (a < bestA) (bestA = a), (best = i);
         el.style.transform = flat
           ? 'translate(-50%,-50%)'
-          : `translate(-50%,-50%) translateZ(${(70 - a * 130).toFixed(1)}px) rotateY(${(-d * 32).toFixed(1)}deg) rotateX(${(a * 6).toFixed(1)}deg)`;
-        el.style.opacity = (1 - Math.max(0, a - 0.55) * 0.75).toFixed(2);
+          : `translate(-50%,-50%) translateZ(${(46 - a * 90).toFixed(1)}px) rotateY(${(-d * 20).toFixed(1)}deg) rotateX(${(a * 3).toFixed(1)}deg)`;
+        el.style.opacity = (1 - Math.max(0, a - 0.55) * 0.6).toFixed(2);
       });
       frontRef.current = best;
     }

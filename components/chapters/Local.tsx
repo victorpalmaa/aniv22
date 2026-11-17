@@ -109,8 +109,8 @@ export function Local() {
               R. Domingos Pretti
             </Lbl>
             <path className="route" d={`M${pt(455, 0)} L ${pt(470, 250)} L ${pt(490, 410)} L ${pt(512, 620)} L ${DOOR.join(' ')}`} fill="none" />
-            {/* TODO confirmar: posição do estacionamento chutada na viela ao lado do número 350 */}
-            <g className="pin p-park" transform={`translate(${pt(385, 705)})`} style={{ transitionDelay: '0s' }}>
+            {/* estacionamento: logo abaixo da viela, colado na avenida (posição marcada pelo Victor) */}
+            <g className="pin p-park" transform={`translate(${pt(500, 738)})`} style={{ transitionDelay: '0s' }}>
               <circle r="16" fill="var(--wine)" />
               <text y="6" textAnchor="middle" className="pin-t">
                 P

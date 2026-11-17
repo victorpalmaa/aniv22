@@ -73,10 +73,10 @@ export function Bar() {
         if (!vis) return;
         const rad = (a * Math.PI) / 180, front = Math.max(0, 1 - Math.abs(a) / STEP);
         const x = Math.sin(rad) * R, z = (Math.cos(rad) - 1) * R * 0.9, y = -Math.abs(Math.sin(rad)) * 30 - front * 18;
-        el.style.transform = `translate(-50%,-50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${(a * 0.45).toFixed(1)}deg) rotateZ(${(-10 + front * 4).toFixed(1)}deg) scale(${(1 + front * 0.12).toFixed(3)})`;
+        el.style.transform = `translate(-50%,-50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${(a * 0.35).toFixed(1)}deg) rotateZ(${(-6 + front * 3).toFixed(1)}deg) scale(${(1 + front * 0.08).toFixed(3)})`;
         // filter força repintura: degraus de 5% só repintam quando a diferença é visível
         const f = Math.round(front * 20) / 20;
-        const filter = `brightness(${(0.28 + 0.72 * f).toFixed(2)}) saturate(${(0.5 + 0.5 * f).toFixed(2)})`;
+        const filter = `brightness(${(0.36 + 0.64 * f).toFixed(2)}) saturate(${(0.6 + 0.4 * f).toFixed(2)})`;
         if (el.style.filter !== filter) el.style.filter = filter;
         el.style.zIndex = String(Math.round(100 - Math.abs(a)));
         el.toggleAttribute('data-front', front > 0.9);
