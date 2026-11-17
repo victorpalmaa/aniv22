@@ -93,7 +93,7 @@ html.lock{overflow:hidden}
 .flap.r .face.f-front{align-items:flex-start; text-align:left}
 .flap.r .face.f-front::before{left:-1px}
 .fk{font-size:8cqw; letter-spacing:.32em; text-transform:uppercase; color:var(--gold-deep); position:relative}
-/* "Parme &" numa aba e "Gala" na outra, mesmo tamanho, encostados na emenda */
+/* "Parme" numa aba e "& Gala" na outra (larguras quase iguais: o nome fica centrado), encostados na emenda */
 .fw{position:absolute; top:40%; font-family:var(--f-display); font-size:25cqw; line-height:1; white-space:nowrap}
 .flap.l .fw{right:3.5cqw} .flap.r .fw{left:3.5cqw}
 .fw i{font-style:italic}
@@ -189,8 +189,8 @@ html.lock{overflow:hidden}
 .bar-hit:focus-visible{outline:2px solid var(--gold); outline-offset:4px; border-radius:var(--r-card)}
 .drink .art{display:block; width:100%; height:100%; filter:drop-shadow(0 22px 22px rgba(0,0,0,.7))}
 .drink .art svg{width:100%; height:100%; display:block}
-.bar-names{position:absolute; left:0; right:0; bottom:150px; height:clamp(64px, 14vw, 120px); overflow:hidden; text-align:center; pointer-events:none}
-.bar-names .nm{position:absolute; inset:0; display:grid; align-content:start; justify-items:center; transform:translateY(var(--ny, 100%)); opacity:var(--no, 0); will-change:transform}
+.bar-names{position:absolute; left:0; right:0; bottom:150px; height:clamp(74px, calc(14vw + 10px), 130px); overflow:hidden; text-align:center; pointer-events:none}
+.bar-names .nm{position:absolute; inset:0; padding-top:10px; display:grid; /* folga para acento em maiúscula (Á) não ser cortado pela máscara */ align-content:start; justify-items:center; transform:translateY(var(--ny, 100%)); opacity:var(--no, 0); will-change:transform}
 .bar-names b{font-family:var(--f-display); font-weight:500; font-size:clamp(28px, 6.4vw, 58px); line-height:1; color:var(--fg)}
 .bar-names span{font-family:var(--f-display); font-style:italic; font-size:clamp(18px, 3.6vw, 30px); color:var(--gold)}
 .bar-ui{position:absolute; left:50%; bottom:100px; transform:translateX(-50%); width:min(70vw, 360px); display:grid; gap:10px; justify-items:center}
@@ -712,4 +712,3 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 .detail-layer .d-photo .dp{border-radius:18px; box-shadow:0 30px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(214,184,120,.22)}
 @media (min-width:700px){ .detail-layer .d-photo{width:min(40vw, 300px)} }
 .pair img.mini{width:30px; height:30px; border-radius:8px; object-fit:cover}
-.bar-extra{margin:0; font-size:12px; color:var(--muted); text-align:center}

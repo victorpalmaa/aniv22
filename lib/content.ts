@@ -3,7 +3,8 @@
 // Nada de conteúdo restrito aqui: este arquivo vai para o bundle público.
 
 export type Fx = 'steam' | 'bubbles' | 'sparkle';
-/** Foto com profundidade: w/h do meta.json. amp só para reduzir o movimento de um item (vidro). */
+/** Foto com profundidade: w/h do meta.json. amp só para reduzir o movimento de um item.
+ *  Garrafas usam profundidade única (bloco rígido) gerada no pipeline: vidro engana o modelo e a borda esticava. */
 export type Photo = { slug: string; w: number; h: number; amp?: [number, number] };
 export type Item = {
   id: string;
@@ -48,9 +49,8 @@ export const DRINKS: Item[] = [
   { id: 'caipi-limao', name: 'Caipirinha ou caipirosca de limão', label: ['Caipirinha', 'ou caipirosca · limão'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#6f9a2a', desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Limão']], pairs: ['torresmo', 'pintado'] },
   { id: 'caipi-morango', name: 'Caipirinha ou caipirosca de morango', label: ['Caipirinha', 'ou caipirosca · morango'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#c2263f', desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Morango']], pairs: ['croquete', 'parmegiana'] },
   { id: 'coca', name: 'Coca-Cola', label: ['Coca-Cola', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#a50f1d', photo: sq('coca'), desc: 'Coca-Cola gelada.', specs: [], pairs: ['parmegiana', 'fritas'] },
+  { id: 'guarana', name: 'Guaraná', label: ['Guaraná', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#3f8f2f', photo: sq('guarana'), desc: 'Guaraná gelado.', specs: [], pairs: ['croquete', 'pintado'] },
+  { id: 'agua', name: 'Água com e sem gás', label: ['Água', 'com e sem gás'], cat: 'Bar', eyebrow: 'Sem álcool', fx: 'bubbles', color: '#4a86a8', photo: sq('agua'), desc: 'Água mineral, com ou sem gás.', specs: [], pairs: ['rucula', 'parmegiana'] },
 ];
-
-/** Bebidas que ficam só na lista, sem item no anel (decisão de 15/11). */
-export const BAR_EXTRAS = 'Água com e sem gás e Guaraná';
 
 export const BY: Record<string, Item> = Object.fromEntries([...ITEMS, ...DRINKS].map((i) => [i.id, i]));

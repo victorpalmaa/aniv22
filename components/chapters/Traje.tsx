@@ -9,13 +9,13 @@ const tiktok = (q: string) => `https://www.tiktok.com/search?q=${encodeURICompon
 const LOOKS = [
   {
     who: 'Para elas',
-    items: ['Vestido midi ou longo, ou conjunto de alfaiataria', 'Tecidos nobres: brilho e joias estão liberados', 'Salto e bolsa de mão'],
-    q: 'passeio completo feminino',
+    items: ['Vestido longo', 'Tecidos nobres: brilho, cetim e joias estão liberados', 'Salto e bolsa de mão'],
+    q: 'traje gala feminino',
   },
   {
     who: 'Para eles',
-    items: ['Terno completo com gravata', 'Camisa social e sapato social de couro', 'Colete é opcional'],
-    q: 'passeio completo masculino',
+    items: ['Smoking ou terno escuro', 'Gravata borboleta ou gravata', 'Camisa social e sapato social de couro'],
+    q: 'traje gala masculino',
   },
 ];
 
@@ -34,9 +34,9 @@ export function Traje() {
             <div className="cl tj-title" data-show=".44,.62,.8,1" data-fx="lift">
               <small>Traje</small>
               <p className="tj-name">
-                Passeio <em>completo</em>
+                <em>Gala</em>
               </p>
-              <p className="tj-sub">Mais formal que o esporte fino, sem precisar de black tie.</p>
+              <p className="tj-sub">O traje mais formal da noite: vestido longo para elas, smoking ou terno escuro para eles.</p>
             </div>
             {/* pano de boca: sobe de uma vez, franzindo, e leva a palavra junto */}
             <div className="tj-curtain" data-rise=".2,.6" aria-hidden="true">

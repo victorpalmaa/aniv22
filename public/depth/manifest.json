@@ -1,132 +1,146 @@
 [
   {
-    "slug": "rucula",
+    "slug": "agua",
     "w": 892,
     "h": 892,
-    "diff_repouso": 1.54,
     "kb": {
-      "fg.webp": 452,
+      "bg.jpg": 47,
+      "depth.png": 3,
+      "fg.webp": 140,
       "meta.json": 0,
-      "thumb.webp": 9,
-      "depth.png": 62,
-      "bg.jpg": 39
-    }
-  },
-  {
-    "slug": "fritas",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 1.74,
-    "kb": {
-      "fg.webp": 338,
-      "meta.json": 0,
-      "thumb.webp": 6,
-      "depth.png": 39,
-      "bg.jpg": 43
-    }
-  },
-  {
-    "slug": "mandioca",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 1.92,
-    "kb": {
-      "fg.webp": 327,
-      "meta.json": 0,
-      "thumb.webp": 6,
-      "depth.png": 41,
-      "bg.jpg": 42
-    }
-  },
-  {
-    "slug": "polenta",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 1.7,
-    "kb": {
-      "fg.webp": 267,
-      "meta.json": 0,
-      "thumb.webp": 5,
-      "depth.png": 50,
-      "bg.jpg": 39
-    }
-  },
-  {
-    "slug": "torresmo",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 1.8,
-    "kb": {
-      "fg.webp": 405,
-      "meta.json": 0,
-      "thumb.webp": 9,
-      "depth.png": 54,
-      "bg.jpg": 40
-    }
-  },
-  {
-    "slug": "croquete",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 1.63,
-    "kb": {
-      "fg.webp": 249,
-      "meta.json": 0,
-      "thumb.webp": 6,
-      "depth.png": 40,
-      "bg.jpg": 43
-    }
-  },
-  {
-    "slug": "pintado",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 2.28,
-    "kb": {
-      "fg.webp": 256,
-      "meta.json": 0,
-      "thumb.webp": 6,
-      "depth.png": 42,
-      "bg.jpg": 43
-    }
-  },
-  {
-    "slug": "heineken",
-    "w": 892,
-    "h": 892,
-    "diff_repouso": 0.99,
-    "kb": {
-      "fg.webp": 102,
-      "meta.json": 0,
-      "thumb.webp": 4,
-      "depth.png": 19,
-      "bg.jpg": 47
+      "thumb.webp": 4
     }
   },
   {
     "slug": "campari",
     "w": 892,
     "h": 892,
-    "diff_repouso": 1.03,
     "kb": {
+      "bg.jpg": 47,
+      "depth.png": 3,
       "fg.webp": 95,
       "meta.json": 0,
-      "thumb.webp": 4,
-      "depth.png": 18,
-      "bg.jpg": 47
+      "thumb.webp": 4
     }
   },
   {
     "slug": "coca",
     "w": 892,
     "h": 892,
-    "diff_repouso": 0.95,
     "kb": {
+      "bg.jpg": 46,
+      "depth.png": 3,
       "fg.webp": 144,
       "meta.json": 0,
-      "thumb.webp": 4,
-      "depth.png": 21,
-      "bg.jpg": 46
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "croquete",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 43,
+      "depth.png": 40,
+      "fg.webp": 249,
+      "meta.json": 0,
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "fritas",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 43,
+      "depth.png": 39,
+      "fg.webp": 338,
+      "meta.json": 0,
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "guarana",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 47,
+      "depth.png": 3,
+      "fg.webp": 151,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "heineken",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 47,
+      "depth.png": 3,
+      "fg.webp": 102,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "mandioca",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 42,
+      "depth.png": 41,
+      "fg.webp": 327,
+      "meta.json": 0,
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "pintado",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 43,
+      "depth.png": 42,
+      "fg.webp": 256,
+      "meta.json": 0,
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "polenta",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 39,
+      "depth.png": 50,
+      "fg.webp": 267,
+      "meta.json": 0,
+      "thumb.webp": 5
+    }
+  },
+  {
+    "slug": "rucula",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 39,
+      "depth.png": 62,
+      "fg.webp": 452,
+      "meta.json": 0,
+      "thumb.webp": 9
+    }
+  },
+  {
+    "slug": "torresmo",
+    "w": 892,
+    "h": 892,
+    "kb": {
+      "bg.jpg": 40,
+      "depth.png": 54,
+      "fg.webp": 405,
+      "meta.json": 0,
+      "thumb.webp": 9
     }
   }
 ]

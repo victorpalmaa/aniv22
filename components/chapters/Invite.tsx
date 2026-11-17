@@ -96,9 +96,9 @@ export function Invite() {
             <div className="loc-card">
               <span className="k">Traje</span>
               <b>
-                <i>Passeio</i>
+                <i>Gala</i>
               </b>
-              <span className="s">Completo · detalhes mais abaixo</span>
+              <span className="s">Detalhes mais abaixo</span>
             </div>
           </div>
         </div>

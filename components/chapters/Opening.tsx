@@ -94,9 +94,7 @@ export function Opening() {
           <div className="flap l" ref={lRef}>
             <div className="face f-front">
               <span className="fk">Victor</span>
-              <span className="fw foil">
-                Parme <i>&amp;</i>
-              </span>
+              <span className="fw foil">Parme</span>
               <span className="fk fk-date">15</span>
               <i className="f-dot">·</i>
               <span className="seal-h">
@@ -108,7 +106,9 @@ export function Opening() {
           <div className="flap r" ref={rRef}>
             <div className="face f-front">
               <span className="fk">convida</span>
-              <span className="fw foil">Gala</span>
+              <span className="fw foil">
+                <i>&amp;</i> Gala
+              </span>
               <span className="fk fk-date">01</span>
               <i className="f-dot">·</i>
               <span className="seal-h">

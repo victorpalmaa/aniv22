@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState, type CSSProperties } from 'react';
-import { BAR_EXTRAS, DRINKS } from '@/lib/content';
+import { DRINKS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
 import { useScene } from '@/hooks/useScene';
@@ -135,7 +135,6 @@ export function Bar() {
                 <i ref={dotRef} />
               </div>
               <p className="bar-hint">Role para escolher · toque para ver</p>
-              <p className="bar-extra">Também no bar: {BAR_EXTRAS}</p>
             </div>
           </div>
         </div>
