@@ -413,12 +413,12 @@ body.seen .dish .art::after{display:none}
 .area .lbl, .plan .cnt, .guest .you{paint-order:stroke; stroke:rgba(13,12,10,.82); stroke-width:3.5px; stroke-linejoin:round}
 .area .lbl{font-weight:600}
 .plan .cnt{fill:var(--fg)}
-/* convidados: azul; você: amarelo */
+/* convidados: amarelo; você: azul */
 .guest circle.hit{fill:transparent; stroke:none}
-.guest circle.dot{fill:#2f6fd6; stroke:#f3ead8; stroke-width:1.3}
-.anon .guest circle.dot{fill:#2f6fd6; opacity:.85}
-.guest.me circle.dot{fill:#f5c518; stroke:#1a1712; stroke-width:2}
-.guest.pinned circle.dot{stroke:var(--gold); stroke-width:2}
+.guest circle.dot{fill:#f5c518; stroke:#1a1712; stroke-width:1.3}
+.anon .guest circle.dot{fill:#f5c518; opacity:.85}
+.guest.me circle.dot{fill:#2f6fd6; stroke:#f3ead8; stroke-width:2}
+.guest.pinned circle.dot{stroke:#fff; stroke-width:2.2}
 .light{fill:var(--gold); animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:.25} 50%{opacity:1}}
 .plan-overlay{position:absolute; left:12px; right:12px; bottom:12px; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; padding:12px 14px; border-radius:var(--r-card); background:rgba(13,12,10,.88); border:1px solid var(--gold-deep); text-align:center; font-size:15px}
