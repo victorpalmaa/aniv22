@@ -33,14 +33,14 @@ export const ART: Record<string, string> = {
 
 
 export const ITEMS: Item[] = [
-  { id: 'parmegiana', name: 'Parmegiana', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', desc: 'O prato da noite, servido com arroz e fritas.', specs: [['Acompanha', 'Arroz e fritas']], pairs: ['heineken', 'coca'] },
-  { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
-  { id: 'fritas', name: 'Fritas', cat: 'Petisco', eyebrow: 'Petiscos · também no prato principal', fx: 'steam', photo: ph('fritas'), desc: 'Porção de batata frita. Também acompanha a parmegiana.', specs: [], pairs: ['heineken', 'coca'] },
-  { id: 'mandioca', name: 'Mandioca', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('mandioca'), desc: 'Porção de mandioca frita.', specs: [], pairs: ['heineken', 'caipi-limao'] },
-  { id: 'polenta', name: 'Polenta', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('polenta'), desc: 'Porção de polenta frita.', specs: [], pairs: ['heineken', 'campari'] },
-  { id: 'torresmo', name: 'Torresmo', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('torresmo'), desc: 'Porção de torresmo, servida com limão.', specs: [], pairs: ['caipi-limao', 'heineken'] },
+  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
+  { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
+  { id: 'torresmo', name: 'Torresmo', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('torresmo'), desc: 'Porção de torresmo, servida com limão.', specs: [], pairs: ['caipi-limao', 'heineken'] },
+  { id: 'polenta', name: 'Polenta', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('polenta'), desc: 'Porção de polenta frita.', specs: [], pairs: ['heineken', 'campari'] },
+  { id: 'mandioca', name: 'Mandioca', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('mandioca'), desc: 'Porção de mandioca frita.', specs: [], pairs: ['heineken', 'caipi-limao'] },
+  { id: 'fritas', name: 'Fritas', cat: 'Petisco', eyebrow: 'Petiscos · também no prato principal', fx: 'steam', photo: ph('fritas'), desc: 'Porção de batata frita. Também acompanha a parmegiana.', specs: [], pairs: ['heineken', 'coca'] },
 ];
 
 export const DRINKS: Item[] = [

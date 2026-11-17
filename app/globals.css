@@ -231,15 +231,17 @@ html.lock{overflow:hidden}
 .tj-title small{font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold)}
 .tj-name{margin:0; font-family:var(--f-display); font-weight:400; font-size:clamp(56px, 13vw, 150px); line-height:.95; color:var(--fg)}
 .tj-name em{display:block; font-style:italic; color:var(--gold)}
-.tj-sub{margin:0; max-width:30ch; font-size:16px; color:var(--fg); opacity:.8}
+.tj-sub{margin:0; max-width:50ch; font-size:16px; color:var(--fg); opacity:.8; text-wrap:balance} /* 2 linhas: 30ch quebrava em 3 */
+@media (max-width:640px){ .tj-sub{font-size:14px} }
 /* os cards sobem por cima da parte de baixo do palco enquanto o título se recolhe: sem vão entre os dois */
 .tj-guide{position:relative; z-index:1; margin-top:-40svh}
 @media (max-width:640px){ .tj-guide{margin-top:-46svh} }
-.tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
-.tj-card{display:grid; gap:14px; align-content:start; padding:22px 20px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
+.tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0, 340px)); justify-content:center; gap:14px}
+.tj-card{display:grid; grid-template-rows:auto 1fr auto; gap:14px; justify-items:center; text-align:center; padding:24px 20px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
 .tj-card .k{margin:0; font-family:var(--f-display); font-size:30px; line-height:1; color:var(--fg)}
-.tj-card ul{margin:0; padding:0; list-style:none; display:grid; gap:8px; color:var(--muted); font-size:15px}
+.tj-card ul{margin:0; padding:0; list-style:none; display:grid; align-content:start; gap:8px; color:var(--muted); font-size:15px}
 .tj-card li::before{content:"◦  "; color:var(--gold)}
+.tj-card .tj-tt{justify-self:center; align-self:end} /* botão no centro e na mesma altura nos dois cards */
 .tj-tt{justify-self:start; color:var(--gold)}
 
 /* Surpresa: cortina de veludo abrindo sobre a foto do microfone */
@@ -274,7 +276,7 @@ html.lock{overflow:hidden}
 .cine.static .sp-q{min-height:0; position:absolute}
 .cine.static .sp-curtain, .cine.static .tj-curtain, .cine.static .sp-fade{display:none}
 @media (max-width:640px){
-  .tj-cards{grid-template-columns:minmax(0,1fr)}
+  .tj-cards{grid-template-columns:minmax(0, 420px)}
 }
 
 /* ---------- Detalhe como camada ---------- */

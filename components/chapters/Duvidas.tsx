@@ -6,9 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import { isEmail, partyCode } from '@/lib/party';
 
 const FAQ: [string, string][] = [
-  ['Posso levar acompanhante?', 'Pode, desde que ele confirme presença com o próprio email. Cada pessoa tem o seu lugar na lista.'],
   ['Preciso levar alguma coisa?', 'Só você. Comida e bebida são por conta do Victor.'],
-  ['Crianças podem ir?', 'Não. A festa é só para adultos.'],
   ['Vai ter música?', 'Vai, e ao vivo. Os detalhes ficam na Surpresa, liberada depois que você confirma presença.'],
   ['Tem estacionamento?', 'Sim, estacionamento fechado no próprio local.'],
   ['Até quando posso confirmar?', 'Até 05/01. Depois disso o formulário continua aberto, mas o número da festa já vai estar fechado com a cozinha.'],
