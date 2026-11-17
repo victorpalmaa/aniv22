@@ -1,6 +1,8 @@
 'use client';
-import { useRef, type CSSProperties } from 'react';
-import { ART, DRINKS } from '@/lib/content';
+import { useRef, useState, type CSSProperties } from 'react';
+import { BAR_EXTRAS, DRINKS } from '@/lib/content';
+import { ItemArt } from '../ItemArt';
+import { useMotionPrefs } from '../providers/MotionPrefs';
 import { useScene } from '@/hooks/useScene';
 import { clamp, io, reduceMotion, topH } from '@/lib/motion';
 import { openItem } from '@/lib/detail';
@@ -20,6 +22,10 @@ export function Bar() {
   const dotRef = useRef<HTMLElement>(null);
   const cur = useRef(-1);
   const ringW = useRef(400); // largura do palco, medida só no resize
+  // posição da frente do anel: único slot com WebGL; muda só quando a frente troca
+  const [frontSlot, setFrontSlot] = useState(-1);
+  const frontRef = useRef(-1);
+  const { detail } = useMotionPrefs();
 
   useScene(
     chRef,
@@ -31,6 +37,7 @@ export function Bar() {
       let pos = reduceMotion() ? Math.round(p) : i + io(clamp((f - 0.2) / 0.6, 0, 1));
       if (p >= NB - 1) pos = NB - 1;
       const R = Math.min(ringW.current * 0.62, 520), rot = pos * STEP;
+      let fs = -1;
       ringRef.current!.querySelectorAll<HTMLElement>('.drink').forEach((el, j) => {
         const a = ((((j * STEP - rot) % 360) + 540) % 360) - 180; // ângulo relativo à frente, -180..180
         const vis = Math.abs(a) < 100;
@@ -45,12 +52,17 @@ export function Bar() {
         if (el.style.filter !== filter) el.style.filter = filter;
         el.style.zIndex = String(Math.round(100 - Math.abs(a)));
         el.toggleAttribute('data-front', front > 0.9);
+        if (front > 0.9) fs = j;
       });
       namesRef.current!.querySelectorAll<HTMLElement>('.nm').forEach((el, k) => {
         const o = k - pos;
         el.style.setProperty('--ny', (o * 100).toFixed(1) + '%');
         el.style.setProperty('--no', Math.max(0, 1 - Math.abs(o) * 1.6).toFixed(2));
       });
+      if (fs !== frontRef.current) {
+        frontRef.current = fs;
+        setFrontSlot(fs);
+      }
       const c = Math.round(pos);
       if (c !== cur.current) {
         cur.current = c;
@@ -94,7 +106,7 @@ export function Bar() {
                 const d = DRINKS[j % NB];
                 return (
                   <button key={j} className="drink" type="button" data-slot={j} data-id={d.id} aria-label={d.name} tabIndex={j < NB ? 0 : -1}>
-                    <span className="art" dangerouslySetInnerHTML={{ __html: ART[d.id] }} />
+                    <ItemArt it={d} className="art" active={j === frontSlot && !detail} />
                   </button>
                 );
               })}
@@ -123,6 +135,7 @@ export function Bar() {
                 <i ref={dotRef} />
               </div>
               <p className="bar-hint">Role para escolher · toque para ver</p>
+              <p className="bar-extra">Também no bar: {BAR_EXTRAS}</p>
             </div>
           </div>
         </div>

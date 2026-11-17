@@ -148,7 +148,7 @@ export function Local() {
         </div>
       </div>
       <footer className="proto bleed">
-        <span>Parme &amp; Varieté · 15.01.2027</span>
+        <span>Parme &amp; Gala · 15.01.2027</span>
       </footer>
     </>
   );

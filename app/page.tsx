@@ -1,4 +1,5 @@
 import { PartyProvider } from '@/components/providers/PartyProvider';
+import { MotionPrefs } from '@/components/providers/MotionPrefs';
 import { TopBar } from '@/components/TopBar';
 import { Opening } from '@/components/chapters/Opening';
 import { Invite } from '@/components/chapters/Invite';
@@ -18,6 +19,7 @@ import { RevealObserver } from '@/components/RevealObserver';
 export default function Page() {
   return (
     <PartyProvider>
+      <MotionPrefs>
       <div className="app">
         <TopBar />
         <Opening />
@@ -34,6 +36,7 @@ export default function Page() {
         <Sheet />
         <RevealObserver />
       </div>
+      </MotionPrefs>
     </PartyProvider>
   );
 }

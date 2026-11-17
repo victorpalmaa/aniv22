@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { absTop, onScroll, vp } from '@/lib/scroll';
 import { jump } from '@/lib/motion';
+import { PauseToggle } from './PauseToggle';
 
 const NAV = [
   ['convite', 'Convite'],
@@ -47,7 +48,7 @@ export function TopBar() {
   return (
     <header className="top">
       <a className="brand" href="#topo" onClick={(e) => (e.preventDefault(), jump('topo'))}>
-        Parme <b>&amp;</b> Varieté
+        Parme <b>&amp;</b> Gala
       </a>
       <nav className="nav" aria-label="Seções" ref={navRef}>
         {NAV.map(([id, label]) => (
@@ -56,6 +57,7 @@ export function TopBar() {
           </a>
         ))}
       </nav>
+      <PauseToggle />
     </header>
   );
 }

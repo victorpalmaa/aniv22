@@ -26,7 +26,7 @@ export function Traje() {
       <div className="anchor" id="traje" />
       <section className="chapter bleed" id="trajeCh" style={{ ['--cb' as string]: 'var(--bg)' }}>
         <Cine id="trajeCine" height="300svh">
-          <h2 className="sr-only">Traje: passeio completo</h2>
+          <h2 className="sr-only">Traje: gala</h2>
           <div className="cine-stage">
             {/* palco atrás do pano: escuro, com o refletor acendendo enquanto o pano sobe */}
             <div className="cs tj-stage" />

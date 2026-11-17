@@ -21,11 +21,11 @@ const jost = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Parme & Varieté',
-  description: 'Victor convida: sexta, 15 de janeiro de 2027, às 20h. Traje: passeio completo.',
+  title: 'Parme & Gala',
+  description: 'Victor convida: sexta, 15 de janeiro de 2027, às 20h. Traje: gala.',
   metadataBase: new URL('https://parme.recantocolonial.com.br'),
   openGraph: {
-    title: 'Parme & Varieté',
+    title: 'Parme & Gala',
     description: 'Sexta, 15.01.2027, 20h. Confirme até 05/01.',
     locale: 'pt_BR',
     type: 'website',

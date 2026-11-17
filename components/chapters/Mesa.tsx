@@ -1,6 +1,8 @@
 'use client';
-import { useEffect, useRef, type CSSProperties } from 'react';
-import { ART, CLOCHE, ITEMS } from '@/lib/content';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { CLOCHE, ITEMS } from '@/lib/content';
+import { ItemArt } from '../ItemArt';
+import { useMotionPrefs } from '../providers/MotionPrefs';
 import { absTop, onScroll, vp } from '@/lib/scroll';
 import { clamp, jump, reduceMotion } from '@/lib/motion';
 import { openItem } from '@/lib/detail';
@@ -16,6 +18,10 @@ export function Mesa() {
   const barRef = useRef<HTMLElement>(null);
   const hintRef = useRef<HTMLSpanElement>(null);
   const geo = useRef({ max: 0, top: 0, w: 0, slot: 0, pad: 0 });
+  // prato do centro: único com WebGL. Estado só muda quando o prato do centro troca, nunca por frame
+  const [front, setFront] = useState(-1);
+  const frontRef = useRef(-1);
+  const { detail } = useMotionPrefs();
 
   useEffect(() => {
     const hs = hsRef.current!, sticky = stickyRef.current!, track = trackRef.current!;
@@ -50,13 +56,19 @@ export function Mesa() {
       hintRef.current!.style.opacity = p > 0.04 ? '0' : '1';
       // cada prato reage à distância do centro: no meio sobe e encara, nas bordas gira e afunda
       const sx = p * g.max, half = g.w / 2, flat = reduceMotion();
+      let best = -1, bestA = 0.5; // só conta como "em foco" perto do centro
       dishes.forEach((el, i) => {
         const d = clamp((g.pad + g.slot * (i + 0.5) - sx - half) / half, -1.6, 1.6), a = Math.abs(d);
+        if (a < bestA) (bestA = a), (best = i);
         el.style.transform = flat
           ? 'translate(-50%,-50%)'
           : `translate(-50%,-50%) translateZ(${(70 - a * 130).toFixed(1)}px) rotateY(${(-d * 32).toFixed(1)}deg) rotateX(${(a * 6).toFixed(1)}deg)`;
         el.style.opacity = (1 - Math.max(0, a - 0.55) * 0.75).toFixed(2);
       });
+      if (best !== frontRef.current) {
+        frontRef.current = best;
+        setFront(best);
+      }
     }
 
     const off = onScroll(frame, measure);
@@ -107,7 +119,7 @@ export function Mesa() {
                     style={{ '--x': `calc(var(--pad) + var(--slot) * ${i + 0.5})`, '--y': `${i % 2 ? 50 : 44}%`, '--d': `${(i * 0.35).toFixed(2)}s` } as CSSProperties}
                     onClick={(e) => openItem(it.id, e.currentTarget)}
                   >
-                    <span className="art" dangerouslySetInnerHTML={{ __html: ART[it.id] }} />
+                    <ItemArt it={it} className="art" active={i === front && !detail} />
                     <span className="name">{it.name}</span>
                     <span className="cat">{it.cat}</span>
                   </button>

@@ -5,6 +5,7 @@ import { ART, BY, type Item } from '@/lib/content';
 import { clamp, io, reduceMotion } from '@/lib/motion';
 import { leaveItem, openItem, takeLastTrigger } from '@/lib/detail';
 import { getJSON, setJSON } from '@/lib/storage';
+import { ItemArt, ItemMini } from './ItemArt';
 
 const idFromHash = () => {
   const h = decodeURIComponent(window.location.hash.slice(1));
@@ -112,7 +113,8 @@ export function DetailLayer() {
   );
 }
 
-function Detail({ it }: { it: Item }) {
+/** 360° das ilustrações (itens ainda sem foto): arrastar gira por completo, com inércia. */
+function Spin360({ it }: { it: Item }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const spinRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
@@ -204,34 +206,43 @@ function Detail({ it }: { it: Item }) {
 
   return (
     <>
+      <div className="glow" ref={glowRef} />
+      <div className="spin-wrap d-art" ref={wrapRef} tabIndex={0} role="img" aria-label={`${it.name} em 360 graus. Arraste ou use as setas para girar`}>
+        <div className="spin" ref={spinRef} dangerouslySetInnerHTML={{ __html: slices(ART[it.id] ?? '') }} />
+        <div className={`fx fx-${it.fx}`} aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+      <div className="spin-shadow" ref={shadowRef} aria-hidden="true" />
+      <div className="spin-ctrl">
+        <button className="ghost sm" type="button" onClick={() => turnRef.current(st.current.ry + 360, -8, 2400)}>
+          ↻ Girar 360°
+        </button>
+        <button className="ghost sm" type="button" onClick={() => turnRef.current(Math.round(st.current.ry / 360) * 360, -8, 700)}>
+          Ver de frente
+        </button>
+      </div>
+      <p className="drag-hint">Arraste em qualquer direção para ver todos os lados</p>
+    </>
+  );
+}
+
+function Detail({ it }: { it: Item }) {
+  return (
+    <>
       <div className="d-top">
         <button className="back" type="button" onClick={leaveItem}>
           <span aria-hidden="true">←</span> {it.color ? 'Voltar ao bar' : 'Voltar à mesa'}
         </button>
-        <span className="chip-prov">{it.cat} · provisório</span>
+        {!it.photo && <span className="chip-prov">{it.cat} · ilustração</span>}
       </div>
       <div className="d-grid">
-        <div className="stage">
-          <div className="glow" ref={glowRef} />
-          <div className="spin-wrap d-art" ref={wrapRef} tabIndex={0} role="img" aria-label={`${it.name} em 360 graus. Arraste ou use as setas para girar`}>
-            <div className="spin" ref={spinRef} dangerouslySetInnerHTML={{ __html: slices(ART[it.id]) }} />
-            <div className={`fx fx-${it.fx}`} aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-          </div>
-          <div className="spin-shadow" ref={shadowRef} aria-hidden="true" />
-          <div className="spin-ctrl">
-            <button className="ghost sm" type="button" onClick={() => turnRef.current(st.current.ry + 360, -8, 2400)}>
-              ↻ Girar 360°
-            </button>
-            <button className="ghost sm" type="button" onClick={() => turnRef.current(Math.round(st.current.ry / 360) * 360, -8, 700)}>
-              Ver de frente
-            </button>
-          </div>
-          <p className="drag-hint">Arraste em qualquer direção para ver todos os lados</p>
+        <div className={`stage${it.photo ? ' photo-stage' : ''}`}>
+          {/* com a camada aberta, Mesa e Bar soltam o WebGL: este é o único contexto vivo */}
+          {it.photo ? <ItemArt it={it} className="d-art d-photo" active /> : <Spin360 it={it} />}
         </div>
         <div className="d-body">
           <p className="eyebrow">{it.eyebrow}</p>
@@ -239,22 +250,21 @@ function Detail({ it }: { it: Item }) {
             {it.name}
           </h2>
           <p className="d-desc">{it.desc}</p>
-          <dl className="specs">
-            {it.specs.map(([k, v]) => (
-              <div key={k}>
-                <dt>{k}</dt>
-                <dd>{v}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="take">
-            <b>Take do item.</b> Aqui entram as fotos em giro (24 a 36 quadros) no lugar da ilustração.
-          </p>
+          {it.specs.length > 0 && (
+            <dl className="specs">
+              {it.specs.map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
           <p className="h3">Vai bem com</p>
           <div className="pairs">
             {it.pairs.map((p) => (
               <button key={p} className="pair" type="button" onClick={() => openItem(p)}>
-                <span className="mini" dangerouslySetInnerHTML={{ __html: ART[p] }} />
+                <ItemMini it={BY[p]} />
                 {BY[p].name}
               </button>
             ))}
