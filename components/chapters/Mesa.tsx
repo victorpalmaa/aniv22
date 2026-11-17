@@ -1,14 +1,15 @@
 'use client';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { CLOCHE, ITEMS } from '@/lib/content';
+import { useEffect, useRef, type CSSProperties } from 'react';
+import { useSettledIndex } from '@/hooks/useSettledIndex';
+import { ITEMS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
 import { absTop, onScroll, vp } from '@/lib/scroll';
-import { clamp, jump, reduceMotion } from '@/lib/motion';
+import { clamp, reduceMotion } from '@/lib/motion';
 import { openItem } from '@/lib/detail';
 import { Ride } from '../Ride';
 
-const SLOTS = ITEMS.length + 1; // pratos + cloche "E tem mais…"
+const SLOTS = ITEMS.length;
 
 /** 3 · Mesa: só comidas. Scroll horizontal preso na tela, mesa deitada em perspectiva. */
 export function Mesa() {
@@ -18,9 +19,9 @@ export function Mesa() {
   const barRef = useRef<HTMLElement>(null);
   const hintRef = useRef<HTMLSpanElement>(null);
   const geo = useRef({ max: 0, top: 0, w: 0, slot: 0, pad: 0 });
-  // prato do centro: único com WebGL. Estado só muda quando o prato do centro troca, nunca por frame
-  const [front, setFront] = useState(-1);
+  // prato do centro: único com WebGL, e só depois que a rolagem para (useSettledIndex)
   const frontRef = useRef(-1);
+  const front = useSettledIndex(frontRef);
   const { detail } = useMotionPrefs();
 
   useEffect(() => {
@@ -65,10 +66,7 @@ export function Mesa() {
           : `translate(-50%,-50%) translateZ(${(70 - a * 130).toFixed(1)}px) rotateY(${(-d * 32).toFixed(1)}deg) rotateX(${(a * 6).toFixed(1)}deg)`;
         el.style.opacity = (1 - Math.max(0, a - 0.55) * 0.75).toFixed(2);
       });
-      if (best !== frontRef.current) {
-        frontRef.current = best;
-        setFront(best);
-      }
+      frontRef.current = best;
     }
 
     const off = onScroll(frame, measure);
@@ -124,18 +122,6 @@ export function Mesa() {
                     <span className="cat">{it.cat}</span>
                   </button>
                 ))}
-                <a
-                  className="dish cloche"
-                  role="listitem"
-                  href="#surpresa"
-                  aria-label="E tem mais uma coisa: ir para a Surpresa"
-                  style={{ '--x': `calc(var(--pad) + var(--slot) * ${ITEMS.length + 0.5})`, '--y': '50%' } as CSSProperties}
-                  onClick={(e) => (e.preventDefault(), jump('surpresa'))}
-                >
-                  <span className="art" dangerouslySetInnerHTML={{ __html: CLOCHE }} />
-                  <span className="name">E tem mais…</span>
-                  <span className="cat">Surpresa</span>
-                </a>
               </div>
               <div className="hs-ui" aria-hidden="true">
                 <span className="hs-hint" ref={hintRef}>

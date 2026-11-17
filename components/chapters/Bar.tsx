@@ -1,5 +1,6 @@
 'use client';
-import { useRef, useState, type CSSProperties } from 'react';
+import { useRef, type CSSProperties } from 'react';
+import { useSettledIndex } from '@/hooks/useSettledIndex';
 import { DRINKS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
@@ -22,9 +23,9 @@ export function Bar() {
   const dotRef = useRef<HTMLElement>(null);
   const cur = useRef(-1);
   const ringW = useRef(400); // largura do palco, medida só no resize
-  // posição da frente do anel: único slot com WebGL; muda só quando a frente troca
-  const [frontSlot, setFrontSlot] = useState(-1);
+  // frente do anel: único slot com WebGL, e só depois que a rolagem para (useSettledIndex)
   const frontRef = useRef(-1);
+  const frontSlot = useSettledIndex(frontRef);
   const { detail } = useMotionPrefs();
 
   useScene(
@@ -59,10 +60,7 @@ export function Bar() {
         el.style.setProperty('--ny', (o * 100).toFixed(1) + '%');
         el.style.setProperty('--no', Math.max(0, 1 - Math.abs(o) * 1.6).toFixed(2));
       });
-      if (fs !== frontRef.current) {
-        frontRef.current = fs;
-        setFrontSlot(fs);
-      }
+      frontRef.current = fs;
       const c = Math.round(pos);
       if (c !== cur.current) {
         cur.current = c;

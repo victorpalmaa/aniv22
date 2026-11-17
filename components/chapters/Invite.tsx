@@ -77,7 +77,7 @@ export function Invite() {
               <span className="k">Sexta · 15.01.2027</span>
               <b>20h</b>
               <span className="s">
-                Término <span className="tag">a definir</span>
+                Término às 2h
               </span>
               <div className="row">
                 <a className="btn-gold sm" href="/agenda.ics">

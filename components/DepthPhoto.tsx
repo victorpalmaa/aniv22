@@ -54,15 +54,30 @@ void main(){
   gl_FragColor = vec4(mix(b.rgb, f.rgb, f.a), 1.);
 }`;
 
-function loadImage(src: string) {
-  return new Promise<HTMLImageElement>((res, rej) => {
-    const im = new Image();
-    im.decoding = 'async';
-    im.onload = () => res(im);
-    im.onerror = rej;
-    im.src = src;
-  });
+type Tex = HTMLImageElement | ImageBitmap;
+
+/**
+ * Decodifica fora da thread principal. Com UNPACK_COLORSPACE_CONVERSION = NONE o navegador redecodificava
+ * o <img> na hora do upload, na thread principal (110 a 420 ms por item, medido). ImageBitmap com
+ * colorSpaceConversion:'none' + premultiplyAlpha:'none' dá o mesmo pixel sem esse custo.
+ * Fallback: <img> + decode(), o caminho antigo.
+ */
+async function loadTex(src: string): Promise<Tex> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const blob = await (await fetch(src)).blob();
+      return await createImageBitmap(blob, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+    } catch {
+      /* Safari antigo sem as opções: cai no <img> */
+    }
+  }
+  const im = new Image();
+  im.decoding = 'async';
+  im.src = src;
+  await im.decode();
+  return im;
 }
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 export default function DepthPhoto({
   slug, width, height, alt, active = true, paused = false,
@@ -113,7 +128,7 @@ export default function DepthPhoto({
     const uT = gl.getUniformLocation(pr, 't');
     gl.uniform2f(gl.getUniformLocation(pr, 'k'), amplitude[0], amplitude[1]);
 
-    const upload = (im: HTMLImageElement, unit: number, name: string) => {
+    const upload = (im: Tex, unit: number, name: string) => {
       const tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tx);
       gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
@@ -131,7 +146,9 @@ export default function DepthPhoto({
       if (process.env.NODE_ENV !== 'production' && cssW * dpr > width * 1.05) {
         console.warn(`[DepthPhoto] ${slug}: exibida com ${Math.round(cssW * dpr)} px físicos, foto tem ${width}. Vai borrar; peça a foto original.`);
       }
-      cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssH * dpr);
+      // canvas nunca maior que a foto: acima disso não ganha nitidez e só custa GPU (tela cheia no iPhone)
+      const scale = Math.min(dpr, width / Math.max(1, cssW));
+      cv.width = Math.round(cssW * scale); cv.height = Math.round(cssH * scale);
       gl.viewport(0, 0, cv.width, cv.height);
     };
     const ro = new ResizeObserver(resize); ro.observe(wrap); resize();
@@ -152,10 +169,17 @@ export default function DepthPhoto({
     const onVis = () => { cancelAnimationFrame(raf); if (!document.hidden && alive) { prev = performance.now(); raf = requestAnimationFrame(frame); } };
     document.addEventListener('visibilitychange', onVis);
 
-    Promise.all([loadImage(`${dir}/fg.webp`), loadImage(`${dir}/bg.jpg`), loadImage(`${dir}/depth.png`)])
-      .then(([f, b, d]) => {
+    Promise.all([loadTex(`${dir}/fg.webp`), loadTex(`${dir}/bg.jpg`), loadTex(`${dir}/depth.png`)])
+      .then(async (texs) => {
+        // uma textura por frame: as três juntas eram uma tarefa longa só
+        const names = ['fg', 'bg', 'dep'];
+        for (let i = 0; i < 3; i++) {
+          if (!alive) break;
+          upload(texs[i], i, names[i]);
+          await nextFrame();
+        }
+        for (const t of texs) if ('close' in t) t.close();
         if (!alive) return;
-        upload(f, 0, 'fg'); upload(b, 1, 'bg'); upload(d, 2, 'dep');
         setGlReady(true);
         raf = requestAnimationFrame(frame);
       })

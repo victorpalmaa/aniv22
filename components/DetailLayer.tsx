@@ -100,7 +100,7 @@ export function DetailLayer() {
   const it = id ? BY[id] : null;
   return (
     <div
-      className={`detail-layer${it?.color ? ' drink-mode' : ''}`}
+      className={`detail-layer${it?.color ? ' drink-mode' : ''}${it?.photo ? ' photo-mode' : ''}`}
       ref={layerRef}
       role="dialog"
       aria-modal="true"
@@ -230,7 +230,51 @@ function Spin360({ it }: { it: Item }) {
   );
 }
 
+/** Item com foto: a foto é a tela (cover), texto sobreposto. Único contexto WebGL vivo enquanto aberto. */
+function PhotoDetail({ it }: { it: Item }) {
+  return (
+    <>
+      {/* fundo da própria foto, desfocado: no desktop preenche a tela em volta da foto inteira */}
+      <div className="d-backdrop" aria-hidden="true" style={{ backgroundImage: `url(/depth/${it.photo!.slug}/bg.jpg)` }} />
+      <ItemArt it={it} className="d-art d-full" active />
+      <div className="d-scrim" aria-hidden="true" />
+      <div className="d-top">
+        <button className="back" type="button" onClick={leaveItem}>
+          <span aria-hidden="true">←</span> {it.color ? 'Voltar ao bar' : 'Voltar à mesa'}
+        </button>
+      </div>
+      <div className="d-body d-over">
+        <p className="eyebrow">{it.eyebrow}</p>
+        <h2 className="d-title" tabIndex={-1}>
+          {it.name}
+        </h2>
+        <p className="d-desc">{it.desc}</p>
+        {it.specs.length > 0 && (
+          <dl className="specs">
+            {it.specs.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <p className="h3">Vai bem com</p>
+        <div className="pairs">
+          {it.pairs.map((p) => (
+            <button key={p} className="pair" type="button" onClick={() => openItem(p)}>
+              <ItemMini it={BY[p]} />
+              {BY[p].name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 function Detail({ it }: { it: Item }) {
+  if (it.photo) return <PhotoDetail it={it} />;
   return (
     <>
       <div className="d-top">

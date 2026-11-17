@@ -14,7 +14,10 @@ export function ItemArt({ it, active = false, className }: { it: Item; active?: 
     const { slug, w, h, amp } = it.photo;
     return (
       <span className={`${className ?? ''} has-photo`}>
-        <DepthPhoto className="dp" slug={slug} width={w} height={h} alt={it.name} active={active} paused={paused} amplitude={amp} />
+        {/* cover: a foto preenche a caixa (quadrado da Mesa/Bar ou a tela inteira do detalhe), centrada */}
+        <span className="dp-cover" style={{ ['--ar' as string]: String(w / h) }}>
+          <DepthPhoto className="dp" slug={slug} width={w} height={h} alt={it.name} active={active} paused={paused} amplitude={amp} />
+        </span>
       </span>
     );
   }

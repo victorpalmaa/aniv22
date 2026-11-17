@@ -214,7 +214,7 @@ export function Surpresa() {
               </p>
               {artist.ig && (
                 <a className="ig" href={artist.ig} target="_blank" rel="noopener">
-                  Acesse o Instagram para ver
+                  Ver no Instagram
                 </a>
               )}
             </div>

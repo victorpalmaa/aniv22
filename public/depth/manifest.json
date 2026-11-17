@@ -1,146 +1,158 @@
 [
   {
-    "slug": "agua",
-    "w": 892,
+    "slug": "rucula",
+    "w": 1179,
     "h": 892,
+    "fx": 0.5,
     "kb": {
-      "bg.jpg": 47,
-      "depth.png": 3,
-      "fg.webp": 140,
+      "bg.jpg": 52,
+      "depth.png": 64,
+      "fg.webp": 457,
       "meta.json": 0,
-      "thumb.webp": 4
-    }
-  },
-  {
-    "slug": "campari",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 47,
-      "depth.png": 3,
-      "fg.webp": 95,
-      "meta.json": 0,
-      "thumb.webp": 4
-    }
-  },
-  {
-    "slug": "coca",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 46,
-      "depth.png": 3,
-      "fg.webp": 144,
-      "meta.json": 0,
-      "thumb.webp": 4
-    }
-  },
-  {
-    "slug": "croquete",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 43,
-      "depth.png": 40,
-      "fg.webp": 249,
-      "meta.json": 0,
-      "thumb.webp": 6
+      "thumb.webp": 9
     }
   },
   {
     "slug": "fritas",
-    "w": 892,
+    "w": 1179,
     "h": 892,
+    "fx": 0.5,
     "kb": {
-      "bg.jpg": 43,
-      "depth.png": 39,
-      "fg.webp": 338,
+      "bg.jpg": 56,
+      "depth.png": 40,
+      "fg.webp": 341,
       "meta.json": 0,
       "thumb.webp": 6
-    }
-  },
-  {
-    "slug": "guarana",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 47,
-      "depth.png": 3,
-      "fg.webp": 151,
-      "meta.json": 0,
-      "thumb.webp": 4
-    }
-  },
-  {
-    "slug": "heineken",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 47,
-      "depth.png": 3,
-      "fg.webp": 102,
-      "meta.json": 0,
-      "thumb.webp": 4
     }
   },
   {
     "slug": "mandioca",
-    "w": 892,
+    "w": 1179,
     "h": 892,
+    "fx": 0.5,
     "kb": {
-      "bg.jpg": 42,
-      "depth.png": 41,
-      "fg.webp": 327,
-      "meta.json": 0,
-      "thumb.webp": 6
-    }
-  },
-  {
-    "slug": "pintado",
-    "w": 892,
-    "h": 892,
-    "kb": {
-      "bg.jpg": 43,
+      "bg.jpg": 55,
       "depth.png": 42,
-      "fg.webp": 256,
+      "fg.webp": 329,
       "meta.json": 0,
       "thumb.webp": 6
     }
   },
   {
     "slug": "polenta",
-    "w": 892,
+    "w": 1179,
     "h": 892,
+    "fx": 0.5,
     "kb": {
-      "bg.jpg": 39,
-      "depth.png": 50,
-      "fg.webp": 267,
+      "bg.jpg": 52,
+      "depth.png": 51,
+      "fg.webp": 273,
       "meta.json": 0,
       "thumb.webp": 5
     }
   },
   {
-    "slug": "rucula",
-    "w": 892,
+    "slug": "torresmo",
+    "w": 1179,
     "h": 892,
+    "fx": 0.5,
     "kb": {
-      "bg.jpg": 39,
-      "depth.png": 62,
-      "fg.webp": 452,
+      "bg.jpg": 53,
+      "depth.png": 56,
+      "fg.webp": 408,
       "meta.json": 0,
       "thumb.webp": 9
     }
   },
   {
-    "slug": "torresmo",
-    "w": 892,
+    "slug": "croquete",
+    "w": 1179,
     "h": 892,
+    "fx": 0.499,
     "kb": {
-      "bg.jpg": 40,
-      "depth.png": 54,
-      "fg.webp": 405,
+      "bg.jpg": 55,
+      "depth.png": 41,
+      "fg.webp": 251,
       "meta.json": 0,
-      "thumb.webp": 9
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "pintado",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.499,
+    "kb": {
+      "bg.jpg": 55,
+      "depth.png": 43,
+      "fg.webp": 258,
+      "meta.json": 0,
+      "thumb.webp": 6
+    }
+  },
+  {
+    "slug": "heineken",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.5,
+    "kb": {
+      "bg.jpg": 60,
+      "depth.png": 3,
+      "fg.webp": 103,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "campari",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.5,
+    "kb": {
+      "bg.jpg": 60,
+      "depth.png": 3,
+      "fg.webp": 96,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "coca",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.5,
+    "kb": {
+      "bg.jpg": 60,
+      "depth.png": 4,
+      "fg.webp": 148,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "guarana",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.498,
+    "kb": {
+      "bg.jpg": 60,
+      "depth.png": 3,
+      "fg.webp": 153,
+      "meta.json": 0,
+      "thumb.webp": 4
+    }
+  },
+  {
+    "slug": "agua",
+    "w": 1179,
+    "h": 892,
+    "fx": 0.499,
+    "kb": {
+      "bg.jpg": 59,
+      "depth.png": 4,
+      "fg.webp": 141,
+      "meta.json": 0,
+      "thumb.webp": 4
     }
   }
 ]

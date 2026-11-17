@@ -21,7 +21,8 @@ export type Item = {
   label?: [string, string];
 };
 
-const sq = (slug: string): Photo => ({ slug, w: 892, h: 892 });
+// foto inteira (1179x892): telas quadradas e o detalhe em tela cheia recortam pelo centro (cover)
+const ph = (slug: string): Photo => ({ slug, w: 1179, h: 892 });
 
 /** Ilustrações só para quem ainda não tem foto. */
 export const ART: Record<string, string> = {
@@ -30,27 +31,26 @@ export const ART: Record<string, string> = {
   'caipi-morango': `<svg viewBox="0 0 120 120" aria-hidden="true"><line x1="76" y1="12" x2="62" y2="96" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/><path d="M32 56h56l-4.6 48a5 5 0 0 1-5 4.5H41.6a5 5 0 0 1-5-4.5z" fill="#9a1d3e" opacity=".75"/><g fill="var(--ice)" opacity=".7"><rect x="40" y="46" width="16" height="16" rx="3" transform="rotate(-12 48 54)"/><rect x="62" y="44" width="16" height="16" rx="3" transform="rotate(14 70 52)"/></g><g fill="#d12b3f"><circle cx="48" cy="88" r="5"/><circle cx="54" cy="84" r="4.5"/><circle cx="52" cy="92" r="4"/></g><g fill="#c2263f"><circle cx="68" cy="86" r="5.5"/><circle cx="74" cy="91" r="4"/></g><path d="M28 38h64l-6.4 66a6 6 0 0 1-6 5.5H40.4a6 6 0 0 1-6-5.5z" fill="var(--ice)" opacity=".14" stroke="var(--ice)" stroke-width="1.5"/><path d="M84 30c8-6 16-4 18 2-8 4-14 3-18-2z" fill="#5d8a22"/><circle cx="84" cy="40" r="7" fill="#c2263f"/><circle cx="82" cy="38" r="1.5" fill="#fff" opacity=".6"/></svg>`,
 };
 
-export const CLOCHE: string = `<svg viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="92" rx="50" ry="10" fill="var(--plate-rim)"/><path d="M18 90a42 42 0 0 1 84 0z" fill="var(--gold-deep)"/><path d="M26 86a34 34 0 0 1 30-33" fill="none" stroke="var(--cheese)" stroke-width="3" stroke-linecap="round" opacity=".7"/><circle cx="60" cy="44" r="6" fill="var(--gold)"/><text x="60" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-style="italic" fill="var(--bg)">?</text></svg>`;
 
 export const ITEMS: Item[] = [
   { id: 'parmegiana', name: 'Parmegiana', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', desc: 'O prato da noite, servido com arroz e fritas.', specs: [['Acompanha', 'Arroz e fritas']], pairs: ['heineken', 'coca'] },
-  { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
-  { id: 'fritas', name: 'Fritas', cat: 'Petisco', eyebrow: 'Petiscos · também no prato principal', fx: 'steam', photo: sq('fritas'), desc: 'Porção de batata frita. Também acompanha a parmegiana.', specs: [], pairs: ['heineken', 'coca'] },
-  { id: 'mandioca', name: 'Mandioca', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('mandioca'), desc: 'Porção de mandioca frita.', specs: [], pairs: ['heineken', 'caipi-limao'] },
-  { id: 'polenta', name: 'Polenta', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('polenta'), desc: 'Porção de polenta frita.', specs: [], pairs: ['heineken', 'campari'] },
-  { id: 'torresmo', name: 'Torresmo', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('torresmo'), desc: 'Porção de torresmo, servida com limão.', specs: [], pairs: ['caipi-limao', 'heineken'] },
-  { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
-  { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: sq('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
+  { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
+  { id: 'fritas', name: 'Fritas', cat: 'Petisco', eyebrow: 'Petiscos · também no prato principal', fx: 'steam', photo: ph('fritas'), desc: 'Porção de batata frita. Também acompanha a parmegiana.', specs: [], pairs: ['heineken', 'coca'] },
+  { id: 'mandioca', name: 'Mandioca', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('mandioca'), desc: 'Porção de mandioca frita.', specs: [], pairs: ['heineken', 'caipi-limao'] },
+  { id: 'polenta', name: 'Polenta', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('polenta'), desc: 'Porção de polenta frita.', specs: [], pairs: ['heineken', 'campari'] },
+  { id: 'torresmo', name: 'Torresmo', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('torresmo'), desc: 'Porção de torresmo, servida com limão.', specs: [], pairs: ['caipi-limao', 'heineken'] },
+  { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
+  { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
 ];
 
 export const DRINKS: Item[] = [
-  { id: 'heineken', name: 'Heineken', label: ['Heineken', ''], cat: 'Bar', eyebrow: 'Cerveja', fx: 'bubbles', color: '#1f6b3a', photo: sq('heineken'), desc: 'Long neck bem gelada.', specs: [], pairs: ['fritas', 'torresmo'] },
-  { id: 'campari', name: 'Campari', label: ['Campari', ''], cat: 'Bar', eyebrow: 'Aperitivo', fx: 'sparkle', color: '#b3122e', photo: sq('campari'), desc: 'O bitter italiano, para quem gosta do amargo.', specs: [], pairs: ['polenta', 'rucula'] },
+  { id: 'heineken', name: 'Heineken', label: ['Heineken', ''], cat: 'Bar', eyebrow: 'Cerveja', fx: 'bubbles', color: '#1f6b3a', photo: ph('heineken'), desc: 'Long neck bem gelada.', specs: [], pairs: ['fritas', 'torresmo'] },
+  { id: 'campari', name: 'Campari', label: ['Campari', ''], cat: 'Bar', eyebrow: 'Aperitivo', fx: 'sparkle', color: '#b3122e', photo: ph('campari'), desc: 'O bitter italiano, para quem gosta do amargo.', specs: [], pairs: ['polenta', 'rucula'] },
   { id: 'caipi-limao', name: 'Caipirinha ou caipirosca de limão', label: ['Caipirinha', 'ou caipirosca · limão'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#6f9a2a', desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Limão']], pairs: ['torresmo', 'pintado'] },
   { id: 'caipi-morango', name: 'Caipirinha ou caipirosca de morango', label: ['Caipirinha', 'ou caipirosca · morango'], cat: 'Bar', eyebrow: 'Drink', fx: 'sparkle', color: '#c2263f', desc: 'Com cachaça (caipirinha) ou vodka (caipirosca). Você escolhe na hora.', specs: [['Fruta', 'Morango']], pairs: ['croquete', 'parmegiana'] },
-  { id: 'coca', name: 'Coca-Cola', label: ['Coca-Cola', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#a50f1d', photo: sq('coca'), desc: 'Coca-Cola gelada.', specs: [], pairs: ['parmegiana', 'fritas'] },
-  { id: 'guarana', name: 'Guaraná', label: ['Guaraná', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#3f8f2f', photo: sq('guarana'), desc: 'Guaraná gelado.', specs: [], pairs: ['croquete', 'pintado'] },
-  { id: 'agua', name: 'Água com e sem gás', label: ['Água', 'com e sem gás'], cat: 'Bar', eyebrow: 'Sem álcool', fx: 'bubbles', color: '#4a86a8', photo: sq('agua'), desc: 'Água mineral, com ou sem gás.', specs: [], pairs: ['rucula', 'parmegiana'] },
+  { id: 'coca', name: 'Coca-Cola', label: ['Coca-Cola', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#a50f1d', photo: ph('coca'), desc: 'Coca-Cola gelada.', specs: [], pairs: ['parmegiana', 'fritas'] },
+  { id: 'guarana', name: 'Guaraná', label: ['Guaraná', ''], cat: 'Bar', eyebrow: 'Refrigerante', fx: 'bubbles', color: '#3f8f2f', photo: ph('guarana'), desc: 'Guaraná gelado.', specs: [], pairs: ['croquete', 'pintado'] },
+  { id: 'agua', name: 'Água com e sem gás', label: ['Água', 'com e sem gás'], cat: 'Bar', eyebrow: 'Sem álcool', fx: 'bubbles', color: '#4a86a8', photo: ph('agua'), desc: 'Água mineral, com ou sem gás.', specs: [], pairs: ['rucula', 'parmegiana'] },
 ];
 
 export const BY: Record<string, Item> = Object.fromEntries([...ITEMS, ...DRINKS].map((i) => [i.id, i]));

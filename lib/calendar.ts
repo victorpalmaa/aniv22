@@ -3,9 +3,9 @@ export const EVENT = {
   uid: 'parme-gala-2027@parme.recantocolonial.com.br', // fixo (não renomear com o evento): reimportar atualiza em vez de duplicar
   title: 'Parme & Gala · aniversário do Victor',
   start: '20270115T230000Z', // 20h em Brasília
-  // término ainda não definido: duração provisória de 5h, avisada na descrição
-  end: '20270116T040000Z',
-  description: 'Traje: gala. Término a definir. Detalhes em https://parme.recantocolonial.com.br',
+  // término às 2h de sábado (BRT, UTC-3; sem horário de verão em 2027)
+  end: '20270116T050000Z',
+  description: 'Traje: gala. Término às 2h. Detalhes em https://parme.recantocolonial.com.br',
   location: 'Recanto Colonial, Avenida 29 de Abril, 350, Itatiba - SP',
   url: 'https://parme.recantocolonial.com.br',
 };
