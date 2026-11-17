@@ -25,13 +25,15 @@ export type Item = {
 
 // foto inteira (1179x892): telas quadradas e o detalhe em tela cheia recortam pelo centro (cover)
 const ph = (slug: string): Photo => ({ slug, w: 1179, h: 892 });
+// parmegiana: arroz e batatas têm relevo alto no mapa e, na amplitude padrão (0.05, 0.038), o volume do prato
+// ficava desproporcional; 44% da amplitude deixa o movimento sutil (pedido do Victor, 17/11)
 
 /** Ilustrações só para quem ainda não tem foto. */
 export const ART: Record<string, string> = {};
 
 
 export const ITEMS: Item[] = [
-  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: ph('parmegiana'), video: { src: '/video/parmegiana.mp4', w: 1280, h: 720, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
+  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: { ...ph('parmegiana'), amp: [0.022, 0.017] }, video: { src: '/video/parmegiana.mp4', w: 1280, h: 720, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
   { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
