@@ -144,6 +144,8 @@ html.lock{overflow:hidden}
 .spot-stage[data-state="open"] .palco-name{opacity:1; transform:none}
 .ss-cta{position:absolute; left:0; right:0; bottom:16%; z-index:4; display:flex; justify-content:center; transition:opacity .5s ease}
 .spot-stage[data-state="open"] .ss-cta{opacity:0; pointer-events:none}
+/* botão do holofote discreto: o palco é o protagonista */
+.ss-cta .btn-gold{padding:7px 15px; font-size:12px; letter-spacing:.08em; box-shadow:0 8px 24px rgba(0,0,0,.45)}
 .palco-close{position:absolute; top:12px; right:12px; z-index:6; opacity:0; pointer-events:none; background:rgba(11,9,7,.6); transition:opacity .4s ease 1.6s}
 .spot-stage[data-state="open"] .palco-close{opacity:1; pointer-events:auto}
 .rope{position:absolute; left:0; right:0; bottom:0; height:24%; z-index:5; pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4), opacity .6s ease .3s}

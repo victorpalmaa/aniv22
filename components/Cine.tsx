@@ -15,10 +15,19 @@ import { clamp, io, nums, reduceMotion } from '@/lib/motion';
  *  - data-push="a,b"         aproximação lenta da foto (scale 1,1→1) de a→b
  *  - data-rise="a,b"         pano de boca subindo (vai para cima e franze de leve) de a→b
  *  data-fx="lift": entra subindo e, na saída (c→d), sobe e encolhe sem sumir, para emendar no bloco seguinte
+ *  data-fx="land" + data-land="seletor": igual ao lift, mas termina a LAND_GAP px do elemento indicado
+ *    (deslocamento medido no layout; o lift fixo em 20% da tela deixava um vão que variava com a altura)
  * Movimento reduzido: classe .static, camadas viram blocos empilhados sem animação.
  */
 type Kind = 'show' | 'open' | 'push' | 'rise';
-type Layer = { el: HTMLElement; kind: Kind; n: number[]; fx: string; last: string; vis?: boolean };
+type Layer = { el: HTMLElement; kind: Kind; n: number[]; fx: string; last: string; vis?: boolean; land?: number };
+const LAND_GAP = 28;
+// posição no documento sem transforms (offsetTop ignora transform; data-reveal não atrapalha)
+const docTop = (el: HTMLElement | null) => {
+  let y = 0;
+  for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) y += n.offsetTop;
+  return y;
+};
 
 const seg = (p: number, a: number, b: number) => (b <= a ? (p >= a ? 1 : 0) : clamp((p - a) / (b - a), 0, 1));
 
@@ -36,9 +45,11 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
         if (L.kind === 'show') {
           const [a, b, c = 2, d = 2] = L.n;
           const qi = io(seg(p, a, b)), qo = io(seg(p, c, d));
-          const o = L.fx === 'lift' ? qi : qi * (1 - qo);
+          const o = L.fx === 'lift' || L.fx === 'land' ? qi : qi * (1 - qo);
           const tf =
-            L.fx === 'lift'
+            L.fx === 'land'
+              ? `translate3d(0,${((1 - qi) * H * 0.06 + qo * (L.land ?? 0)).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
+              : L.fx === 'lift'
               ? `translate3d(0,${((1 - qi) * H * 0.06 - qo * H * 0.2).toFixed(1)}px,0) scale(${(1 - 0.14 * qo).toFixed(4)})`
               : L.fx === 'up'
               ? `translate3d(0,${((1 - qi) * H * 0.06 - qo * H * 0.04).toFixed(1)}px,0)`
@@ -85,7 +96,18 @@ export function Cine({ id, height, style, className = '', children }: { id?: str
         const layers: Layer[] = [];
         c.querySelectorAll<HTMLElement>('[data-show],[data-open],[data-push],[data-rise]').forEach((el) => {
           const kind: Kind = el.dataset.show ? 'show' : el.dataset.open ? 'open' : el.dataset.rise ? 'rise' : 'push';
-          layers.push({ el, kind, n: nums(el.dataset[kind]!), fx: el.dataset.fx ?? '', last: '' });
+          const L: Layer = { el, kind, n: nums(el.dataset[kind]!), fx: el.dataset.fx ?? '', last: '' };
+          if (L.fx === 'land') {
+            const target = document.querySelector<HTMLElement>(el.dataset.land ?? '');
+            if (!target) L.fx = 'lift';
+            else {
+              // no fim da cena o fundo do palco coincide com o fim do container
+              const gap = docTop(target) - (docTop(c) + c.offsetHeight); // alvo em relação ao fim da cena
+              const fromBottom = st.clientHeight - (el.offsetTop + el.offsetHeight); // título em relação ao fundo do palco
+              L.land = gap - LAND_GAP + fromBottom + 0.07 * el.offsetHeight; // scale .86 no centro sobe a base 7%
+            }
+          }
+          layers.push(L);
           if (flat) el.style.cssText = el.style.cssText.replace(/(opacity|visibility|transform):[^;]+;?/g, '');
         });
         m.current = { H: st.clientHeight, flat, layers };

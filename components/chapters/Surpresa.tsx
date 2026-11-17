@@ -131,7 +131,7 @@ export function Surpresa() {
               <div className="sp-valance" aria-hidden="true" />
               {/* fim da cena: palco some no fundo do bloco seguinte e a pergunta sobe, sem linha entre os dois */}
               <div className="sp-fade" data-show=".86,.98" aria-hidden="true" />
-              <p className="sp-q" data-show=".74,.84,.88,1" data-fx="lift">
+              <p className="sp-q" data-show=".74,.84,.88,1" data-fx="land" data-land=".sp-head .eyebrow">
                 Quem vai segurar <em>esse microfone?</em>
               </p>
             </div>
