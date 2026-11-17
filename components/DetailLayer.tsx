@@ -6,6 +6,7 @@ import { clamp, io, reduceMotion } from '@/lib/motion';
 import { leaveItem, openItem, takeLastTrigger } from '@/lib/detail';
 import { getJSON, setJSON } from '@/lib/storage';
 import { ItemArt, ItemMini } from './ItemArt';
+import { useMotionPrefs } from './providers/MotionPrefs';
 
 const idFromHash = () => {
   const h = decodeURIComponent(window.location.hash.slice(1));
@@ -100,7 +101,7 @@ export function DetailLayer() {
   const it = id ? BY[id] : null;
   return (
     <div
-      className={`detail-layer${it?.color ? ' drink-mode' : ''}${it?.photo ? ' photo-mode' : ''}`}
+      className={`detail-layer${it?.color ? ' drink-mode' : ''}${it?.photo ? ' photo-mode' : ''}${it?.video ? ' has-video' : ''}`}
       ref={layerRef}
       role="dialog"
       aria-modal="true"
@@ -230,13 +231,59 @@ function Spin360({ it }: { it: Item }) {
   );
 }
 
+/**
+ * Vídeo do prato no lugar da foto: toca uma vez ao abrir (sem som, inline) e para no último quadro.
+ * Vídeo e não sequência de quadros: 507 KB contra 4,4 a 6 MB em WebP, e 24 fps decodificados em hardware.
+ * Autoplay bloqueado (modo economia do iOS) ou "Pausar animações" ligado: fica a imagem com botão para tocar.
+ */
+function DishVideo({ it }: { it: Item }) {
+  const { paused } = useMotionPrefs();
+  const v = it.video!, p = it.photo!;
+  const ref = useRef<HTMLVideoElement>(null);
+  const [st, setSt] = useState<'wait' | 'idle' | 'playing' | 'ended'>(paused ? 'idle' : 'wait');
+  const play = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.currentTime = 0;
+    el.play().catch(() => setSt('idle'));
+  }, []);
+  useEffect(() => {
+    if (!paused) play();
+    // só na abertura: pausar depois não interrompe o vídeo que já está tocando
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <span className="d-art d-full has-photo is-video">
+      <span className="dp-cover" style={{ ['--ar' as string]: String(p.w / p.h) }}>
+        <video
+          ref={ref}
+          src={v.src}
+          poster={paused ? v.last : v.first}
+          muted
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          aria-label={`Vídeo: ${it.name}`}
+          onPlaying={() => setSt('playing')}
+          onEnded={() => setSt('ended')}
+        />
+        {(st === 'idle' || st === 'ended') && (
+          <button className="vid-btn" type="button" onClick={play}>
+            <span aria-hidden="true">{st === 'ended' ? '↻' : '▶'}</span> {st === 'ended' ? 'Ver de novo' : 'Ver o prato'}
+          </button>
+        )}
+      </span>
+    </span>
+  );
+}
+
 /** Item com foto: a foto é a tela (cover), texto sobreposto. Único contexto WebGL vivo enquanto aberto. */
 function PhotoDetail({ it }: { it: Item }) {
   return (
     <>
       {/* fundo da própria foto, desfocado: no desktop preenche a tela em volta da foto inteira */}
       <div className="d-backdrop" aria-hidden="true" style={{ backgroundImage: `url(/depth/${it.photo!.slug}/bg.jpg)` }} />
-      <ItemArt it={it} className="d-art d-full" active />
+      {it.video ? <DishVideo it={it} /> : <ItemArt it={it} className="d-art d-full" active />}
       <div className="d-scrim" aria-hidden="true" />
       <div className="d-top">
         <button className="back" type="button" onClick={leaveItem}>

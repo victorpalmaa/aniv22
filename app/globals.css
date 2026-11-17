@@ -753,4 +753,13 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
   .d-scrim{background:linear-gradient(90deg, rgba(11,10,8,0) 0, rgba(11,10,8,0) calc(100% - min(38vw, 520px) - 4vw), rgba(11,10,8,.72) calc(100% - min(38vw, 520px) + 6vw)), linear-gradient(180deg, rgba(11,10,8,.4) 0, transparent 16%)}
   .d-over{left:auto; right:max(5vw, 32px); top:50%; bottom:auto; transform:translateY(-50%); width:min(440px, 34vw); max-height:84svh}
 }
+.is-video video{display:block; width:100%; height:auto; aspect-ratio:var(--ar); object-fit:cover; background:#0b0a08}
+/* vídeo é horizontal: no celular aparece inteiro (contain) sobre o fundo desfocado, um pouco acima do texto */
+.photo-mode.has-video .d-backdrop{display:block; position:fixed; inset:-60px; z-index:0; background:#0b0a08 center/cover no-repeat; filter:blur(36px) brightness(.5) saturate(1.1)}
+/* prato branco domina a foto: fundo desfocado ficava cinza; mais escuro para casar com o site */
+.photo-mode.has-video .d-backdrop{filter:blur(40px) brightness(.3) saturate(1.2)}
+.detail-layer .d-full.is-video .dp-cover{width:min(100cqw, calc(100cqh * var(--ar)))}
+@media (max-width:859px){ .detail-layer .d-full.is-video .dp-cover{top:36%} }
+.vid-btn{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; border:1px solid rgba(214,184,120,.45); background:rgba(11,10,8,.62); color:var(--fg); font-size:13px; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); white-space:nowrap}
+.vid-btn span{color:var(--gold); font-size:11px}
 .pair img.mini{width:30px; height:30px; border-radius:8px; object-fit:cover}
