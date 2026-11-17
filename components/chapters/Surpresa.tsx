@@ -205,13 +205,10 @@ export function Surpresa() {
                 <i />
                 Confirmado
               </span>
-              <h3>{artist.name}</h3>
-              <p>
-                {artist.role}
-              </p>
-              <p>
-                {artist.when} <span className="tag">a confirmar</span>
-              </p>
+              {/* o nome já aparece grande no palco (aria-hidden lá); aqui fica só para leitor de tela */}
+              <h3 className="sr-only">{artist.name}</h3>
+              <p className="artist-role">{artist.role}</p>
+              <p className="artist-when">{artist.when}</p>
               {artist.ig && (
                 <a className="ig" href={artist.ig} target="_blank" rel="noopener">
                   Ver no Instagram

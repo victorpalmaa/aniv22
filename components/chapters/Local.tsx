@@ -124,7 +124,7 @@ export function Local() {
               <rect x="-22" y="-52" width="44" height="44" fill="var(--ink)" />
               <path d="M-6 -8 L0 2 L6 -8z" fill="var(--ink)" />
               <text y="-23" textAnchor="middle" className="pin-m">
-                P&amp;V
+                P&amp;G
               </text>
             </g>
           </svg>

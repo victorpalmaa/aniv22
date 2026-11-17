@@ -6,7 +6,7 @@ import { clamp, reduceMotion } from '@/lib/motion';
 import { getJSON, setJSON } from '@/lib/storage';
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Layout = { w: number; h: number; door: { x: number; y: number }; areas: Rect[] };
+type Layout = { w: number; h: number; rot: boolean; door: { x: number; y: number }; areas: Rect[] };
 type G = {
   id: string; name: string; area: number; me?: boolean;
   x: number; y: number; vx: number; vy: number;
@@ -15,10 +15,27 @@ type G = {
 };
 type Desired = { id: string; name: string; area: number; me?: boolean };
 
-// ids batem com a tabela areas (0 Bar, 1 Salão, 2 Pista). No celular a planta é desenhada na vertical.
+// Planta ilustrada (public/img/planta.svg, 1180x652, sem fundo). Áreas em coordenadas do desenho;
+// ids batem com a tabela areas (0 Bar, 1 Salão, 2 Pista). Os círculos andam só dentro do retângulo da área:
+//  - Bar: frente do balcão, banquetas e geladeiras (sem o tampo curvo nem a parte de trás do balcão)
+//  - Salão: piso aberto de baixo, da parede inclinada até a pista (as mesas de cima ficam livres)
+//  - Pista: deck de madeira abaixo do palco (o palco não recebe convidado)
+// Desenho escalado para 640 de largura: mesmo sistema de coordenadas da planta anterior,
+// então raio, velocidade, margens da física e tamanho das fontes continuam os validados.
+const K = 640 / 1180;
+const ART = { w: 640, h: 652 * K };
+const sc = (r: Rect): Rect => ({ x: r.x * K, y: r.y * K, w: r.w * K, h: r.h * K });
+const LAND_AREAS: Rect[] = [
+  { x: 560, y: 100, w: 340, h: 210 },
+  { x: 150, y: 320, w: 750, h: 262 },
+  { x: 925, y: 215, w: 235, h: 368 },
+].map(sc);
+const LAND_DOOR = { x: 197 * K, y: 590 * K };
+// celular: desenho girado 90° no sentido horário, (x, y) -> (H - y, x)
+const rot = (r: Rect): Rect => ({ x: ART.h - r.y - r.h, y: r.x, w: r.h, h: r.w });
 const LAYOUTS: Record<'land' | 'port', Layout> = {
-  land: { w: 640, h: 400, door: { x: 20, y: 290 }, areas: [{ x: 20, y: 20, w: 360, h: 130 }, { x: 20, y: 160, w: 360, h: 220 }, { x: 390, y: 20, w: 230, h: 360 }] },
-  port: { w: 400, h: 600, door: { x: 270, y: 20 }, areas: [{ x: 20, y: 20, w: 130, h: 360 }, { x: 160, y: 20, w: 220, h: 360 }, { x: 20, y: 390, w: 360, h: 190 }] },
+  land: { w: ART.w, h: ART.h, rot: false, door: LAND_DOOR, areas: LAND_AREAS },
+  port: { w: ART.h, h: ART.w, rot: true, door: { x: ART.h - LAND_DOOR.y, y: LAND_DOOR.x }, areas: LAND_AREAS.map(rot) },
 };
 const NS = 'http://www.w3.org/2000/svg';
 const el = (tag: string, attrs: Record<string, string | number> = {}, parent?: Element) => {
@@ -91,47 +108,17 @@ export function FloorPlan() {
       const L = S.L;
       svg.setAttribute('viewBox', `0 0 ${L.w} ${L.h}`);
       svg.innerHTML = '';
-      const defs = el('defs', {}, svg);
-      const pat = el('pattern', { id: 'wood', width: 12, height: 12, patternUnits: 'userSpaceOnUse' }, defs);
-      el('rect', { width: 12, height: 12, fill: 'var(--floor-pista)' }, pat);
-      el('line', { x1: 0, y1: 0, x2: 0, y2: 12, stroke: 'var(--wood)', 'stroke-width': 1.5, opacity: 0.6 }, pat);
-      el('rect', { x: 0, y: 0, width: L.w, height: L.h, fill: 'var(--bg-2)' }, svg);
-      const fills = ['var(--floor-bar)', 'var(--floor-salao)', 'url(#wood)'];
-      const deco = el('g', {}, svg);
-      L.areas.forEach((a, i) => el('rect', { x: a.x, y: a.y, width: a.w, height: a.h, rx: 10, fill: fills[i], stroke: 'var(--line)' }, deco));
-      // bar: balcão + 7 banquetas
-      const b = L.areas[0], horiz = b.w > b.h;
-      if (horiz) {
-        el('rect', { x: b.x + 10, y: b.y + 10, width: b.w - 20, height: 14, rx: 4, fill: 'var(--wood)' }, deco);
-        for (let i = 0; i < 7; i++) el('circle', { cx: b.x + 30 + i * ((b.w - 60) / 6), cy: b.y + 36, r: 6, fill: 'var(--line)' }, deco);
-      } else {
-        el('rect', { x: b.x + 10, y: b.y + 10, width: 14, height: b.h - 20, rx: 4, fill: 'var(--wood)' }, deco);
-        for (let i = 0; i < 7; i++) el('circle', { cx: b.x + 36, cy: b.y + 30 + i * ((b.h - 60) / 6), r: 6, fill: 'var(--line)' }, deco);
-      }
-      // salão: 3 mesas
-      const s = L.areas[1];
-      [0.2, 0.5, 0.8].forEach((f) =>
-        horiz
-          ? el('rect', { x: s.x + s.w * f - 18, y: s.y + s.h - 26, width: 36, height: 16, rx: 3, fill: 'var(--bg-3)', stroke: 'var(--line)' }, deco)
-          : el('rect', { x: s.x + s.w - 28, y: s.y + s.h * f - 18, width: 16, height: 36, rx: 3, fill: 'var(--bg-3)', stroke: 'var(--line)' }, deco),
-      );
-      // pista: luzes na parede
-      const p = L.areas[2];
-      for (let i = 0; i < 9; i++) {
-        const c = horiz ? { cx: p.x + p.w - 8, cy: p.y + 20 + i * ((p.h - 40) / 8) } : { cx: p.x + 20 + i * ((p.w - 40) / 8), cy: p.y + p.h - 8 };
-        el('circle', { r: 3, class: 'light', style: `animation-delay:${(i * 0.27).toFixed(2)}s`, ...c }, deco);
-      }
-      const d = L.door;
-      el('rect', { x: d.x - (horiz ? 4 : 16), y: d.y - (horiz ? 16 : 4), width: horiz ? 8 : 32, height: horiz ? 32 : 8, fill: 'var(--gold)' }, deco);
-      el('text', { class: 'cnt', x: d.x + (horiz ? 10 : 20), y: d.y + (horiz ? 4 : 16) }, deco).textContent = 'Entrada';
+      // ilustração como <image>: o navegador rasteriza uma vez; a física roda por cima, só com transform
+      el('image', {
+        href: '/img/planta.svg', width: ART.w, height: ART.h, preserveAspectRatio: 'none',
+        ...(L.rot ? { transform: `translate(${ART.h.toFixed(2)},0) rotate(90)` } : {}),
+      }, svg);
       // áreas clicáveis: hit test nativo do navegador, acessível por teclado e VoiceOver
       S.areaEls = L.areas.map((a, i) => {
         const g = el('g', { class: 'area', role: 'button', tabindex: 0, 'data-area': i }, svg) as SVGGElement;
         el('rect', { class: 'hit', x: a.x, y: a.y, width: a.w, height: a.h, rx: 10 }, g);
         el('rect', { class: 'ring', x: a.x + 2, y: a.y + 2, width: a.w - 4, height: a.h - 4, rx: 9 }, g);
-        let lx = a.x + 12, ly = a.y + 24;
-        if (i === 0 && horiz) ly = a.y + 66;
-        if (i === 0 && !horiz) lx = a.x + 48;
+        const lx = a.x + 14, ly = a.y + 28;
         el('text', { class: 'lbl', x: lx, y: ly }, g).textContent = AREAS[i];
         const c = el('text', { class: 'cnt', x: lx, y: ly + 16 }, g) as SVGTextElement;
         return { g, c };

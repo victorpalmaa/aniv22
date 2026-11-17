@@ -5,7 +5,7 @@ import { DRINKS } from '@/lib/content';
 import { ItemArt } from '../ItemArt';
 import { useMotionPrefs } from '../providers/MotionPrefs';
 import { useScene } from '@/hooks/useScene';
-import { clamp, io, reduceMotion, topH } from '@/lib/motion';
+import { clamp, io, reduceMotion } from '@/lib/motion';
 import { openItem } from '@/lib/detail';
 import { Ride } from '../Ride';
 
@@ -79,15 +79,10 @@ export function Bar() {
     },
   );
 
-  // toque: na da frente abre o detalhe; nas outras, rola até ela virar a da frente
+  // toque em qualquer bebida abre o detalhe dela, esteja na frente ou não (pedido do Victor)
   function onClick(e: React.MouseEvent) {
     const b = (e.target as HTMLElement).closest<HTMLElement>('.drink');
-    if (!b) return;
-    if (b.hasAttribute('data-front')) return openItem(b.dataset.id!, b);
-    const k = DRINKS.findIndex((d) => d.id === b.dataset.id);
-    const ch = chRef.current!, span = ch.offsetHeight - stageRef.current!.offsetHeight;
-    const top = ch.getBoundingClientRect().top + window.scrollY - topH() + span * (k / (NB - 1));
-    window.scrollTo({ top, behavior: reduceMotion() ? 'auto' : 'smooth' });
+    if (b) openItem(b.dataset.id!, b);
   }
 
   return (
