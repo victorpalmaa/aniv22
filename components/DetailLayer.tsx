@@ -233,12 +233,13 @@ function Spin360({ it }: { it: Item }) {
 
 /**
  * Vídeo do prato no lugar da foto: toca uma vez ao abrir (sem som, inline) e para no último quadro.
- * Vídeo e não sequência de quadros: 507 KB contra 4,4 a 6 MB em WebP, e 24 fps decodificados em hardware.
+ * Vídeo e não sequência de quadros: 24 fps decodificados em hardware. Arquivo original sem recompressão
+ * (1280x720, 1,4 Mbps): a versão CRF 26 (0,41 Mbps) borrava a textura.
  * Autoplay bloqueado (modo economia do iOS) ou "Pausar animações" ligado: fica a imagem com botão para tocar.
  */
 function DishVideo({ it }: { it: Item }) {
   const { paused } = useMotionPrefs();
-  const v = it.video!, p = it.photo!;
+  const v = it.video!;
   const ref = useRef<HTMLVideoElement>(null);
   const [st, setSt] = useState<'wait' | 'idle' | 'playing' | 'ended'>(paused ? 'idle' : 'wait');
   const play = useCallback(() => {
@@ -254,7 +255,7 @@ function DishVideo({ it }: { it: Item }) {
   }, []);
   return (
     <span className="d-art d-full has-photo is-video">
-      <span className="dp-cover" style={{ ['--ar' as string]: String(p.w / p.h) }}>
+      <span className="dp-cover" style={{ ['--ar' as string]: String(v.w / v.h) }}>
         <video
           ref={ref}
           src={v.src}
