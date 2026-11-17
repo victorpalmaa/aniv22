@@ -27,6 +27,12 @@ export type Database = {
         Update: { asker_email?: string; asker_name?: string | null; body?: string; created_at?: string; id?: string; party_code?: string };
         Relationships: [];
       };
+      surprise: {
+        Row: { id: number; ig: string | null; name: string; photo_path: string | null; role: string; stage_path: string | null; updated_at: string; when_text: string };
+        Insert: { id?: number; ig?: string | null; name: string; photo_path?: string | null; role: string; stage_path?: string | null; updated_at?: string; when_text: string };
+        Update: { id?: number; ig?: string | null; name?: string; photo_path?: string | null; role?: string; stage_path?: string | null; updated_at?: string; when_text?: string };
+        Relationships: [];
+      };
       rsvps: {
         Row: { created_at: string; email: string; first_name: string; id: string; last_name: string };
         Insert: { created_at?: string; email: string; first_name: string; id: string; last_name: string };
@@ -41,6 +47,7 @@ export type Database = {
       party_code_valid: { Args: { p_code: string }; Returns: boolean };
       rsvp_precheck: { Args: { p_code: string }; Returns: string };
       set_my_room: { Args: { p_area: number }; Returns: undefined };
+      surprise_allowed: { Args: never; Returns: boolean };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

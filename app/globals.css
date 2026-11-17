@@ -157,6 +157,23 @@ html.lock{overflow:hidden}
 .artist-badge i{width:8px; height:8px; border-radius:50%; background:var(--ok)}
 .artist h3{margin:0; font-family:var(--f-display); font-weight:500; font-size:clamp(36px, 7vw, 60px)}
 .artist p{margin:0; color:var(--muted)}
+/* atração revelada: recorte P&B entra no feixe no lugar do microfone */
+.ss-img{transition:filter 1.6s ease, opacity 1s ease}
+.spot-stage[data-artist] .ss-img{opacity:0}
+.ss-artist{position:absolute; left:50%; bottom:0; z-index:1; height:88%; width:auto; max-width:none; transform:translate3d(-50%, 18px, 0); opacity:0; filter:grayscale(1) brightness(.55) contrast(1.05); pointer-events:none; transition:opacity 1.2s ease .2s, transform 1.4s cubic-bezier(.2,.8,.2,1) .2s, filter 1.6s ease .4s}
+.spot-stage[data-artist] .ss-artist{opacity:1; transform:translate3d(-50%, 0, 0); filter:grayscale(1) brightness(1.06) contrast(1.05)}
+/* com a atração, a luz muda de alvo: cone no rosto e poça no chão (a do microfone caía no colo) */
+.spot-stage[data-artist] .ss-beam{background:radial-gradient(26% 16% at 50% 24%, rgba(255,244,214,.22), transparent 72%), radial-gradient(46% 9% at 50% 97%, rgba(255,244,214,.28), transparent 70%), conic-gradient(from 160deg at 30% -10%, transparent 0deg, rgba(255,244,214,.12) 14deg, transparent 30deg)}
+/* base escurece para o nome ler sobre as pernas */
+.spot-stage[data-artist]::after{content:''; position:absolute; left:0; right:0; bottom:0; height:40%; z-index:2; pointer-events:none; background:linear-gradient(180deg, transparent, rgba(11,9,7,.88) 78%)}
+/* mapa de palco: ilustração em fundo branco vira papel (multiply), entra com o scroll */
+.pl-map{display:grid; gap:14px; margin:36px 0 0; opacity:0; transform:translate3d(0,28px,0); transition:opacity .8s ease, transform .9s cubic-bezier(.2,.8,.2,1)}
+.pl-map.in{opacity:1; transform:none}
+.pl-map figcaption{display:grid; gap:6px; justify-items:center; text-align:center}
+.pl-map figcaption p{margin:0}
+.pl-map-lede{font-family:var(--f-display); font-style:italic; font-size:clamp(22px, 5vw, 32px)}
+.pl-map-card{padding:clamp(12px, 3vw, 28px); border-radius:var(--r-card); background:var(--paper); box-shadow:0 30px 60px rgba(0,0,0,.45)}
+.pl-map-card img{display:block; width:100%; height:auto; mix-blend-mode:multiply}
 .spark{position:absolute; top:0; width:6px; height:6px; border-radius:50%; background:var(--gold); z-index:5; pointer-events:none}
 
 /* ---------- Bar: carrossel em arco ---------- */
@@ -671,5 +688,6 @@ a.btn-gold, a.ghost, a.btn-ink, a.ghost-ink, a.ig{text-decoration:none}
 @keyframes msgIn{from{opacity:0; transform:translate3d(0,14px,0)}}
 @media (prefers-reduced-motion: reduce){
   .reveal-on [data-reveal]{opacity:1; transform:none; transition:none}
+  .pl-map{opacity:1; transform:none; transition:none}
   .spot-stage.nudge .ss-dim, .spot-stage.nudge .rope svg, .spot-stage.nudge .ss-cta .btn-gold, .palco-msg{animation:none}
 }

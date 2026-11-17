@@ -4,14 +4,15 @@ import { useParty } from '../providers/PartyProvider';
 import { Cine, CineWord } from '../Cine';
 import { getJSON, setJSON } from '@/lib/storage';
 import { reduceMotion } from '@/lib/motion';
-import { loadSurprise, type Surprise } from '@/lib/surprise';
+import { loadSurprise, preload, type Surprise } from '@/lib/surprise';
 
 type State = 'locked' | 'ready' | 'open';
 const MIC = '/img/mic.webp';
 
 /**
  * 7 · Surpresa: cena fixa (palavra → cortina de veludo abrindo devagar com o scroll → microfone)
- * e, em fluxo normal, o palco do microfone: para confirmados, o holofote acende e revela a atração.
+ * e, em fluxo normal, o palco do microfone: para confirmados, o holofote acende e revela a atração
+ * (foto recortada no lugar do microfone). Rolando, entra o mapa de palco. Imagens vêm do bucket privado.
  */
 export function Surpresa() {
   const { me, openSheet } = useParty();
@@ -20,8 +21,10 @@ export function Surpresa() {
   const [msg, setMsg] = useState(false);
   const [artist, setArtist] = useState<Surprise | null>(null);
   const [artistIn, setArtistIn] = useState(false);
+  const [mapIn, setMapIn] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const mapRef = useRef<HTMLElement>(null);
   const state: State = !me ? 'locked' : opened ? 'open' : 'ready';
 
   useEffect(() => setOpened(!!getJSON('local', 'surp_open', 0)), []);
@@ -36,11 +39,14 @@ export function Surpresa() {
       return;
     }
     let alive = true;
-    loadSurprise().then((s) => {
-      if (!alive) return;
-      setArtist(s);
-      requestAnimationFrame(() => requestAnimationFrame(() => alive && setArtistIn(true)));
-    });
+    loadSurprise()
+      // espera a foto decodificar: a troca microfone → atração acontece inteira, sem a imagem pipocar
+      .then(async (s) => ((await preload(s.photo)) ? s : { ...s, photo: null }))
+      .then((s) => {
+        if (!alive) return;
+        setArtist(s);
+        requestAnimationFrame(() => requestAnimationFrame(() => alive && setArtistIn(true)));
+      });
     return () => {
       alive = false;
     };
@@ -87,6 +93,24 @@ export function Surpresa() {
     p.classList.add('nudge');
   }, [nudge]);
 
+  // Mapa de palco entra quando chega à tela (o RevealObserver global só vê o que existe no mount).
+  const hasMap = state === 'open' && !!artist?.stage;
+  useEffect(() => {
+    const el = mapRef.current;
+    if (!hasMap || !el) return;
+    if (!('IntersectionObserver' in window)) return setMapIn(true);
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        setMapIn(true);
+        io.disconnect();
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.01 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMap]);
+
   return (
     <>
       <div className="anchor" id="surpresa" />
@@ -121,8 +145,9 @@ export function Surpresa() {
               {state === 'locked' ? 'Só quem confirmou presença descobre.' : state === 'ready' ? 'Você confirmou. Acenda o holofote.' : 'Nos vemos na pista.'}
             </p>
           </header>
-          <div className="spot-stage" data-reveal style={{ ['--d' as string]: '120ms' }} ref={stageRef} data-state={state} onClick={(e) => (e.target as Element).closest('.ss-img, .ss-dim') && tryOpen()}>
+          <div className="spot-stage" data-reveal style={{ ['--d' as string]: '120ms' }} ref={stageRef} data-state={state} data-artist={state === 'open' && artistIn && artist?.photo ? '' : undefined} onClick={(e) => (e.target as Element).closest('.ss-img, .ss-dim') && tryOpen()}>
             <img className="ss-img" src={MIC} alt="Microfone num pedestal, sob um feixe de luz" loading="lazy" decoding="async" />
+            {state === 'open' && artist?.photo && <img className="ss-artist" src={artist.photo} alt={`${artist.name} no palco`} decoding="async" />}
             <div className="ss-dim" aria-hidden="true" />
             <div className="ss-beam" aria-hidden="true" />
             <p className="palco-name" aria-hidden="true">
@@ -193,6 +218,17 @@ export function Surpresa() {
                 </a>
               )}
             </div>
+          )}
+          {hasMap && artist?.stage && (
+            <figure className={`pl-map${mapIn ? ' in' : ''}`} ref={mapRef}>
+              <figcaption>
+                <p className="eyebrow">Mapa de palco</p>
+                <p className="pl-map-lede">Quem toca o quê, e onde.</p>
+              </figcaption>
+              <div className="pl-map-card">
+                <img src={artist.stage} alt="Mapa de palco da atração, com a posição de cada músico e instrumento" loading="lazy" decoding="async" />
+              </div>
+            </figure>
           )}
         </div>
       </section>
