@@ -21,6 +21,20 @@ export function partyCode(): string | null {
   return getJSON<string | null>('local', 'party_code', null);
 }
 
+/**
+ * Link da família (?f=...): confirma só com nome e sobrenome, por sessão anônima do Supabase.
+ * Guardado como o código da festa, porque o hash do detalhe pode perder a query string.
+ */
+export function familyCode(): string | null {
+  if (typeof window === 'undefined') return null;
+  const fromUrl = new URLSearchParams(window.location.search).get('f');
+  if (fromUrl) {
+    setJSON('local', 'family_code', fromUrl.trim());
+    return fromUrl.trim();
+  }
+  return getJSON<string | null>('local', 'family_code', null);
+}
+
 export const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
 /**

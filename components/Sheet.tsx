@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type R
 import { useParty, type SheetView } from './providers/PartyProvider';
 import { supabase } from '@/lib/supabase/client';
 import { del, getJSON, setJSON } from '@/lib/storage';
-import { AREAS, isEmail, partyCode, pastDeadline } from '@/lib/party';
+import { AREAS, familyCode, isEmail, partyCode, pastDeadline } from '@/lib/party';
 import { jump } from '@/lib/motion';
 
 type Flow = { step: 'form' | 'code'; mode: 'new' | 'login'; first?: string; last?: string; email?: string; sentAt?: number };
@@ -16,6 +16,9 @@ const RESEND_S = 60; // casa com o "Minimum interval per user" do Auth
 function explain(err: { message?: string; code?: string; status?: number } | null): ReactNode {
   const m = err?.message ?? '';
   if (/bad_code/.test(m)) return 'Esse link está incompleto. Peça ao Victor o link do convite que ele mandou no WhatsApp.';
+  if (/bad_name/.test(m)) return 'Preencha nome e sobrenome.';
+  if (/anonymous.*disabled|anonymous_provider_disabled/i.test(m) || err?.code === 'anonymous_provider_disabled')
+    return 'A confirmação pelo link da família ainda não foi liberada. Avise o Victor.';
   if (/party_full/.test(m)) return 'Infelizmente a lista lotou. Fale com o Victor se quiser entrar na espera.';
   if (err?.status === 429 || /rate limit|over_email_send_rate_limit/i.test(m) || err?.code === 'over_email_send_rate_limit')
     return 'Muitos pedidos de código seguidos. Espere um minuto e tente de novo.';
@@ -56,7 +59,9 @@ export function Sheet() {
         <button className="x" type="button" aria-label="Fechar" onClick={closeSheet}>
           ✕
         </button>
-        {sheet === 'form' && <FormView go={go} sessionEmail={session?.user.email ?? null} refreshMe={refreshMe} />}
+        {/* link da família: só nome e sobrenome, a não ser que já exista sessão com email neste navegador */}
+        {sheet === 'form' && familyCode() && !session?.user.email && <FamilyFormView go={go} refreshMe={refreshMe} />}
+        {sheet === 'form' && !(familyCode() && !session?.user.email) && <FormView go={go} sessionEmail={session?.user.email ?? null} refreshMe={refreshMe} />}
         {sheet === 'login' && <LoginView go={go} />}
         {sheet === 'code' && <CodeView go={go} refreshMe={refreshMe} toast={toast} />}
         {(sheet === 'done' || sheet === 'welcome') && me && <DoneView kind={sheet} close={closeSheet} />}
@@ -155,6 +160,65 @@ function FormView({ go, sessionEmail, refreshMe }: { go: (v: SheetView) => void;
           </button>
         </p>
       )}
+    </>
+  );
+}
+
+/** Link da família: nome e sobrenome e pronto. Sessão anônima do Supabase + RPC que valida o código da família. */
+function FamilyFormView({ go, refreshMe }: { go: (v: SheetView) => void; refreshMe: () => Promise<unknown> }) {
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const [err, setErr] = useState<ReactNode>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    const fi = first.trim(), la = last.trim();
+    if (!fi || !la) return setErr('Preencha nome e sobrenome.');
+    setBusy(true);
+    setErr(null);
+    const sb = supabase();
+    // reaproveita a sessão anônima deste navegador (ex.: cancelou e voltou); só cria se não houver nenhuma
+    const { data: s } = await sb.auth.getSession();
+    if (!s.session) {
+      const { error } = await sb.auth.signInAnonymously();
+      if (error) {
+        setBusy(false);
+        return setErr(explain(error));
+      }
+    }
+    const { error } = await sb.rpc('confirm_rsvp_family', { p_fam: familyCode() ?? '', p_first: fi, p_last: la });
+    if (error) {
+      setBusy(false);
+      return setErr(explain(error));
+    }
+    await refreshMe();
+    setBusy(false);
+    go('done');
+  }
+
+  return (
+    <>
+      <h3 id="sheet-title">Confirmar presença</h3>
+      <p className="sub">{pastDeadline() ? 'O prazo de 05/01 passou, mas ainda dá para confirmar.' : 'É só o seu nome e sobrenome. Cada pessoa confirma o seu.'}</p>
+      <form onSubmit={submit} noValidate>
+        <div className="two">
+          <div className="field">
+            <label htmlFor="ff-first">Nome</label>
+            <input id="ff-first" autoComplete="given-name" value={first} onChange={(e) => setFirst(e.target.value)} autoFocus={isDesktop()} />
+          </div>
+          <div className="field">
+            <label htmlFor="ff-last">Sobrenome</label>
+            <input id="ff-last" autoComplete="family-name" value={last} onChange={(e) => setLast(e.target.value)} />
+          </div>
+        </div>
+        <div aria-live="polite">
+          <Err>{err}</Err>
+        </div>
+        <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
+          Confirmar presença
+        </button>
+      </form>
     </>
   );
 }
@@ -469,10 +533,12 @@ function MineView({ close, cancel, toast, go }: { close: () => void; cancel: () 
           <dt>Lugar</dt>
           <dd>{me.room == null ? 'Ainda não escolheu' : AREAS[me.room]}</dd>
         </div>
-        <div style={{ gridColumn: '1/-1' }}>
-          <dt>Email</dt>
-          <dd>{me.email}</dd>
-        </div>
+        {me.email && (
+          <div style={{ gridColumn: '1/-1' }}>
+            <dt>Email</dt>
+            <dd>{me.email}</dd>
+          </div>
+        )}
       </dl>
       <button
         className="btn-gold"

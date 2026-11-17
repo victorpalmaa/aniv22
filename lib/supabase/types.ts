@@ -16,7 +16,7 @@ export type Database = {
         Relationships: [];
       };
       party_config: {
-        Row: { access_code: string; id: number; max_seats: number };
+        Row: { access_code: string; family_code: string | null; id: number; max_seats: number };
         Insert: { access_code: string; id?: number; max_seats: number };
         Update: { access_code?: string; id?: number; max_seats?: number };
         Relationships: [];
@@ -34,9 +34,9 @@ export type Database = {
         Relationships: [];
       };
       rsvps: {
-        Row: { created_at: string; email: string; first_name: string; id: string; last_name: string };
-        Insert: { created_at?: string; email: string; first_name: string; id: string; last_name: string };
-        Update: { created_at?: string; email?: string; first_name?: string; id?: string; last_name?: string };
+        Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; via: string };
+        Insert: { created_at?: string; email?: string | null; first_name: string; id: string; last_name: string; via?: string };
+        Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; via?: string };
         Relationships: [];
       };
     };
@@ -44,6 +44,7 @@ export type Database = {
     Functions: {
       area_counts: { Args: never; Returns: { area: number | null; total: number }[] };
       confirm_rsvp: { Args: { p_code: string; p_first: string; p_last: string }; Returns: undefined };
+      confirm_rsvp_family: { Args: { p_fam: string; p_first: string; p_last: string }; Returns: undefined };
       party_code_valid: { Args: { p_code: string }; Returns: boolean };
       rsvp_precheck: { Args: { p_code: string }; Returns: string };
       set_my_room: { Args: { p_area: number }; Returns: undefined };

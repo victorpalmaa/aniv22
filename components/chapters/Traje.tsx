@@ -6,16 +6,23 @@ import { Cine, CineWord } from '../Cine';
  * gênero na busca, um perfil que costuma ver moda masculina tende a receber só terno.
  */
 const tiktok = (q: string) => `https://www.tiktok.com/search?q=${encodeURIComponent(q)}`;
+/*
+ * A busca do TikTok exige login no navegador; o link de um vídeo específico abre sem conta.
+ * Com vídeos em `videos`, o card mostra um botão por vídeo; sem vídeos, cai na busca.
+ * Use a URL completa (https://www.tiktok.com/@perfil/video/123...), não o link curto vm.tiktok.com.
+ */
 const LOOKS = [
   {
     who: 'Para elas',
     items: ['Vestido longo', 'Tecidos nobres: brilho, cetim e joias estão liberados', 'Salto e bolsa de mão'],
     q: 'traje gala feminino',
+    videos: [] as string[],
   },
   {
     who: 'Para eles',
     items: ['Smoking ou terno escuro', 'Gravata borboleta ou gravata', 'Camisa social e sapato social de couro'],
     q: 'traje gala masculino',
+    videos: [] as string[],
   },
 ];
 
@@ -57,9 +64,19 @@ export function Traje() {
                     <li key={t}>{t}</li>
                   ))}
                 </ul>
-                <a className="ghost sm tj-tt" href={tiktok(l.q)} target="_blank" rel="noopener">
-                  Ver ideias no TikTok
-                </a>
+                {l.videos.length ? (
+                  <div className="tj-vids">
+                    {l.videos.map((v, k) => (
+                      <a key={v} className="ghost sm tj-tt" href={v} target="_blank" rel="noopener">
+                        {l.videos.length > 1 ? `Inspiração ${k + 1}` : 'Ver inspiração no TikTok'}
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <a className="ghost sm tj-tt" href={tiktok(l.q)} target="_blank" rel="noopener">
+                    Ver ideias no TikTok
+                  </a>
+                )}
               </article>
             ))}
           </div>

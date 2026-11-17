@@ -1,11 +1,12 @@
 'use client';
+import { familyCode } from '@/lib/party';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { RealtimeChannel, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/client';
 import type { GuestPin } from '@/lib/supabase/types';
 import { del, getJSON } from '@/lib/storage';
 
-export type Me = { id: string; first: string; last: string; email: string; room: number | null };
+export type Me = { id: string; first: string; last: string; email: string | null; room: number | null };
 export type SheetView = 'form' | 'login' | 'code' | 'done' | 'welcome' | 'mine' | 'cancelled';
 export type AreaCount = { area: number | null; total: number };
 
@@ -117,6 +118,11 @@ export function PartyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // sessão
+  // guarda o ?f= da família já na chegada: abrir um item troca o hash e a URL pode perder a query
+  useEffect(() => {
+    familyCode();
+  }, []);
+
   useEffect(() => {
     const sb = supabase();
     let alive = true;

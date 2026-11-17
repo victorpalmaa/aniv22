@@ -236,6 +236,7 @@ html.lock{overflow:hidden}
 /* os cards sobem por cima da parte de baixo do palco enquanto o título se recolhe: sem vão entre os dois */
 .tj-guide{position:relative; z-index:1; margin-top:-40svh}
 @media (max-width:640px){ .tj-guide{margin-top:-46svh} }
+.tj-vids{display:flex; flex-wrap:wrap; gap:8px}
 .tj-cards{display:grid; grid-template-columns:repeat(2, minmax(0, 340px)); justify-content:center; gap:14px}
 .tj-card{display:grid; grid-template-rows:auto 1fr auto; gap:14px; justify-items:center; text-align:center; padding:24px 20px; border-radius:var(--r-card); background:var(--bg-2); border:1px solid var(--line); min-width:0}
 .tj-card .k{margin:0; font-family:var(--f-display); font-size:30px; line-height:1; color:var(--fg)}
