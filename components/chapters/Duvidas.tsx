@@ -12,6 +12,9 @@ const FAQ: [string, string][] = [
 ];
 
 /** 8 · Dúvidas: FAQ + "Pergunte ao Victor" pelo WhatsApp (texto escrito aqui abre a conversa já preenchido). */
+/** abre a mensagem no WhatsApp; as perguntas do convidado vêm logo abaixo, uma por linha */
+const GREETING = 'Olá Victor, segue algumas dúvidas do seu aniversário:';
+
 export function Duvidas() {
   const [text, setText] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
@@ -24,7 +27,7 @@ export function Duvidas() {
     if (!ready) return;
     // wa.me abre o app (iOS/Android) ou o WhatsApp Web; location em vez de nova aba: no navegador do WhatsApp
     // uma aba nova abre por cima e o convidado se perde
-    window.location.href = `https://wa.me/${VICTOR_WHATSAPP}?text=${encodeURIComponent(body)}`;
+    window.location.href = `https://wa.me/${VICTOR_WHATSAPP}?text=${encodeURIComponent(`${GREETING}\n\n${body}`)}`;
   }
 
   return (
@@ -45,11 +48,11 @@ export function Duvidas() {
           <div className="panel wide">
             <p className="eyebrow">Ficou alguma dúvida?</p>
             <h3>Pergunte ao Victor</h3>
-            <p className="muted">Escreva aqui e envie: abre a conversa com o Victor no WhatsApp, com a mensagem pronta.</p>
+            <p className="muted">Escreva suas dúvidas, uma por linha, e envie: abre a conversa com o Victor no WhatsApp, com a mensagem pronta e começando com “{GREETING}”</p>
             <form onSubmit={send} noValidate>
               <div className="field">
-                <label htmlFor="q-text">Sua mensagem</label>
-                <textarea id="q-text" maxLength={500} placeholder="Ex.: posso chegar um pouco mais tarde?" value={text} onChange={(e) => (setText(e.target.value), setMsg(null))} />
+                <label htmlFor="q-text">Suas dúvidas</label>
+                <textarea id="q-text" maxLength={500} placeholder={'Ex.:\nPosso chegar um pouco mais tarde?\nTem opção vegetariana?'} value={text} onChange={(e) => (setText(e.target.value), setMsg(null))} />
                 <span className="counter">{text.length}/500</span>
               </div>
               <div aria-live="polite">{msg && <p className="msg err" style={{ marginTop: 10 }}>{msg}</p>}</div>
