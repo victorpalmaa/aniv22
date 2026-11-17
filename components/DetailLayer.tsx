@@ -233,8 +233,9 @@ function Spin360({ it }: { it: Item }) {
 
 /**
  * Vídeo do prato no lugar da foto: toca uma vez ao abrir (sem som, inline) e para no último quadro.
- * Vídeo e não sequência de quadros: 24 fps decodificados em hardware. Arquivo original sem recompressão
- * (1280x720, 1,4 Mbps): a versão CRF 26 (0,41 Mbps) borrava a textura.
+ * Vídeo e não sequência de quadros: 600 quadros 1080p pesariam dezenas de MB; o vídeo é decodificado em hardware.
+ * Fonte 1920x1080 60 fps (12,4 Mbps). Entregue em H.264 CRF 18, transparente a olho (PSNR >= 46 dB):
+ * 1080p no desktop (6,6 MB) e 720p no celular (2,75 MB; a tela do iPhone mostra ~1170 px de largura).
  * Autoplay bloqueado (modo economia do iOS) ou "Pausar animações" ligado: fica a imagem com botão para tocar.
  */
 function DishVideo({ it }: { it: Item }) {
@@ -258,7 +259,6 @@ function DishVideo({ it }: { it: Item }) {
       <span className="dp-cover" style={{ ['--ar' as string]: String(v.w / v.h) }}>
         <video
           ref={ref}
-          src={v.src}
           poster={paused ? v.last : v.first}
           muted
           playsInline
@@ -267,7 +267,11 @@ function DishVideo({ it }: { it: Item }) {
           aria-label={`Vídeo: ${it.name}`}
           onPlaying={() => setSt('playing')}
           onEnded={() => setSt('ended')}
-        />
+        >
+          {/* primeira <source> que casar: 720p no celular, 1080p no resto */}
+          <source src={v.srcSm} type="video/mp4" media="(max-width: 859px)" />
+          <source src={v.src} type="video/mp4" />
+        </video>
         {(st === 'idle' || st === 'ended') && (
           <button className="vid-btn" type="button" onClick={play}>
             <span aria-hidden="true">{st === 'ended' ? '↻' : '▶'}</span> {st === 'ended' ? 'Ver de novo' : 'Ver o prato'}

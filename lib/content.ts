@@ -17,7 +17,8 @@ export type Item = {
   pairs: string[];
   photo?: Photo;
   /** vídeo curto do prato: toca no detalhe (sem som, uma vez) no lugar da foto. poster = último quadro */
-  video?: { src: string; w: number; h: number; first: string; last: string };
+  /** src: 1080p (desktop); srcSm: 720p (celular, até 859 px). Ambos 60 fps, H.264 CRF 18 (PSNR >= 46 dB do original) */
+  video?: { src: string; srcSm: string; w: number; h: number; first: string; last: string };
   /** cor da bebida: inunda o fundo do detalhe e acende o pedestal no Bar */
   color?: string;
   label?: [string, string];
@@ -33,7 +34,7 @@ export const ART: Record<string, string> = {};
 
 
 export const ITEMS: Item[] = [
-  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: { ...ph('parmegiana'), amp: [0.022, 0.017] }, video: { src: '/video/parmegiana.mp4', w: 1280, h: 720, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
+  { id: 'parmegiana', name: 'Arroz, parmegiana e fritas', cat: 'Prato principal', eyebrow: 'Prato principal', fx: 'steam', photo: { ...ph('parmegiana'), amp: [0.022, 0.017] }, video: { src: '/video/parmegiana-1080.mp4', srcSm: '/video/parmegiana-720.mp4', w: 1920, h: 1080, first: '/video/parmegiana-inicio.webp', last: '/video/parmegiana-final.webp' }, desc: 'O prato principal da noite.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'croquete', name: 'Croquete', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('croquete'), desc: 'Porção de croquete.', specs: [], pairs: ['heineken', 'coca'] },
   { id: 'pintado', name: 'Bolinho de pintado', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('pintado'), desc: 'Bolinho de peixe pintado.', specs: [], pairs: ['caipi-limao', 'heineken'] },
   { id: 'rucula', name: 'Salada de rúcula', cat: 'Petisco', eyebrow: 'Petiscos', fx: 'steam', photo: ph('rucula'), desc: 'Salada de rúcula para abrir a mesa.', specs: [], pairs: ['campari', 'caipi-limao'] },
