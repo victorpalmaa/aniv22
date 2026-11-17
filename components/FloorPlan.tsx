@@ -6,9 +6,10 @@ import { clamp, reduceMotion } from '@/lib/motion';
 import { getJSON, setJSON } from '@/lib/storage';
 
 type Rect = { x: number; y: number; w: number; h: number };
-type Layout = { w: number; h: number; rot: boolean; door: { x: number; y: number }; areas: Rect[] };
+type Pt = { x: number; y: number };
+type Layout = { w: number; h: number; rot: boolean; door: Pt; areas: Rect[][]; labels: Pt[] };
 type G = {
-  id: string; name: string; area: number; me?: boolean;
+  id: string; name: string; area: number; me?: boolean; ri?: number; // ri: retângulo da área em que o convidado anda
   x: number; y: number; vx: number; vy: number;
   fly?: { t: number; sx: number; sy: number; tx: number; ty: number } | null;
   el?: SVGGElement | null;
@@ -16,26 +17,42 @@ type G = {
 type Desired = { id: string; name: string; area: number; me?: boolean };
 
 // Planta ilustrada (public/img/planta.svg, 1180x652, sem fundo). Áreas em coordenadas do desenho;
-// ids batem com a tabela areas (0 Bar, 1 Salão, 2 Pista). Os círculos andam só dentro do retângulo da área:
-//  - Bar: frente do balcão, banquetas e geladeiras (sem o tampo curvo nem a parte de trás do balcão)
-//  - Salão: piso aberto de baixo, da parede inclinada até a pista (as mesas de cima ficam livres)
+// ids batem com a tabela areas (0 Bar, 1 Salão, 2 Pista). Cada área é um ou mais retângulos onde os círculos andam:
+//  - Bar: parte cinza atrás do balcão + banquetas
+//  - Salão: frente das geladeiras, miolo abaixo das banquetas, faixa de baixo e o lado esquerdo (mesas reduzidas)
 //  - Pista: deck de madeira abaixo do palco (o palco não recebe convidado)
+// Rótulos ficam em espaço livre do desenho (pedido do Victor), não no canto da área.
 // Desenho escalado para 640 de largura: mesmo sistema de coordenadas da planta anterior,
 // então raio, velocidade, margens da física e tamanho das fontes continuam os validados.
 const K = 640 / 1180;
 const ART = { w: 640, h: 652 * K };
 const sc = (r: Rect): Rect => ({ x: r.x * K, y: r.y * K, w: r.w * K, h: r.h * K });
-const LAND_AREAS: Rect[] = [
-  { x: 560, y: 100, w: 340, h: 210 },
-  { x: 150, y: 320, w: 750, h: 262 },
-  { x: 925, y: 215, w: 235, h: 368 },
-].map(sc);
-const LAND_DOOR = { x: 197 * K, y: 590 * K };
+const sp = (q: Pt): Pt => ({ x: q.x * K, y: q.y * K });
+const LAND_AREAS: Rect[][] = [
+  [{ x: 470, y: 50, w: 200, h: 255 }],
+  [
+    { x: 680, y: 105, w: 220, h: 240 },
+    { x: 440, y: 310, w: 200, h: 130 },
+    { x: 480, y: 495, w: 420, h: 85 },
+    { x: 110, y: 60, w: 225, h: 330 },
+  ],
+  [{ x: 925, y: 215, w: 235, h: 368 }],
+].map((rs) => rs.map(sc));
+const LAND_LABELS: Pt[] = [{ x: 528, y: 96 }, { x: 775, y: 128 }, { x: 1042, y: 392 }].map(sp);
+const LAND_DOOR = sp({ x: 197, y: 590 });
 // celular: desenho girado 90° no sentido horário, (x, y) -> (H - y, x)
 const rot = (r: Rect): Rect => ({ x: ART.h - r.y - r.h, y: r.x, w: r.h, h: r.w });
+const rotP = (q: Pt): Pt => ({ x: ART.h - q.y, y: q.x });
 const LAYOUTS: Record<'land' | 'port', Layout> = {
-  land: { w: ART.w, h: ART.h, rot: false, door: LAND_DOOR, areas: LAND_AREAS },
-  port: { w: ART.h, h: ART.w, rot: true, door: { x: ART.h - LAND_DOOR.y, y: LAND_DOOR.x }, areas: LAND_AREAS.map(rot) },
+  land: { w: ART.w, h: ART.h, rot: false, door: LAND_DOOR, areas: LAND_AREAS, labels: LAND_LABELS },
+  port: { w: ART.h, h: ART.w, rot: true, door: rotP(LAND_DOOR), areas: LAND_AREAS.map((rs) => rs.map(rot)), labels: LAND_LABELS.map(rotP) },
+};
+const areaSize = (rs: Rect[]) => rs.reduce((t, r) => t + r.w * r.h, 0);
+// sorteia o retângulo pelo tamanho, para a área encher por igual
+const pickRect = (rs: Rect[]) => {
+  let u = Math.random() * areaSize(rs);
+  for (let i = 0; i < rs.length; i++) if ((u -= rs[i].w * rs[i].h) <= 0) return i;
+  return rs.length - 1;
 };
 const NS = 'http://www.w3.org/2000/svg';
 const el = (tag: string, attrs: Record<string, string | number> = {}, parent?: Element) => {
@@ -50,6 +67,8 @@ export function FloorPlan() {
   const svgRef = useRef<SVGSVGElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [choosing, setChoosing] = useState(false);
+  // brincadeira ao escolher o Bar: 1 = "Vai fazer caipirinha...", 2 = "Brinks...", 0 = fechado
+  const [joke, setJoke] = useState<0 | 1 | 2>(0);
   const [agit, setAgit] = useState(50);
   const sim = useRef({
     L: LAYOUTS.land, guests: new Map<string, G>(), radius: [10, 10, 10], agit: 0.5,
@@ -92,7 +111,8 @@ export function FloorPlan() {
     const mq = window.matchMedia('(max-width:640px)');
 
     function place(g: G, from?: { x: number; y: number } | null) {
-      const a = S.L.areas[g.area], p = 18;
+      g.ri = pickRect(S.L.areas[g.area]);
+      const a = S.L.areas[g.area][g.ri], p = 18;
       const tx = a.x + p + Math.random() * (a.w - 2 * p), ty = a.y + p + Math.random() * (a.h - 2 * p);
       if (from) {
         g.x = from.x; g.y = from.y;
@@ -114,13 +134,15 @@ export function FloorPlan() {
         ...(L.rot ? { transform: `translate(${ART.h.toFixed(2)},0) rotate(90)` } : {}),
       }, svg);
       // áreas clicáveis: hit test nativo do navegador, acessível por teclado e VoiceOver
-      S.areaEls = L.areas.map((a, i) => {
+      S.areaEls = L.areas.map((rs, i) => {
         const g = el('g', { class: 'area', role: 'button', tabindex: 0, 'data-area': i }, svg) as SVGGElement;
-        el('rect', { class: 'hit', x: a.x, y: a.y, width: a.w, height: a.h, rx: 10 }, g);
-        el('rect', { class: 'ring', x: a.x + 2, y: a.y + 2, width: a.w - 4, height: a.h - 4, rx: 9 }, g);
-        const lx = a.x + 14, ly = a.y + 28;
-        el('text', { class: 'lbl', x: lx, y: ly }, g).textContent = AREAS[i];
-        const c = el('text', { class: 'cnt', x: lx, y: ly + 16 }, g) as SVGTextElement;
+        for (const a of rs) {
+          el('rect', { class: 'hit', x: a.x, y: a.y, width: a.w, height: a.h, rx: 6 }, g);
+          el('rect', { class: 'ring', x: a.x + 2, y: a.y + 2, width: a.w - 4, height: a.h - 4, rx: 5 }, g);
+        }
+        const { x: lx, y: ly } = L.labels[i];
+        el('text', { class: 'lbl', x: lx, y: ly, 'text-anchor': 'middle' }, g).textContent = AREAS[i];
+        const c = el('text', { class: 'cnt', x: lx, y: ly + 13, 'text-anchor': 'middle' }, g) as SVGTextElement;
         return { g, c };
       });
       S.gLayer = el('g', {}, svg) as SVGGElement;
@@ -147,7 +169,7 @@ export function FloorPlan() {
       const n = [0, 0, 0];
       S.guests.forEach((g) => n[g.area]++);
       // raio adaptado à lotação da área: o bar é pequeno
-      S.radius = S.L.areas.map((a, i) => clamp(Math.sqrt((a.w * a.h) / (Math.max(1, n[i]) * 40)), 6, 10));
+      S.radius = S.L.areas.map((rs, i) => clamp(Math.sqrt(areaSize(rs) / (Math.max(1, n[i]) * 40)), 6, 10));
       S.areaEls.forEach(({ g, c }, i) => {
         c.textContent = `${n[i]} ${n[i] === 1 ? 'pessoa' : 'pessoas'}`;
         g.setAttribute('aria-label', `${AREAS[i]}, ${n[i]} ${n[i] === 1 ? 'pessoa' : 'pessoas'}`);
@@ -180,7 +202,7 @@ export function FloorPlan() {
           if (g.fly.t >= 1) g.fly = null;
           continue;
         }
-        const a = S.L.areas[g.area], R = S.radius[g.area], ag = S.agit;
+        const a = S.L.areas[g.area][g.ri ?? 0] ?? S.L.areas[g.area][0], R = S.radius[g.area], ag = S.agit;
         g.vx += (Math.random() - 0.5) * 0.22 * ag * dt;
         g.vy += (Math.random() - 0.5) * 0.22 * ag * dt;
         for (const h of list) {
@@ -291,7 +313,9 @@ export function FloorPlan() {
     if (me.room != null && !choosing) return;
     setChoosing(false);
     const err = await setRoom(i);
-    toast(err ?? `Você está ${AREAS_IN[i]}`);
+    if (err) return toast(err);
+    if (i === 0) setJoke(1); // Bar
+    else toast(`Você está ${AREAS_IN[i]}`);
   }
 
   function onClick(e: React.MouseEvent<SVGSVGElement>) {
@@ -334,8 +358,17 @@ export function FloorPlan() {
     <>
       <div className={`plan-wrap${isChoosing ? ' choosing' : ''}`} ref={wrapRef}>
         <svg className={`plan${me ? '' : ' anon'}`} ref={svgRef} role="img" aria-label="Planta do restaurante com os convidados" onClick={onClick} onKeyDown={onKey} />
+        {joke > 0 && (
+          <div className="plan-joke" role="alertdialog" aria-labelledby="plan-joke-t" key={joke}>
+            <p id="plan-joke-t">{joke === 1 ? 'Vai fazer caipirinha pros cria!' : 'Brinks, terá barmen bebe'}</p>
+            <button className="btn-gold" type="button" autoFocus onClick={() => setJoke((j) => (j === 1 ? 2 : 0))}>
+              Ok
+            </button>
+          </div>
+        )}
         {!me ? (
-          <div className="plan-overlay">
+          /* desktop: em cima do palco (quem não confirmou não vê que tem palco); celular: embaixo, cobrindo o palco */
+          <div className="plan-overlay on-stage">
             <span>Os nomes aparecem para quem confirmou.</span>
             <button className="btn-gold" type="button" onClick={() => openSheet()}>
               Confirmar presença
