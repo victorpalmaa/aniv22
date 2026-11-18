@@ -308,8 +308,16 @@ function LoginView({ go, refreshMe }: { go: (v: SheetView) => void; refreshMe: (
         <div aria-live="polite">
           <Err>{err}</Err>
         </div>
-        <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
-          Entrar
+        {/* otp-btn: mesmo spinner do botão do código, sem o botão apagar enquanto verifica */}
+        <button className="btn-gold otp-btn" type="submit" aria-busy={busy} disabled={busy}>
+          {busy ? (
+            <>
+              <i className="spin" aria-hidden="true" />
+              Verificando…
+            </>
+          ) : (
+            'Entrar'
+          )}
         </button>
       </form>
       <p className="sub">
@@ -383,8 +391,16 @@ function FamilyLoginView({ go, refreshMe }: { go: (v: SheetView) => void; refres
         <div aria-live="polite">
           <Err>{err}</Err>
         </div>
-        <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
-          Entrar
+        {/* otp-btn: mesmo spinner do botão do código, sem o botão apagar enquanto verifica */}
+        <button className="btn-gold otp-btn" type="submit" aria-busy={busy} disabled={busy}>
+          {busy ? (
+            <>
+              <i className="spin" aria-hidden="true" />
+              Verificando…
+            </>
+          ) : (
+            'Entrar'
+          )}
         </button>
       </form>
       <p className="sub">
