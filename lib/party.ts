@@ -1,4 +1,4 @@
-import { getJSON, setJSON } from './storage';
+import { del, getJSON, setJSON } from './storage';
 
 export const PARTY_START = Date.UTC(2027, 0, 15, 23, 0, 0); // 15/01/2027 20h em Brasília (sem horário de verão)
 export const RSVP_DEADLINE = Date.UTC(2027, 0, 6, 3, 0, 0); // fim do dia 05/01 em Brasília
@@ -27,10 +27,16 @@ export function partyCode(): string | null {
  */
 export function familyCode(): string | null {
   if (typeof window === 'undefined') return null;
-  const fromUrl = new URLSearchParams(window.location.search).get('f');
+  const q = new URLSearchParams(window.location.search);
+  const fromUrl = q.get('f');
   if (fromUrl) {
     setJSON('local', 'family_code', fromUrl.trim());
     return fromUrl.trim();
+  }
+  // link do convite (?c=) manda: o mesmo navegador pode ter guardado o código da família de um acesso anterior
+  if (q.get('c')) {
+    del('local', 'family_code');
+    return null;
   }
   return getJSON<string | null>('local', 'family_code', null);
 }
