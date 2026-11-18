@@ -59,6 +59,8 @@ begin
   -- mesma pessoa abrindo o link em outro navegador (WhatsApp x Safari) ganha outra sessão anônima:
   -- assume a confirmação anterior pelo nome, em vez de aparecer duas vezes na planta.
   -- Só vale entre confirmações da família; nunca apaga quem confirmou por email.
+  -- marca a transação: o aviso por email de cancelamento ignora essa troca (não é cancelamento de verdade)
+  perform set_config('app.reclaim', '1', true);
   delete from public.rsvps
   where via = 'familia'
     and lower(first_name) = lower(v_first)
