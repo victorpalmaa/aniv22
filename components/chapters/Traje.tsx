@@ -9,20 +9,27 @@ const tiktok = (q: string) => `https://www.tiktok.com/search?q=${encodeURICompon
 /*
  * A busca do TikTok exige login no navegador; o link de um vídeo específico abre sem conta.
  * Com vídeos em `videos`, o card mostra um botão por vídeo; sem vídeos, cai na busca.
- * Use a URL completa (https://www.tiktok.com/@perfil/video/123...), não o link curto vm.tiktok.com.
+ * Use a URL completa (…/@perfil/video/123 ou …/@perfil/photo/123), sem ?q= e &t= da busca, não o link curto vm.tiktok.com.
  */
 const LOOKS = [
   {
     who: 'Para elas',
     items: ['Vestido longo', 'Tecidos nobres: brilho, cetim e joias estão liberados', 'Salto e bolsa de mão'],
     q: 'traje gala feminino',
-    videos: [] as string[],
+    videos: [
+      'https://www.tiktok.com/@alexajadue/video/7515796811114614072',
+      'https://www.tiktok.com/@malumatozo4/photo/7675185697212468488',
+    ],
   },
   {
     who: 'Para eles',
     items: ['Smoking ou terno escuro', 'Gravata borboleta ou gravata', 'Camisa social e sapato social de couro'],
     q: 'traje gala masculino',
-    videos: [] as string[],
+    videos: [
+      'https://www.tiktok.com/@sweetsuit.mx/photo/7675109202137795848',
+      'https://www.tiktok.com/@the.mens.edit/photo/7683197536647089426',
+      'https://www.tiktok.com/@hlm.style/photo/7656926423185181960',
+    ],
   },
 ];
 
