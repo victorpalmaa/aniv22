@@ -14,7 +14,7 @@ const tiktok = (q: string) => `https://www.tiktok.com/search?q=${encodeURICompon
 const LOOKS = [
   {
     who: 'Para elas',
-    items: ['Vestido longo', 'Tecidos nobres: brilho, cetim e joias estão liberados', 'Salto e bolsa de mão'],
+    items: ['Vestido longo', 'Tecidos nobres: brilho, cetim e joias', 'Salto e bolsa de mão'],
     q: 'traje gala feminino',
     videos: [
       'https://www.tiktok.com/@alexajadue/video/7515796811114614072',
@@ -72,7 +72,7 @@ export function Traje() {
                   ))}
                 </ul>
                 {l.videos.length ? (
-                  <div className="tj-vids">
+                  <div className={`tj-vids n${l.videos.length}`}>
                     {l.videos.map((v, k) => (
                       <a key={v} className="ghost sm tj-tt" href={v} target="_blank" rel="noopener">
                         {l.videos.length > 1 ? `Inspiração ${k + 1}` : 'Ver inspiração no TikTok'}
