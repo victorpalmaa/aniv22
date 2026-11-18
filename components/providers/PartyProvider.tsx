@@ -101,7 +101,15 @@ export function PartyProvider({ children }: { children: ReactNode }) {
           if (row.user_id !== meRef.current?.id) setLastArrival(row.display_name);
         } else if (p.eventType === 'UPDATE') {
           const row = p.new as GuestPin;
-          setPins((cur) => (row.visible ? cur.map((x) => (x.user_id === row.user_id ? row : x)) : cur.filter((x) => x.user_id !== row.user_id)));
+          // "Já confirmei" troca o user_id do pin; o old (só PK, replica identity default) traz o id antigo
+          const prev = (p.old as Partial<GuestPin>).user_id ?? row.user_id;
+          const hit = (x: GuestPin) => x.user_id === row.user_id || x.user_id === prev;
+          setPins((cur) => {
+            if (!row.visible) return cur.filter((x) => !hit(x));
+            const i = cur.findIndex(hit);
+            if (i < 0) return [...cur, row];
+            return cur.flatMap((x, j) => (j === i ? [row] : hit(x) ? [] : [x]));
+          });
         } else if (p.eventType === 'DELETE') {
           // replica identity default: o DELETE só traz a PK
           const id = (p.old as Partial<GuestPin>).user_id;

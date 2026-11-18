@@ -19,6 +19,7 @@ function explain(err: { message?: string; code?: string; status?: number } | nul
   if (/bad_name/.test(m)) return 'Preencha nome e sobrenome.';
   if (/anonymous.*disabled|anonymous_provider_disabled/i.test(m) || err?.code === 'anonymous_provider_disabled')
     return 'A confirmação pelo link da família ainda não foi liberada. Avise o Victor.';
+  if (/already_confirmed/.test(m)) return 'Este aparelho já está com outra confirmação. Cancele aquela antes ou use outro navegador.';
   if (/party_full/.test(m)) return 'Infelizmente a lista lotou. Fale com o Victor se quiser entrar na espera.';
   if (err?.status === 429 || /rate limit|over_email_send_rate_limit/i.test(m) || err?.code === 'over_email_send_rate_limit')
     return 'Muitos pedidos de código seguidos. Espere um minuto e tente de novo.';
@@ -62,7 +63,8 @@ export function Sheet() {
         {/* link da família: só nome e sobrenome, a não ser que já exista sessão com email neste navegador */}
         {sheet === 'form' && familyCode() && !session?.user.email && <FamilyFormView go={go} refreshMe={refreshMe} />}
         {sheet === 'form' && !(familyCode() && !session?.user.email) && <FormView go={go} sessionEmail={session?.user.email ?? null} refreshMe={refreshMe} />}
-        {sheet === 'login' && <LoginView go={go} />}
+        {sheet === 'login' && familyCode() && !session?.user.email && <FamilyLoginView go={go} refreshMe={refreshMe} />}
+        {sheet === 'login' && !(familyCode() && !session?.user.email) && <LoginView go={go} refreshMe={refreshMe} />}
         {sheet === 'code' && <CodeView go={go} refreshMe={refreshMe} toast={toast} />}
         {(sheet === 'done' || sheet === 'welcome') && me && <DoneView kind={sheet} close={closeSheet} />}
         {sheet === 'mine' && me && <MineView close={closeSheet} cancel={cancel} toast={toast} go={go} />}
@@ -109,6 +111,14 @@ function FormView({ go, sessionEmail, refreshMe }: { go: (v: SheetView) => void;
       return setErr(explain({ message: pre === 'full' ? 'party_full' : pre ?? preErr?.message }));
     }
     if (resumed && sessionEmail === em) {
+      // a confirmação deste email pode ter ido para outro aparelho pelo "Já confirmei": traz de volta, sem duplicar
+      const { error: back } = await sb.rpc('claim_rsvp_by_email', { p_code: code, p_email: em });
+      if (!back) {
+        setBusy(false);
+        saveFlow(null);
+        await refreshMe();
+        return go('welcome');
+      }
       const { error } = await sb.rpc('confirm_rsvp', { p_code: code, p_first: fi, p_last: la });
       setBusy(false);
       if (error) return setErr(explain(error));
@@ -219,11 +229,30 @@ function FamilyFormView({ go, refreshMe }: { go: (v: SheetView) => void; refresh
           Confirmar presença
         </button>
       </form>
+      <p className="sub">
+        Já confirmou em outro aparelho?{' '}
+        <button className="linkish" type="button" onClick={() => (saveFlow({ step: 'form', mode: 'login' }), go('login'))}>
+          Já confirmei
+        </button>
+      </p>
     </>
   );
 }
 
-function LoginView({ go }: { go: (v: SheetView) => void }) {
+/** Garante uma sessão para receber a confirmação: reaproveita a deste navegador ou cria uma anônima. */
+async function ensureSession(): Promise<{ message?: string; code?: string } | null> {
+  const sb = supabase();
+  const { data: s } = await sb.auth.getSession();
+  if (s.session) return null;
+  const { error } = await sb.auth.signInAnonymously();
+  return error;
+}
+
+/**
+ * "Já confirmei" do link ?c=: só o email, sem código. O banco acha a confirmação e passa para esta sessão
+ * (claim_rsvp_by_email). Decisão do Victor: sem verificação extra, nenhum email é enviado.
+ */
+function LoginView({ go, refreshMe }: { go: (v: SheetView) => void; refreshMe: () => Promise<unknown> }) {
   const [email, setEmail] = useState(loadFlow()?.email ?? '');
   const [err, setErr] = useState<ReactNode>(null);
   const [busy, setBusy] = useState(false);
@@ -236,33 +265,41 @@ function LoginView({ go }: { go: (v: SheetView) => void }) {
   async function submit(e: FormEvent) {
     e.preventDefault();
     const em = email.trim().toLowerCase();
-    if (!isEmail(em)) return setErr('Confira o email.');
+    if (!isEmail(em)) return setErr('Confira o email. Ele precisa estar completo, como voce@email.com.');
+    const code = partyCode();
+    if (!code) return setErr(explain({ message: 'bad_code' }));
     setBusy(true);
     setErr(null);
-    // código de 6 dígitos, nunca link: o link abriria no Safari, com storage diferente do in-app do WhatsApp
-    const { error } = await supabase().auth.signInWithOtp({ email: em, options: { shouldCreateUser: false } });
-    setBusy(false);
+    const sErr = await ensureSession();
+    if (sErr) {
+      setBusy(false);
+      return setErr(explain(sErr));
+    }
+    const { error } = await supabase().rpc('claim_rsvp_by_email', { p_code: code, p_email: em });
     if (error) {
-      // TODO(primeiro teste real): confirmar o error.code exato para email inexistente
-      if (error.code === 'otp_disabled' || /signups not allowed/i.test(error.message))
+      setBusy(false);
+      if (/not_found/.test(error.message))
         return setErr(
           <>
-            Esse email ainda não confirmou presença.{' '}
+            Não encontramos confirmação com esse email. Confira se digitou igual ao que usou ou{' '}
             <button className="linkish" type="button" onClick={() => toForm(em)}>
-              Confirmar agora
+              confirme agora
             </button>
+            .
           </>,
         );
       return setErr(explain(error));
     }
-    saveFlow({ step: 'code', mode: 'login', email: em, sentAt: Date.now() });
-    go('code');
+    saveFlow(null);
+    await refreshMe();
+    setBusy(false);
+    go('welcome');
   }
 
   return (
     <>
       <h3 id="sheet-title">Já confirmei</h3>
-      <p className="sub">Digite o email que você usou. Mandamos um código para entrar de novo.</p>
+      <p className="sub">Digite o email que você usou para confirmar.</p>
       <form onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor="l-email">Email</label>
@@ -272,11 +309,86 @@ function LoginView({ go }: { go: (v: SheetView) => void }) {
           <Err>{err}</Err>
         </div>
         <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
-          Receber código
+          Entrar
         </button>
       </form>
       <p className="sub">
         <button className="linkish" type="button" onClick={() => toForm()}>
+          Ainda não confirmei
+        </button>
+      </p>
+    </>
+  );
+}
+
+/** "Já confirmei" do link ?f=: só o nome, sem código. Mesma lógica, buscando por nome (claim_rsvp_by_name). */
+function FamilyLoginView({ go, refreshMe }: { go: (v: SheetView) => void; refreshMe: () => Promise<unknown> }) {
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const [err, setErr] = useState<ReactNode>(null);
+  const [busy, setBusy] = useState(false);
+
+  const toForm = () => {
+    saveFlow(null);
+    go('form');
+  };
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    const fi = first.trim(), la = last.trim();
+    if (!fi || !la) return setErr('Preencha nome e sobrenome.');
+    setBusy(true);
+    setErr(null);
+    const sErr = await ensureSession();
+    if (sErr) {
+      setBusy(false);
+      return setErr(explain(sErr));
+    }
+    const { error } = await supabase().rpc('claim_rsvp_by_name', { p_fam: familyCode() ?? '', p_first: fi, p_last: la });
+    if (error) {
+      setBusy(false);
+      if (/not_found/.test(error.message))
+        return setErr(
+          <>
+            Não encontramos confirmação com esse nome. Confira se escreveu igual ou{' '}
+            <button className="linkish" type="button" onClick={toForm}>
+              confirme agora
+            </button>
+            .
+          </>,
+        );
+      return setErr(explain(error));
+    }
+    saveFlow(null);
+    await refreshMe();
+    setBusy(false);
+    go('welcome');
+  }
+
+  return (
+    <>
+      <h3 id="sheet-title">Já confirmei</h3>
+      <p className="sub">Digite o nome e sobrenome que você usou para confirmar.</p>
+      <form onSubmit={submit} noValidate>
+        <div className="two">
+          <div className="field">
+            <label htmlFor="fl-first">Nome</label>
+            <input id="fl-first" autoComplete="given-name" value={first} onChange={(e) => setFirst(e.target.value)} autoFocus={isDesktop()} />
+          </div>
+          <div className="field">
+            <label htmlFor="fl-last">Sobrenome</label>
+            <input id="fl-last" autoComplete="family-name" value={last} onChange={(e) => setLast(e.target.value)} />
+          </div>
+        </div>
+        <div aria-live="polite">
+          <Err>{err}</Err>
+        </div>
+        <button className="btn-gold" type="submit" aria-busy={busy} disabled={busy}>
+          Entrar
+        </button>
+      </form>
+      <p className="sub">
+        <button className="linkish" type="button" onClick={toForm}>
           Ainda não confirmei
         </button>
       </p>

@@ -43,6 +43,8 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       area_counts: { Args: never; Returns: { area: number | null; total: number }[] };
+      claim_rsvp_by_email: { Args: { p_code: string; p_email: string }; Returns: string };
+      claim_rsvp_by_name: { Args: { p_fam: string; p_first: string; p_last: string }; Returns: string };
       confirm_rsvp: { Args: { p_code: string; p_first: string; p_last: string }; Returns: undefined };
       confirm_rsvp_family: { Args: { p_fam: string; p_first: string; p_last: string }; Returns: undefined };
       party_code_valid: { Args: { p_code: string }; Returns: boolean };
