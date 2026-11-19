@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, type RefObject } from 'react';
+import { SWIPE_EVENT } from './useSwipe';
 
 /**
  * Índice "assentado": o item em foco só é devolvido depois que a rolagem fica parada por `delay` ms.
@@ -25,10 +26,12 @@ export function useSettledIndex(ref: RefObject<number>, delay = 300) {
       t = window.setTimeout(() => set(ref.current ?? -1), delay);
     };
     window.addEventListener('scroll', arm, { passive: true });
+    window.addEventListener(SWIPE_EVENT, arm); // arrastar Mesa/Bar no celular não rola a página
     arm();
     return () => {
       clearTimeout(t);
       window.removeEventListener('scroll', arm);
+      window.removeEventListener(SWIPE_EVENT, arm);
     };
   }, [ref, delay]);
   return idx;

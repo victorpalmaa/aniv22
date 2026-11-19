@@ -12,7 +12,13 @@ import { Ride } from '../Ride';
 
 const NB = DRINKS.length;
 const STEP = 30; // graus entre posições do anel
-const SLOTS = 12; // 12 posições no anel, as bebidas se repetem
+/**
+ * Offset circular de x em [-NB/2, NB/2). Com 7 bebidas e STEP 30°, o offset máximo é ±3.5 (±105°):
+ * cada bebida tem um único botão, e a troca de lado acontece atrás do anel (|a| > 100°, escondida).
+ * Isso substitui os 12 slots fixos com DRINKS[j % NB], que dessincronizavam depois de uma volta (12 não é múltiplo de 7).
+ */
+const wrap = (x: number) => ((((x + NB / 2) % NB) + NB) % NB) - NB / 2;
+const mod = (x: number) => ((x % NB) + NB) % NB;
 
 /** 4 · Bar: carrossel em anel 3D. A da frente sobe e acende; o nome troca como letreiro. */
 export function Bar() {
@@ -37,6 +43,7 @@ export function Bar() {
     steps: NB,
     pxPerStep: () => Math.min(ringW.current * 0.5, 260),
     onP: (p) => render(p * (NB - 1)),
+    loop: true, // gira sem fim para os dois lados; depois da Água volta a Heineken
   });
 
   useScene(
@@ -60,14 +67,14 @@ export function Bar() {
     },
   );
 
-  // desenha o anel na posição pos (0..NB-1; no arraste pode passar um pouco das pontas)
+  // desenha o anel na posição pos (desktop: 0..NB-1 pela rolagem; toque: qualquer real, loop infinito)
   function render(pos: number) {
       const stage = stageRef.current;
       if (!stage || !ringRef.current) return;
-      const R = Math.min(ringW.current * 0.62, 520), rot = pos * STEP;
+      const R = Math.min(ringW.current * 0.62, 520);
       let fs = -1;
       ringRef.current!.querySelectorAll<HTMLElement>('.drink').forEach((el, j) => {
-        const a = ((((j * STEP - rot) % 360) + 540) % 360) - 180; // ângulo relativo à frente, -180..180
+        const a = wrap(j - pos) * STEP; // ângulo relativo à frente, -105..105
         const vis = Math.abs(a) < 100;
         el.style.visibility = vis ? 'visible' : 'hidden';
         if (!vis) return;
@@ -83,17 +90,19 @@ export function Bar() {
         if (front > 0.9) fs = j;
       });
       namesRef.current!.querySelectorAll<HTMLElement>('.nm').forEach((el, k) => {
-        const o = k - pos;
+        const o = wrap(k - pos);
         el.style.setProperty('--ny', (o * 100).toFixed(1) + '%');
         el.style.setProperty('--no', Math.max(0, 1 - Math.abs(o) * 1.6).toFixed(2));
       });
       frontRef.current = fs;
-      const c = clamp(Math.round(pos), 0, NB - 1);
+      const m = mod(pos); // 0..NB, posição dentro da volta
+      const c = mod(Math.round(pos));
       if (c !== cur.current) {
         cur.current = c;
         stage.style.setProperty('--glow', DRINKS[c].color ?? '');
       }
-      const t = clamp(pos / (NB - 1), 0, 1);
+      // desktop: trilho linear de 0 a 1. Toque: posição na volta (m/NB), o ponto volta ao início depois da última
+      const t = touchRef.current ? m / NB : clamp(pos / (NB - 1), 0, 1);
       fillRef.current!.style.transform = `scaleX(${t.toFixed(4)})`;
       dotRef.current!.style.left = (t * 100).toFixed(1) + '%';
   }
@@ -114,14 +123,11 @@ export function Bar() {
             <div className="bar-glow" aria-hidden="true" />
             <div className="bar-ped" aria-hidden="true" />
             <div className="bar-ring" ref={ringRef} onClick={onClick}>
-              {Array.from({ length: SLOTS }, (_, j) => {
-                const d = DRINKS[j % NB];
-                return (
-                  <button key={j} className="drink" type="button" data-slot={j} data-id={d.id} aria-label={d.name} tabIndex={j < NB ? 0 : -1}>
-                    <ItemArt it={d} className="art" active={j === frontSlot && !detail} />
-                  </button>
-                );
-              })}
+              {DRINKS.map((d, j) => (
+                <button key={d.id} className="drink" type="button" data-slot={j} data-id={d.id} aria-label={d.name}>
+                  <ItemArt it={d} className="art" active={j === frontSlot && !detail} />
+                </button>
+              ))}
             </div>
             {/* área de toque grande no centro: abre a bebida da frente (a garrafa sozinha era um alvo pequeno) */}
             <button

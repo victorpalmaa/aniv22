@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { clamp, reduceMotion } from '@/lib/motion';
 
+/** disparado a cada frame do arraste, para quem depende de "parou de mexer" (useSettledIndex) */
+export const SWIPE_EVENT = 'swipe:move';
+
 /** Celular/tablet: dedo, sem mouse. Mesa e Bar viram carrossel de arrastar para o lado. */
 export function useTouchMode() {
   const [touch, setTouch] = useState(false);
@@ -23,6 +26,11 @@ type Opts = {
   pxPerStep: () => number;
   /** recebe o progresso 0..1 a cada frame em que ele muda (sem estado React) */
   onP: (p: number) => void;
+  /**
+   * Loop infinito: o progresso não tem limite (passa de 1 e fica negativo), sem borda elástica.
+   * Quem desenha faz o módulo. Usado no anel do Bar.
+   */
+  loop?: boolean;
 };
 
 /**
@@ -45,6 +53,8 @@ export function useSwipe(ref: RefObject<HTMLElement | null>, o: Opts) {
     const set = (p: number) => {
       S.p = p;
       opts.current.onP(p);
+      // useSettledIndex escuta este evento: arrastar não gera 'scroll' e o WebGL ficava no item antigo
+      window.dispatchEvent(new Event(SWIPE_EVENT));
     };
     const animTo = (target: number) => {
       cancelAnimationFrame(S.raf);
@@ -57,7 +67,13 @@ export function useSwipe(ref: RefObject<HTMLElement | null>, o: Opts) {
       };
       S.raf = requestAnimationFrame(step);
     };
-    goRef.current = (i: number) => animTo(clamp(i, 0, last()) / last());
+    goRef.current = (i: number) => {
+      if (!opts.current.loop) return animTo(clamp(i, 0, last()) / last());
+      // loop: vai pela volta mais curta até o equivalente de i mais perto da posição atual
+      const n = opts.current.steps, pos = S.p * last();
+      const d = ((((i - pos) % n) + n * 1.5) % n) - n / 2;
+      animTo((pos + d) / last());
+    };
 
     let id = -1, x0 = 0, p0 = 0, moved = false, lx = 0, lt = 0, v = 0;
     const down = (e: PointerEvent) => {
@@ -77,10 +93,12 @@ export function useSwipe(ref: RefObject<HTMLElement | null>, o: Opts) {
       const dt = Math.max(1, e.timeStamp - lt);
       v = 0.8 * v + 0.2 * ((lx - e.clientX) / span / dt); // progresso por ms
       lx = e.clientX; lt = e.timeStamp;
-      // borda elástica: passa um pouco do fim e volta
       let p = p0 - dx / span;
-      if (p < 0) p *= 0.35;
-      if (p > 1) p = 1 + (p - 1) * 0.35;
+      // borda elástica: passa um pouco do fim e volta (no loop não há fim)
+      if (!opts.current.loop) {
+        if (p < 0) p *= 0.35;
+        if (p > 1) p = 1 + (p - 1) * 0.35;
+      }
       set(p);
     };
     const up = (e: PointerEvent) => {
@@ -90,7 +108,8 @@ export function useSwipe(ref: RefObject<HTMLElement | null>, o: Opts) {
       // embalo: projeta ~180 ms e encaixa no item; no máximo 2 itens por gesto
       const n = last();
       const proj = S.p + clamp(v * 180, -2 / n, 2 / n);
-      animTo(clamp(Math.round(proj * n) / n, 0, 1));
+      const snap = Math.round(proj * n) / n;
+      animTo(opts.current.loop ? snap : clamp(snap, 0, 1));
     };
     // arraste não vira clique no item embaixo do dedo
     const click = (e: MouseEvent) => {
